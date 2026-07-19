@@ -15,6 +15,7 @@ class Registry {
 
   VerdictEngine? _engine;
   Map<String, String> _meta = const {};
+  Future<void>? _loading;
 
   VerdictEngine get engine => _engine!;
   bool get isLoaded => _engine != null;
@@ -23,8 +24,10 @@ class Registry {
   String get sources => _meta['sources'] ?? '';
   String get registerNote => _meta['register_note'] ?? '';
 
-  Future<void> load() async {
-    if (_engine != null) return;
+  /// Single-flight: concurrent callers share one load.
+  Future<void> load() => _loading ??= _doLoad();
+
+  Future<void> _doLoad() async {
     final dir = await getApplicationDocumentsDirectory();
     final path = '${dir.path}/registry.db';
 

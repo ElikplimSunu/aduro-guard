@@ -90,6 +90,11 @@ class Gemma {
 
   /// Downloads and activates [m], emitting 0–100 progress.
   Stream<int> download(ModelOption m) {
+    if (fake) {
+      return Stream<int>.periodic(
+              const Duration(milliseconds: 60), (i) => (i + 1) * 4)
+          .take(25);
+    }
     final controller = StreamController<int>();
     () async {
       try {
@@ -120,6 +125,7 @@ class Gemma {
 
   /// Installs a model file already on disk (e.g. copied over USB).
   Future<void> importFile(String path) async {
+    if (fake) return;
     await init();
     await FlutterGemma.installModel(
       modelType: ModelType.gemma4,
@@ -129,6 +135,7 @@ class Gemma {
   }
 
   Future<void> delete(ModelOption m) async {
+    if (fake) return;
     await init();
     await FlutterGemma.uninstallModel(m.fileName);
     _model = null;

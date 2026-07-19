@@ -24,7 +24,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
 
   CameraController? _camera;
   String? _cameraError;
-  XFile? _shot;
+  Uint8List? _shot;
   bool _busy = false;
 
   @override
@@ -86,7 +86,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     setState(() => _busy = true);
     try {
       final file = await cam.takePicture();
-      setState(() => _shot = file);
+      final bytes = await file.readAsBytes();
+      if (mounted) setState(() => _shot = bytes);
     } on CameraException {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -100,14 +101,14 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   Future<void> _pick() async {
     final picked =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) setState(() => _shot = picked);
+    if (picked == null) return;
+    final bytes = await picked.readAsBytes();
+    if (mounted) setState(() => _shot = bytes);
   }
 
-  Future<void> _use() async {
-    final bytes = await _shot!.readAsBytes();
-    if (!mounted) return;
+  void _use() {
     Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (_) => ResultScreen(imageBytes: bytes)));
+        builder: (_) => ResultScreen(imageBytes: _shot!)));
   }
 
   @override
@@ -198,9 +199,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
             padding: const EdgeInsets.all(T.s4),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(T.rMd),
-              child: kIsWeb
-                  ? Image.network(_shot!.path, fit: BoxFit.contain)
-                  : Image.file(File(_shot!.path), fit: BoxFit.contain),
+              child: Image.memory(_shot!, fit: BoxFit.contain),
             ),
           ),
         ),

@@ -63,36 +63,47 @@ class VerdictBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: s.bg,
         borderRadius: BorderRadius.circular(T.rLg),
-        border: Border(
-          left: BorderSide(color: s.accent, width: 5),
-          top: BorderSide(color: s.accent.withValues(alpha: 0.14)),
-          right: BorderSide(color: s.accent.withValues(alpha: 0.14)),
-          bottom: BorderSide(color: s.accent.withValues(alpha: 0.14)),
-        ),
+        border: Border.all(color: s.accent.withValues(alpha: 0.2)),
       ),
-      padding: const EdgeInsets.fromLTRB(T.s5, T.s5, T.s5, T.s4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
         children: [
-          Row(
-            children: [
-              Icon(s.icon, size: 26, color: s.fg),
-              const SizedBox(width: T.s3),
-              Expanded(
-                child: Text(
-                  s.headline,
-                  style: T.h2.copyWith(color: s.fg),
-                ),
-              ),
-            ],
+          // The signature detail: a solid accent spine on the left edge.
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 5,
+            child: ColoredBox(color: s.accent),
           ),
-          const SizedBox(height: T.s3),
-          for (final r in verdict.reasons) ...[
-            Padding(
-              padding: const EdgeInsets.only(bottom: T.s2),
-              child: Text(r, style: T.body.copyWith(color: T.neutral800)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(T.s5 + 5, T.s5, T.s5, T.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(s.icon, size: 26, color: s.fg),
+                    const SizedBox(width: T.s3),
+                    Expanded(
+                      child: Text(
+                        s.headline,
+                        style: T.h2.copyWith(color: s.fg),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: T.s3),
+                for (final r in verdict.reasons) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: T.s2),
+                    child:
+                        Text(r, style: T.body.copyWith(color: T.neutral800)),
+                  ),
+                ],
+              ],
             ),
-          ],
+          ),
         ],
       ),
     );

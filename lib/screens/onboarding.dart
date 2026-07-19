@@ -87,7 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _welcome() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: T.s12),
         Text('Aduro Guard', style: T.display),
@@ -126,7 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _brain() {
     final downloading = _progress >= 0;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: T.s12),
         Text('Set up the offline brain', style: T.h1),
