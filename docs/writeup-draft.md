@@ -95,7 +95,10 @@ Live demo flow, phone in airplane mode from the first second:
 Everything runs on a [PHONE MODEL] with 4 to 6 GB of memory on Gemma 4 E2B (2.4GB). The
 stronger E4B build is a settings toggle for 8 GB phones. Model download happens once on
 Wi-Fi; the demo needs zero connectivity. [ADD: measured seconds per scan on the demo
-phone.] The app ships light and dark themes from one token system.
+phone.] The app ships light and dark themes from one token system, a language picker
+where every option is labelled in its own language and the whole UI flips on selection
+(English and Twi chrome today, all five languages for content), and screen-reader
+support: labelled controls, an announced verdict, and 44dp touch targets.
 
 Honest limits: the committed register snapshot is a curated subset of real products (the
 FDA's public register backend was unreachable during build week; the repo ships a

@@ -16,9 +16,9 @@ code, no literacy requirement, no internet.
 
 ## Screenshots
 
-| Home | Result | Dark result | Dark settings |
-| --- | --- | --- | --- |
-| ![Home, light theme](docs/screenshots/home-light.png) | ![Scan result, light theme](docs/screenshots/result-light.png) | ![Scan result, dark theme](docs/screenshots/result-dark.png) | ![Settings, dark theme](docs/screenshots/settings-dark.png) |
+| Onboarding in Twi | Home | Result | Dark result | Dark settings |
+| --- | --- | --- | --- | --- |
+| ![Onboarding with the UI in Twi](docs/screenshots/onboarding-twi.png) | ![Home, light theme](docs/screenshots/home-light.png) | ![Scan result, light theme](docs/screenshots/result-light.png) | ![Scan result, dark theme](docs/screenshots/result-dark.png) | ![Settings, dark theme](docs/screenshots/settings-dark.png) |
 
 ## How it works: Gemma reads, the database decides, Gemma explains
 
@@ -114,6 +114,19 @@ The visual rules live in [DESIGN.md](DESIGN.md) and the tokens in
 in both light and dark themes, Fraunces for display type, Public Sans for text, IBM Plex
 Mono for batch numbers and dates, and verdict colors reserved for verdicts. Appearance
 follows the phone by default and can be pinned to light or dark in Settings.
+
+## Languages and accessibility
+
+The language picker labels every option in its own language, and choosing one flips the
+whole interface immediately. UI chrome ships in English and Twi today; the Twi strings
+live in one reviewable file ([lib/services/strings.dart](lib/services/strings.dart)) with
+each translation beside its English source, and Ewe, Dagbani, and Hausa chrome falls back
+to English until native speakers review translations. Content is in-language for all five.
+
+The app works with screen readers: custom controls carry semantic labels and states, the
+verdict is announced the moment it lands, decorative images are skipped, and touch
+targets meet the 44dp minimum. The hold-to-talk mic always has a typed alternative for
+switch-access users.
 
 ## Honest limits
 
