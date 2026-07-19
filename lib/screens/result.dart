@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/scan.dart';
 import '../models/verdict.dart';
@@ -53,9 +55,14 @@ class _ResultScreenState extends State<ResultScreen> {
       if (!mounted) return;
 
       if (verdict.status != VerdictStatus.unreadable) {
+        final dir = await getApplicationDocumentsDirectory();
+        final imagePath =
+            '${dir.path}/scans/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        await File(imagePath).create(recursive: true);
+        await File(imagePath).writeAsBytes(widget.imageBytes);
         _historyId = await History.instance.add(ScanRecord(
           at: DateTime.now(),
-          imagePath: '',
+          imagePath: imagePath,
           extraction: extraction,
           verdictStatus: verdict.status.name,
           verdictSummary: verdict.reasons.isEmpty ? '' : verdict.reasons.first,

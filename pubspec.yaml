@@ -22,6 +22,7 @@ dependencies:
   flutter_dotenv: ^6.0.1
   flutter_gemma_litertlm: ^1.1.0
   image_picker: ^1.2.3
+  file_selector: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -61,3 +62,18 @@ flutter:
           weight: 400
         - asset: assets/fonts/IBMPlexMono-500.ttf
           weight: 500
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#8F6113"
+  adaptive_icon_foreground: "assets/icon/icon_fg.png"
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#8F6113"
+  image: assets/icon/icon_fg.png
+  android_12:
+    color: "#8F6113"
+    image: assets/icon/icon_fg.png
