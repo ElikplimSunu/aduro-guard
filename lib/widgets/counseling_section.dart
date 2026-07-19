@@ -4,6 +4,7 @@ import '../models/scan.dart';
 import '../models/verdict.dart';
 import '../services/gemma.dart';
 import '../services/history.dart';
+import '../services/languages.dart';
 import '../services/prefs.dart';
 import '../services/tts.dart';
 import '../theme/tokens.dart';
@@ -31,12 +32,19 @@ class _CounselingSectionState extends State<CounselingSection> {
   String _text = '';
   bool _generating = false;
   bool _speaking = false;
+  bool _canSpeak = false;
   String _error = '';
 
   @override
   void initState() {
     super.initState();
+    _refreshCanSpeak();
     _generate();
+  }
+
+  Future<void> _refreshCanSpeak() async {
+    final can = await Tts.instance.canSpeak(_language);
+    if (mounted) setState(() => _canSpeak = can);
   }
 
   @override
@@ -82,6 +90,7 @@ class _CounselingSectionState extends State<CounselingSection> {
       _language = lang;
       _speaking = false;
     });
+    _refreshCanSpeak();
     _generate();
   }
 
@@ -92,7 +101,7 @@ class _CounselingSectionState extends State<CounselingSection> {
       return;
     }
     setState(() => _speaking = true);
-    await Tts.instance.speak(_text.trim());
+    await Tts.instance.speak(_text.trim(), _language);
   }
 
   @override
@@ -101,18 +110,17 @@ class _CounselingSectionState extends State<CounselingSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        Text('What this means', style: T.h3),
+        const SizedBox(height: T.s2),
+        Wrap(
+          spacing: T.s2,
+          runSpacing: T.s2,
           children: [
-            Expanded(child: Text('What this means', style: T.h3)),
-            _LangChip(
-                label: 'English',
-                selected: _language == 'en',
-                onTap: () => _setLanguage('en')),
-            const SizedBox(width: T.s2),
-            _LangChip(
-                label: 'Twi',
-                selected: _language == 'tw',
-                onTap: () => _setLanguage('tw')),
+            for (final l in langs)
+              _LangChip(
+                  label: l.name,
+                  selected: _language == l.code,
+                  onTap: () => _setLanguage(l.code)),
           ],
         ),
         const SizedBox(height: T.s3),
@@ -145,27 +153,27 @@ class _CounselingSectionState extends State<CounselingSection> {
                 Text(_text.trim(), style: T.body.copyWith(height: 1.6)),
               if (!_generating && _text.isNotEmpty) ...[
                 const SizedBox(height: T.s4),
-                Row(
-                  children: [
-                    if (_language == 'en')
-                      OutlinedButton.icon(
-                        onPressed: _toggleSpeak,
-                        style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(0, 40),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: T.s4)),
-                        icon: Icon(
-                            _speaking
-                                ? Icons.stop_circle_outlined
-                                : Icons.volume_up_outlined,
-                            size: 18),
-                        label: Text(_speaking ? 'Stop' : 'Read aloud'),
-                      )
-                    else
-                      Text('Twi voice arrives with the online tier.',
-                          style: T.caption.copyWith(color: c.inkMuted)),
-                  ],
-                ),
+                if (_canSpeak)
+                  OutlinedButton.icon(
+                    onPressed: _toggleSpeak,
+                    style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 40),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: T.s4)),
+                    icon: Icon(
+                        _speaking
+                            ? Icons.stop_circle_outlined
+                            : Icons.volume_up_outlined,
+                        size: 18),
+                    label: Text(_speaking ? 'Stop' : 'Read aloud'),
+                  )
+                else if (langBy(_language).mmsCode != null)
+                  Text(
+                      'Download the ${langBy(_language).name} voice in Settings to hear this aloud.',
+                      style: T.caption.copyWith(color: c.inkMuted))
+                else
+                  Text('A ${langBy(_language).name} voice is on the roadmap.',
+                      style: T.caption.copyWith(color: c.inkMuted)),
               ],
             ],
           ),

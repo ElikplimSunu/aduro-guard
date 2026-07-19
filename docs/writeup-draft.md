@@ -61,8 +61,11 @@ The safety-critical design decision: **the model never invents a verdict.**
    never pass as "Panadol"; single-word spellings short of exact are capped below the
    match threshold.
 3. **Explanation.** Gemma phrases the settled verdict as 3 to 5 simple sentences in
-   English or Asante Twi (few-shot exemplars; medicine names stay in English), spoken via
-   device TTS.
+   English, Twi, Ewe, Dagbani, or Hausa (few-shot exemplars; medicine names stay in
+   English). Speech out is offline as well: the device voice covers English, and Twi,
+   Ewe, and Hausa are synthesized on-device with Meta's open MMS voices via sherpa-onnx,
+   each an optional one-time download. External models are free and publicly available,
+   as the competition rules require.
 4. **Voice follow-up.** The user holds a button and asks in speech. Gemma 4's native audio
    understanding ingests the 16kHz WAV directly, with no separate ASR stack, and answers
    only from the pack's own text. Ask "can a pregnant woman take this?" and, unless the
@@ -98,7 +101,8 @@ Honest limits: the committed register snapshot is a curated subset of real produ
 FDA's public register backend was unreachable during build week; the repo ships a
 resumable exporter that folds in the full register the moment the server answers). "Not
 found" therefore always reads as *verify*, never *fake*. Twi is code-switched everyday
-Twi; spoken Twi waits on an online Khaya TTS tier.
+Twi; Ewe, Dagbani, and Hausa output is newer and labelled early in the app, and the MMS
+voices are intelligible rather than natural.
 
 ## Impact & roadmap (150w, Innovation & Impact)
 
@@ -106,10 +110,9 @@ The register snapshot updates by re-running one script; a build with the full
 30,000-product export is the same APK with a bigger asset. The natural partner is the FDA
 itself: their recalls become push updates, and every "not found" scan is a crowd-sourced
 surveillance signal. The reporting channel (the FDA's 0551112224 WhatsApp line) is
-already in the app copy. Next languages are Ewe, Dagbani, and Hausa; Gemma 4's
-multilingual base plus GhanaNLP's corpora make each one prompt-and-exemplar work, not a
-new model. Apache 2.0 all the way down: weights (Gemma), runtime (flutter_gemma), and
-this repo.
+already in the app copy. Ewe, Dagbani, and Hausa already ship as early-support output;
+maturing them with GhanaNLP corpora exemplars is prompt work, not a new model. Apache 2.0
+all the way down: weights (Gemma), runtime (flutter_gemma), and this repo.
 
 ## Links & acknowledgments (100w)
 

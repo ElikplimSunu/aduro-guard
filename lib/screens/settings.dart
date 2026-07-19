@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../main.dart' show AduroApp;
 import '../services/gemma.dart';
+import '../services/languages.dart';
 import '../services/prefs.dart';
 import '../services/registry.dart';
+import '../services/voices.dart';
 import '../theme/tokens.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -32,17 +34,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _Card(
             child: Column(
               children: [
-                _RadioRow(
-                  label: 'English',
-                  selected: _language == 'en',
-                  onTap: () => _setLanguage('en'),
-                ),
-                const Divider(),
-                _RadioRow(
-                  label: 'Twi',
-                  selected: _language == 'tw',
-                  onTap: () => _setLanguage('tw'),
-                ),
+                for (final (i, l) in langs.indexed) ...[
+                  if (i > 0) const Divider(),
+                  _RadioRow(
+                    label: l.name,
+                    caption: l.early ? 'Early support' : null,
+                    selected: _language == l.code,
+                    onTap: () => _setLanguage(l.code),
+                  ),
+                ],
               ],
             ),
           ),
@@ -82,6 +82,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: T.s3),
           for (final m in modelOptions) ...[
             _ModelCard(option: m),
+            const SizedBox(height: T.s3),
+          ],
+          const SizedBox(height: T.s5),
+          Text('Voices', style: T.h3),
+          const SizedBox(height: T.s1),
+          Text(
+            'Optional offline voices so guidance can be read aloud in local languages. Each is a one-time download.',
+            style: T.small.copyWith(color: c.inkMuted),
+          ),
+          const SizedBox(height: T.s3),
+          for (final l in langs.where((l) => l.mmsCode != null)) ...[
+            _VoiceCard(lang: l),
             const SizedBox(height: T.s3),
           ],
           const SizedBox(height: T.s5),
@@ -151,11 +163,16 @@ class _Card extends StatelessWidget {
 
 class _RadioRow extends StatelessWidget {
   final String label;
+  final String? caption;
   final bool selected;
   final VoidCallback onTap;
 
-  const _RadioRow(
-      {required this.label, required this.selected, required this.onTap});
+  const _RadioRow({
+    required this.label,
+    this.caption,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +183,18 @@ class _RadioRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: T.s2),
         child: Row(
           children: [
-            Expanded(child: Text(label, style: T.body.copyWith(color: c.ink))),
+            Expanded(
+              child: Row(
+                children: [
+                  Text(label, style: T.body.copyWith(color: c.ink)),
+                  if (caption != null) ...[
+                    const SizedBox(width: T.s2),
+                    Text(caption!,
+                        style: T.caption.copyWith(color: c.inkFaint)),
+                  ],
+                ],
+              ),
+            ),
             Icon(
               selected
                   ? Icons.radio_button_checked
@@ -176,6 +204,115 @@ class _RadioRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// One offline voice: install state, download with progress, remove.
+class _VoiceCard extends StatefulWidget {
+  final Lang lang;
+
+  const _VoiceCard({required this.lang});
+
+  @override
+  State<_VoiceCard> createState() => _VoiceCardState();
+}
+
+class _VoiceCardState extends State<_VoiceCard> {
+  bool? _installed;
+  int _progress = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    final installed = await Voices.instance.isInstalled(widget.lang.mmsCode!);
+    if (mounted) setState(() => _installed = installed);
+  }
+
+  Future<void> _download() async {
+    setState(() => _progress = 0);
+    try {
+      await for (final p in Voices.instance.download(widget.lang.mmsCode!)) {
+        if (!mounted) return;
+        setState(() => _progress = p);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content:
+                Text('The download stopped. Check your connection and retry.')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _progress = -1);
+        _check();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final downloading = _progress >= 0;
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                  child: Text('${widget.lang.name} voice',
+                      style: T.bodyStrong.copyWith(color: c.ink))),
+              if (_installed == true)
+                Icon(Icons.check_circle_outline,
+                    size: 18, color: c.successAccent)
+              else
+                Text('115 MB', style: T.caption.copyWith(color: c.inkMuted)),
+            ],
+          ),
+          const SizedBox(height: T.s1),
+          Text('Reads ${widget.lang.name} guidance aloud, offline.',
+              style: T.small.copyWith(color: c.inkMuted)),
+          const SizedBox(height: T.s3),
+          if (downloading) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(T.rSm),
+              child: LinearProgressIndicator(
+                  value: _progress == 0 ? null : _progress / 100,
+                  minHeight: 6),
+            ),
+            const SizedBox(height: T.s2),
+            Text('Downloading… $_progress%',
+                style: T.caption.copyWith(color: c.inkMuted)),
+          ] else if (_installed == true)
+            Row(
+              children: [
+                Text('Installed', style: T.small.copyWith(color: c.inkMuted)),
+                const Spacer(),
+                TextButton(
+                  onPressed: () async {
+                    await Voices.instance.delete(widget.lang.mmsCode!);
+                    _check();
+                  },
+                  style: TextButton.styleFrom(foregroundColor: c.dangerAccent),
+                  child: const Text('Remove'),
+                ),
+              ],
+            )
+          else
+            FilledButton(
+              onPressed: _download,
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 44),
+                  padding: const EdgeInsets.symmetric(horizontal: T.s5)),
+              child: const Text('Download'),
+            ),
+        ],
       ),
     );
   }

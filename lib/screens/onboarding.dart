@@ -112,6 +112,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           selected: _language == 'tw',
           onTap: () => setState(() => _language = 'tw'),
         ),
+        const SizedBox(height: T.s3),
+        Text(
+          'Ewe, Dagbani and Hausa are in Settings.',
+          style: T.caption.copyWith(color: context.c.inkMuted),
+        ),
         const Spacer(),
         FilledButton(
           onPressed: () {

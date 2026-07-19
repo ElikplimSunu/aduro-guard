@@ -8,6 +8,7 @@ import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
 
 import '../models/scan.dart';
 import '../models/verdict.dart';
+import 'languages.dart';
 
 /// A downloadable Gemma 4 model build. Both are ungated on Hugging Face.
 class ModelOption {
@@ -212,20 +213,12 @@ Answer with only the JSON object.''';
 
   // ── Counseling ─────────────────────────────────────────────────────────
 
-  static const _twiExemplar = '''
-Example of the tone for Twi (this one is for a registered, in-date pack):
-"Saa Coartem yi wɔ FDA nhoma no mu, na ne bere nntwaam ɛ. Fa no sɛnea wɔakyerɛ wɔ adaka no so pɛpɛɛpɛ. Fa sie baabi a ɛnyɛ hyew, na mma mmofra nsa nnka. Sɛ wonte nka yiye wɔ akyi a, kɔhwɛ pharmacist anaa clinic."''';
-
-  static const _enExemplar = '''
-Example of the tone for English (this one is for a registered, in-date pack):
-"This pack is in the FDA register and its expiry date has not passed. Take it exactly as the pack instructs. Store it below 30°C, away from children. If you do not feel better, talk to a pharmacist or clinic."''';
-
   /// Streams short plain-language guidance grounded in the verdict + pack.
-  /// The verdict is settled fact from the database — the model only phrases it.
+  /// The verdict is settled fact from the database; the model only phrases it.
   Stream<String> counsel({
     required Extraction extraction,
     required Verdict verdict,
-    required String language, // 'en' | 'tw'
+    required String language, // a code from languages.dart
   }) async* {
     if (fake) {
       final canned = language == 'tw'
@@ -239,9 +232,7 @@ Example of the tone for English (this one is for a registered, in-date pack):
     }
 
     final model = await _ensureModel();
-    final languageLine = language == 'tw'
-        ? 'Write in everyday Asante Twi as spoken in Ghana. Keep medicine names, numbers and "FDA" in English.'
-        : 'Write in plain everyday English.';
+    final lang = langBy(language);
     final prompt = '''
 You are Aduro Guard, a medicine safety helper used in Ghana.
 
@@ -256,14 +247,14 @@ WHAT THE PACK SAYS:
 - Expiry: ${extraction.expiryRaw}
 - Other pack text: ${extraction.packText}
 
-$languageLine
+${lang.promptLine}
 Rules:
 - 3 to 5 short sentences, simple words. No dashes; use plain full sentences.
 - Start by saying what the verdict means for the user.
 - Use ONLY facts from the verdict and pack text above. Never invent doses, uses, or claims that are not printed on the pack.
 - Do not diagnose. For health questions the answer is a pharmacist or clinic.
 - Finish with the single clearest next step.
-${language == 'tw' ? _twiExemplar : _enExemplar}
+${lang.exemplar ?? ''}
 
 Your guidance:''';
 
@@ -305,9 +296,7 @@ Your guidance:''';
     }
 
     final model = await _ensureModel();
-    final languageLine = language == 'tw'
-        ? 'Answer in everyday Asante Twi, keeping medicine names and numbers in English.'
-        : 'Answer in plain everyday English.';
+    final lang = langBy(language);
     final prompt = '''
 You are Aduro Guard, a medicine safety helper used in Ghana. The user scanned a medicine pack and now asks a question about it.
 
@@ -322,7 +311,7 @@ THE PACK (everything known about it):
 Rules:
 - Answer ONLY from the pack facts and verdict above. 2 to 4 short sentences, no dashes.
 - If the answer is not printed on the pack (child doses, pregnancy, mixing with other medicines, what to treat), say plainly that the pack does not say, and that a pharmacist or clinic should answer it. Do not guess.
-- $languageLine
+- ${lang.promptLine}
 ${audioWavBytes != null ? 'The question was spoken aloud and is attached as audio. First understand it, then answer it.' : 'Question: $typedQuestion'}
 
 Your answer:''';

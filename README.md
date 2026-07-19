@@ -48,8 +48,13 @@ precedence. A one-letter near-miss like "Pamadol" can never pass as "Panadol".
 | --- | --- |
 | Vision OCR | Pack photo to structured JSON extraction |
 | Native audio input | Spoken follow-up questions, 16kHz WAV, no separate ASR stack |
-| Multilingual generation | Counseling and answers in English and Asante Twi |
+| Multilingual generation | Counseling and answers in English, Twi, Ewe, Dagbani, and Hausa (the last three labelled early) |
 | Edge inference | Gemma 4 E2B (2.4GB) via flutter_gemma and LiteRT-LM, GPU accelerated |
+
+Speech out is offline too: English uses the device voice, and Twi, Ewe, and Hausa use
+Meta MMS voices (open ONNX models, about 115 MB each) synthesized on-device with
+sherpa-onnx. Each voice is an optional one-time download in Settings, the same pattern
+as the Gemma model itself.
 
 ### Choosing the model
 
@@ -113,10 +118,12 @@ follows the phone by default and can be pinned to light or dark in Settings.
 ## Honest limits
 
 - The snapshot is a subset, so "not found" always means verify, never fake.
-- Twi output is code-switched everyday Twi; spoken Twi waits on an online Khaya TTS tier.
+- Twi output is code-switched everyday Twi. Ewe, Dagbani, and Hausa output is newer and
+  labelled early support in the app.
+- The MMS voices are intelligible rather than natural, and Dagbani has no published
+  voice yet, so it ships as text only.
 - Blister packs with tiny embossed dates can defeat OCR. The app asks for better light
   rather than guessing.
-- Ewe, Dagbani, and Hausa are next on the language roadmap.
 
 ## License
 
