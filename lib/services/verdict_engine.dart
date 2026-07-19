@@ -150,7 +150,12 @@ class VerdictEngine {
           lookalikeNote: lookNote,
           reasons: [
             'The name matches “${matched.name}” in the register, but the pack prints registration number ${e.regNo} while the register lists ${matched.regNo} for that product.',
-            'A registration number that does not match the register is a known counterfeit sign. It can also mean this particular variant is no longer registered.',
+            // A 1-2 character drift is more likely the camera misreading
+            // small print than a forged number; say so instead of alarming.
+            if (_levenshtein(packReg, normalizeReg(matched.regNo)) <= 2)
+              'The two numbers differ only slightly, so the camera may simply have misread the small print. Rescan the number up close to be sure.'
+            else
+              'A registration number that does not match the register is a known counterfeit sign. It can also mean this particular variant is no longer registered.',
             'Verify with your pharmacist or the FDA (0551112224 on WhatsApp) before use.',
           ],
         );
