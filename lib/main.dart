@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'screens/scan.dart';
+import 'services/prefs.dart';
+import 'services/registry.dart';
 import 'theme/theme.dart';
 import 'theme/tokens.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Prefs.instance.load();
+  Registry.instance.load(); // warm the snapshot; screens await it again
   runApp(const AduroApp());
 }
 
@@ -39,7 +45,11 @@ class _ScaffoldPreview extends StatelessWidget {
               Text('Check any medicine before you take it.',
                   style: T.body.copyWith(color: T.neutral600)),
               const SizedBox(height: T.s8),
-              FilledButton(onPressed: () {}, child: const Text('Scan a medicine')),
+              FilledButton(
+                onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ScanScreen())),
+                child: const Text('Scan a medicine'),
+              ),
             ],
           ),
         ),
