@@ -47,6 +47,21 @@ class History {
     });
   }
 
+  /// Re-writes a scan after a second side improved the extraction.
+  Future<void> updateResult(
+      int id, Extraction e, String status, String summary) async {
+    final db = await _open();
+    await db.update(
+        'scans',
+        {
+          'extraction': jsonEncode(e.toJson()),
+          'verdict_status': status,
+          'verdict_summary': summary,
+        },
+        where: 'id = ?',
+        whereArgs: [id]);
+  }
+
   Future<void> updateCounseling(int id, String counseling) async {
     final db = await _open();
     await db.update('scans', {'counseling': counseling},

@@ -37,6 +37,7 @@ class _ResultScreenState extends State<ResultScreen> {
   Verdict? _verdict;
   String _error = '';
   int? _historyId;
+  int _extraShots = 0;
 
   @override
   void initState() {
@@ -91,6 +92,44 @@ class _ResultScreenState extends State<ResultScreen> {
   void _scanAgain() {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const ScanScreen()));
+  }
+
+  /// Another face of the same box: read it, merge the fields, re-decide.
+  Future<void> _addSide() async {
+    final bytes = await Navigator.of(context).push<Uint8List>(
+        MaterialPageRoute(builder: (_) => const ScanScreen(returnShot: true)));
+    if (bytes == null || !mounted) return;
+    setState(() => _stage = _Stage.reading);
+    try {
+      final second = await Gemma.instance.extract(bytes);
+      if (!mounted) return;
+      final merged = _extraction!.merge(second);
+      setState(() {
+        _extraction = merged;
+        _stage = _Stage.checking;
+      });
+      await Registry.instance.load();
+      final verdict = Registry.instance.engine.evaluate(merged);
+      if (!mounted) return;
+      if (_historyId != null) {
+        await History.instance.updateResult(_historyId!, merged,
+            verdict.status.name, verdict.reasons.isEmpty ? '' : verdict.reasons.first);
+      }
+      if (!mounted) return;
+      setState(() {
+        _verdict = verdict;
+        _stage = _Stage.done;
+        _extraShots++;
+      });
+      SemanticsService.sendAnnouncement(View.of(context),
+          verdictHeadline(verdict.status), TextDirection.ltr);
+    } catch (_) {
+      if (!mounted) return;
+      // The first result stands; only the extra side failed.
+      setState(() => _stage = _Stage.done);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(S.sideFailed)));
+    }
   }
 
   @override
@@ -194,6 +233,44 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  List<String> _missing(Extraction e) => [
+        if (e.expiryRaw.isEmpty) S.expiry,
+        if (e.batchNumber.isEmpty) S.batch,
+        if (e.manufacturer.isEmpty) S.madeBy,
+        if (e.regNo.isEmpty) S.fdaNumber,
+      ];
+
+  /// Asks for the specific missing details only after a verdict exists:
+  /// no upfront instructions, one concrete explained request.
+  Widget _missingCard(Extraction e) {
+    final c = context.c;
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(T.rMd),
+        border: Border.all(color: c.hairline),
+      ),
+      padding: const EdgeInsets.all(T.s4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${S.notSeenOnPack} ${_missing(e).join(' · ')}',
+              style: T.small.copyWith(color: c.inkMuted)),
+          const SizedBox(height: T.s3),
+          OutlinedButton.icon(
+            onPressed: _addSide,
+            style: OutlinedButton.styleFrom(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(horizontal: T.s4)),
+            icon: const Icon(Icons.photo_camera_outlined, size: 18),
+            label: Text(S.addAnotherSide),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _resultView() {
     final c = context.c;
     final e = _extraction!;
@@ -243,14 +320,26 @@ class _ResultScreenState extends State<ResultScreen> {
           ),
         ),
         ),
+        if (_missing(e).isNotEmpty && _extraShots < 2) ...[
+          const SizedBox(height: T.s3),
+          Entrance(index: 3, child: _missingCard(e)),
+        ],
         const SizedBox(height: T.s6),
         Entrance(
             index: 3,
             child: CounselingSection(
-                extraction: e, verdict: v, historyId: _historyId)),
+                // Remounts after a second side changes the extraction.
+                key: ValueKey('counsel$_extraShots'),
+                extraction: e,
+                verdict: v,
+                historyId: _historyId)),
         const SizedBox(height: T.s6),
         Entrance(
-            index: 4, child: FollowUpSection(extraction: e, verdict: v)),
+            index: 4,
+            child: FollowUpSection(
+                key: ValueKey('follow$_extraShots'),
+                extraction: e,
+                verdict: v)),
         const SizedBox(height: T.s8),
         Entrance(
             index: 5,

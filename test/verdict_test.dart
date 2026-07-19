@@ -86,6 +86,22 @@ void main() {
     });
   });
 
+  group('extraction merge (second box face)', () {
+    test('first read wins, gaps fill, pack text concatenates', () {
+      const front = Extraction(productName: 'Lufart', packText: 'front text');
+      const side = Extraction(
+          productName: 'ignored',
+          batchNumber: 'T015G023',
+          expiryRaw: '09/2026',
+          packText: 'side text');
+      final m = front.merge(side);
+      expect(m.productName, 'Lufart');
+      expect(m.batchNumber, 'T015G023');
+      expect(m.expiryRaw, '09/2026');
+      expect(m.packText, 'front text\nside text');
+    });
+  });
+
   group('verdicts', () {
     test('registered brand, in date', () {
       final v = engine.evaluate(const Extraction(

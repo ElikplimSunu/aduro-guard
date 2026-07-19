@@ -13,8 +13,13 @@ import 'result.dart';
 
 /// Camera capture with a confirm step. On desktop (no camera plugin support)
 /// the screen offers photo picking only — same downstream flow.
+///
+/// With [returnShot] the confirmed photo pops back to the caller instead of
+/// starting a new result: used to add another face of the same box.
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
+  final bool returnShot;
+
+  const ScanScreen({super.key, this.returnShot = false});
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -108,6 +113,10 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   }
 
   void _use() {
+    if (widget.returnShot) {
+      Navigator.of(context).pop(_shot);
+      return;
+    }
     Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (_) => ResultScreen(imageBytes: _shot!)));
   }
@@ -119,7 +128,12 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
       appBar: AppBar(
         backgroundColor: T.neutral950,
         foregroundColor: T.neutral0,
-        title: Text(_shot == null ? S.scanAMedicine : S.useThisPhoto,
+        title: Text(
+            _shot != null
+                ? S.useThisPhoto
+                : widget.returnShot
+                    ? S.addAnotherSide
+                    : S.scanAMedicine,
             style: T.h3.copyWith(color: T.neutral0)),
         iconTheme: const IconThemeData(color: T.neutral0, size: 22),
       ),
@@ -206,7 +220,9 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
           child: Padding(
             padding: const EdgeInsets.all(T.s4),
             child: Hero(
-              tag: 'scan-shot',
+              // Distinct tag in add-a-side mode so it never flies against
+              // the first photo's hero on the result page underneath.
+              tag: widget.returnShot ? 'scan-shot-extra' : 'scan-shot',
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(T.rMd),
                 // cacheWidth: preview needs no full-res texture (and the

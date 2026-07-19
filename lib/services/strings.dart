@@ -156,6 +156,13 @@ abstract final class S {
   static String get downloadStopped => _l(
       'The download stopped. Check your connection and retry.');
   static String get importFailed => _l('That file could not be imported.');
+  static String get notSeenOnPack =>
+      _l('The camera did not see:', tw: 'Kamera no anhu:');
+  static String get addAnotherSide =>
+      _l('Add a photo of another side', tw: 'Fa ɔfa foforo mfonini ka ho');
+  static String get sideFailed => _l(
+      'That side could not be read. The first result is unchanged.',
+      tw: 'Yantumi ankenkan saa ɔfa no. Nea edi kan no da hɔ.');
   static String get preparingFile => _l('Getting the file ready. This can take a minute.',
       tw: 'Yɛresiesie fael no. Ebetumi agye bere kakra.');
   static String get about => _l('About', tw: 'Ɛfa ho');

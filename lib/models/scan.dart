@@ -49,6 +49,23 @@ class Extraction {
       };
 
   bool get isEmpty => productName.isEmpty && packText.isEmpty;
+
+  /// Field-wise merge of a second read (another face of the box): this
+  /// read's non-empty fields win, the other fills the gaps. Pack text
+  /// concatenates so follow-up answers can draw on every photographed face.
+  Extraction merge(Extraction other) => Extraction(
+        productName:
+            productName.isNotEmpty ? productName : other.productName,
+        manufacturer:
+            manufacturer.isNotEmpty ? manufacturer : other.manufacturer,
+        batchNumber:
+            batchNumber.isNotEmpty ? batchNumber : other.batchNumber,
+        expiryRaw: expiryRaw.isNotEmpty ? expiryRaw : other.expiryRaw,
+        regNo: regNo.isNotEmpty ? regNo : other.regNo,
+        packText:
+            [packText, other.packText].where((t) => t.isNotEmpty).join('\n'),
+        legible: legible || other.legible,
+      );
 }
 
 /// A saved scan (history).
