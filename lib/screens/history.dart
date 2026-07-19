@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/scan.dart';
 import '../services/history.dart';
+import '../services/strings.dart';
 import '../theme/tokens.dart';
 import '../widgets/fact_row.dart';
 import 'home.dart';
@@ -38,14 +39,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final c = context.c;
     return Scaffold(
-      appBar: AppBar(title: const Text('All checks')),
+      appBar: AppBar(title: Text(S.allChecks)),
       body: !_loaded
           ? const Center(child: CircularProgressIndicator())
           : _all.isEmpty
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(T.s6),
-                    child: Text('No checks yet.',
+                    child: Text(S.noChecksYet,
                         style: T.body.copyWith(color: c.inkMuted)),
                   ),
                 )
@@ -72,40 +73,35 @@ class HistoryDetailScreen extends StatelessWidget {
     final c = context.c;
     final e = record.extraction;
     final (headline, fg, bg) = switch (record.verdictStatus) {
-      'registered' => ('In the register', c.successText, c.successSurface),
-      'expired' => ('Expired', c.dangerText, c.dangerSurface),
-      'recalled' => ('Do not take this', c.dangerText, c.dangerSurface),
-      'caution' => ('Check this carefully', c.warningText, c.warningSurface),
-      'notFound' => (
-          'Not in the register snapshot',
-          c.warningText,
-          c.warningSurface
-        ),
-      _ => ('Checked', c.muteText, c.muteSurface),
+      'registered' => (S.vRegistered, c.successText, c.successSurface),
+      'expired' => (S.vExpired, c.dangerText, c.dangerSurface),
+      'recalled' => (S.vRecalled, c.dangerText, c.dangerSurface),
+      'caution' => (S.vCaution, c.warningText, c.warningSurface),
+      'notFound' => (S.vNotFound, c.warningText, c.warningSurface),
+      _ => (S.vChecked, c.muteText, c.muteSurface),
     };
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Saved check'),
+        title: Text(S.savedCheck),
         actions: [
           IconButton(
-            tooltip: 'Delete',
+            tooltip: S.delete,
             icon: const Icon(Icons.delete_outline, size: 22),
             onPressed: () async {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  title: Text('Delete this check?', style: T.h3),
-                  content: Text('This only removes the saved record.',
-                      style: T.body),
+                  title: Text(S.deleteCheckQ, style: T.h3),
+                  content: Text(S.deleteBody, style: T.body),
                   actions: [
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Keep it')),
+                        child: Text(S.keepIt)),
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(
                             foregroundColor: c.dangerAccent),
-                        child: const Text('Delete')),
+                        child: Text(S.delete)),
                   ],
                 ),
               );
@@ -153,7 +149,7 @@ class HistoryDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: T.s6),
           ],
-          Text('What the pack said', style: T.h3),
+          Text(S.whatPackSaid, style: T.h3),
           const SizedBox(height: T.s3),
           Container(
             decoration: BoxDecoration(
@@ -165,16 +161,16 @@ class HistoryDetailScreen extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: T.s4, vertical: T.s3),
             child: Column(
               children: [
-                FactRow(label: 'Product', value: e.productName),
-                FactRow(label: 'Made by', value: e.manufacturer),
-                FactRow(label: 'Batch', value: e.batchNumber),
-                FactRow(label: 'Expiry', value: e.expiryRaw),
+                FactRow(label: S.product, value: e.productName),
+                FactRow(label: S.madeBy, value: e.manufacturer),
+                FactRow(label: S.batch, value: e.batchNumber),
+                FactRow(label: S.expiry, value: e.expiryRaw),
               ],
             ),
           ),
           if (record.counseling.isNotEmpty) ...[
             const SizedBox(height: T.s6),
-            Text('Guidance given', style: T.h3),
+            Text(S.guidanceGiven, style: T.h3),
             const SizedBox(height: T.s3),
             Container(
               width: double.infinity,
@@ -190,7 +186,8 @@ class HistoryDetailScreen extends StatelessWidget {
           ],
           const SizedBox(height: T.s4),
           Text(
-              'Checked ${record.at.day}/${record.at.month}/${record.at.year}',
+              S.checkedOn(
+                  '${record.at.day}/${record.at.month}/${record.at.year}'),
               style: T.caption.copyWith(color: c.inkMuted)),
         ],
       ),

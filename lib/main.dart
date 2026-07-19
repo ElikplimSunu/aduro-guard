@@ -25,6 +25,13 @@ class AduroApp extends StatefulWidget {
     context.findAncestorStateOfType<_AduroAppState>()!._apply(mode);
   }
 
+  /// Called wherever the user changes language; rebuilds the whole tree so
+  /// every S.* string re-resolves.
+  static void setLanguage(BuildContext context, String code) {
+    Prefs.instance.language = code;
+    context.findAncestorStateOfType<_AduroAppState>()!._rebuild();
+  }
+
   @override
   State<AduroApp> createState() => _AduroAppState();
 }
@@ -35,6 +42,8 @@ class _AduroAppState extends State<AduroApp> {
           orElse: () => ThemeMode.system);
 
   void _apply(ThemeMode mode) => setState(() => _mode = mode);
+
+  void _rebuild() => setState(() {});
 
   @override
   Widget build(BuildContext context) {

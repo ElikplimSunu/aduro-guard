@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../services/strings.dart';
 import '../theme/tokens.dart';
 import 'result.dart';
 
@@ -38,8 +39,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     if (!_cameraSupported) return;
     final status = await Permission.camera.request();
     if (!status.isGranted) {
-      setState(() => _cameraError =
-          'Camera permission is off. Allow it in Settings, or pick a photo instead.');
+      setState(() => _cameraError = S.cameraOff);
       return;
     }
     try {
@@ -90,8 +90,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
       if (mounted) setState(() => _shot = bytes);
     } on CameraException {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('The photo failed. Try again.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(S.photoFailed)));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -118,7 +118,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
       appBar: AppBar(
         backgroundColor: T.neutral950,
         foregroundColor: T.neutral0,
-        title: Text(_shot == null ? 'Scan a medicine' : 'Use this photo?',
+        title: Text(_shot == null ? S.scanAMedicine : S.useThisPhoto,
             style: T.h3.copyWith(color: T.neutral0)),
         iconTheme: const IconThemeData(color: T.neutral0, size: 22),
       ),
@@ -149,8 +149,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                               size: 40, color: T.neutral400),
                           const SizedBox(height: T.s4),
                           Text(
-                            _cameraError ??
-                                'No camera on this device. Pick a photo of the pack instead.',
+                            _cameraError ?? S.noCamera,
                             style: T.body.copyWith(color: T.neutral300),
                             textAlign: TextAlign.center,
                           ),
@@ -169,7 +168,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
               children: [
                 IconButton(
                   onPressed: _pick,
-                  tooltip: 'Pick from photos',
+                  tooltip: S.pickFromPhotos,
                   icon: const Icon(Icons.photo_library_outlined,
                       color: T.neutral200, size: 26),
                 ),
@@ -219,14 +218,14 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                     style: OutlinedButton.styleFrom(
                         foregroundColor: T.neutral0,
                         side: const BorderSide(color: T.neutral600)),
-                    child: const Text('Retake'),
+                    child: Text(S.retake),
                   ),
                 ),
                 const SizedBox(width: T.s4),
                 Expanded(
                   child: FilledButton(
                     onPressed: _use,
-                    child: const Text('Check it'),
+                    child: Text(S.checkIt),
                   ),
                 ),
               ],
@@ -246,7 +245,11 @@ class _ShutterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: S.takePhoto,
+      child: GestureDetector(
       onTap: enabled ? onPressed : null,
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
@@ -264,6 +267,7 @@ class _ShutterButton extends StatelessWidget {
                 BoxDecoration(shape: BoxShape.circle, color: T.brand400),
           ),
         ),
+      ),
       ),
     );
   }

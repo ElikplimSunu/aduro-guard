@@ -9,6 +9,7 @@ import '../models/scan.dart';
 import '../models/verdict.dart';
 import '../services/gemma.dart';
 import '../services/prefs.dart';
+import '../services/strings.dart';
 import '../theme/tokens.dart';
 
 class _Turn {
@@ -96,7 +97,7 @@ class _FollowUpSectionState extends State<FollowUpSection> {
         setState(() => turn.answer += chunk);
       }
     } catch (_) {
-      turn.answer = 'That didn’t work. Ask again.';
+      turn.answer = S.askFailed;
     } finally {
       if (mounted) {
         setState(() {
@@ -113,10 +114,9 @@ class _FollowUpSectionState extends State<FollowUpSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Ask about this pack', style: T.h3),
+        Text(S.askAboutPack, style: T.h3),
         const SizedBox(height: T.s1),
-        Text('Answers come only from what the pack itself says.',
-            style: T.small.copyWith(color: c.inkMuted)),
+        Text(S.answersFromPack, style: T.small.copyWith(color: c.inkMuted)),
         const SizedBox(height: T.s3),
         for (final t in _turns) _TurnView(turn: t),
         Container(
@@ -133,39 +133,46 @@ class _FollowUpSectionState extends State<FollowUpSection> {
                   controller: _controller,
                   style: T.body.copyWith(color: c.ink),
                   enabled: !_answering,
-                  decoration: const InputDecoration(
-                    hintText: 'Type a question…',
+                  decoration: InputDecoration(
+                    hintText: S.typeQuestion,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     filled: false,
                     isDense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: T.s3, vertical: T.s3),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: T.s3, vertical: T.s3),
                   ),
                   onSubmitted: (_) => _sendTyped(),
                 ),
               ),
               IconButton(
                 onPressed: _answering ? null : _sendTyped,
-                tooltip: 'Send',
+                tooltip: S.send,
                 icon: const Icon(Icons.send_outlined, size: 20),
               ),
               if (_micSupported)
-                GestureDetector(
-                  onLongPressStart: (_) => _startRecording(),
-                  onLongPressEnd: (_) => _stopRecording(),
-                  onLongPressCancel: () => _stopRecording(send: false),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: _recording ? c.dangerAccent : c.brandPrimary,
-                      borderRadius: BorderRadius.circular(T.rSm),
-                    ),
-                    padding: const EdgeInsets.all(T.s2 + 2),
-                    child: Icon(
-                      _recording ? Icons.mic : Icons.mic_none_outlined,
-                      color: c.onBrandPrimary,
-                      size: 20,
+                Semantics(
+                  button: true,
+                  label: S.spokenQuestion,
+                  hint: S.holdToRecordHint,
+                  child: GestureDetector(
+                    onLongPressStart: (_) => _startRecording(),
+                    onLongPressEnd: (_) => _stopRecording(),
+                    onLongPressCancel: () => _stopRecording(send: false),
+                    child: Container(
+                      constraints:
+                          const BoxConstraints(minWidth: 44, minHeight: 44),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: _recording ? c.dangerAccent : c.brandPrimary,
+                        borderRadius: BorderRadius.circular(T.rSm),
+                      ),
+                      child: Icon(
+                        _recording ? Icons.mic : Icons.mic_none_outlined,
+                        color: c.onBrandPrimary,
+                        size: 20,
+                      ),
                     ),
                   ),
                 ),
@@ -175,10 +182,7 @@ class _FollowUpSectionState extends State<FollowUpSection> {
         ),
         if (_micSupported) ...[
           const SizedBox(height: T.s2),
-          Text(
-              _recording
-                  ? 'Listening… let go to send.'
-                  : 'Hold the gold button and speak your question.',
+          Text(_recording ? S.listeningLetGo : S.holdAndSpeak,
               style: T.caption.copyWith(color: c.inkMuted)),
         ],
       ],
@@ -210,7 +214,7 @@ class _TurnView extends StatelessWidget {
               const SizedBox(width: T.s2),
               Expanded(
                 child: Text(
-                  turn.question.isEmpty ? 'Spoken question' : turn.question,
+                  turn.question.isEmpty ? S.spokenQuestion : turn.question,
                   style: T.small
                       .copyWith(color: c.inkMuted, fontWeight: FontWeight.w600),
                 ),
@@ -226,7 +230,7 @@ class _TurnView extends StatelessWidget {
                     height: 13,
                     child: CircularProgressIndicator(strokeWidth: 2)),
                 const SizedBox(width: T.s3),
-                Text('Listening to the pack…',
+                Text(S.listeningToPack,
                     style: T.small.copyWith(color: c.inkMuted)),
               ],
             )

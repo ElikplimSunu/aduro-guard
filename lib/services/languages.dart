@@ -3,6 +3,7 @@
 class Lang {
   final String code; // stored in prefs
   final String name; // English label
+  final String endonym; // the language's own name for itself (picker label)
   final String? nativeLine; // subtitle written in the language itself
   final String promptLine; // instruction for Gemma
   final String? exemplar; // few-shot tone example for counseling
@@ -12,6 +13,7 @@ class Lang {
   const Lang({
     required this.code,
     required this.name,
+    required this.endonym,
     this.nativeLine,
     required this.promptLine,
     this.exemplar,
@@ -24,6 +26,8 @@ const langs = [
   Lang(
     code: 'en',
     name: 'English',
+    endonym: 'English',
+    nativeLine: 'Use the app in English',
     promptLine: 'Write in plain everyday English.',
     exemplar:
         'Example of the tone (this one is for a registered, in-date pack):\n"This pack is in the FDA register and its expiry date has not passed. Take it exactly as the pack instructs. Store it below 30°C, away from children. If you do not feel better, talk to a pharmacist or clinic."',
@@ -31,7 +35,8 @@ const langs = [
   Lang(
     code: 'tw',
     name: 'Twi',
-    nativeLine: 'Nsɛm no bɛba Twi kasa mu',
+    endonym: 'Twi',
+    nativeLine: 'Fa Twi kasa di dwuma',
     promptLine:
         'Write in everyday Asante Twi as spoken in Ghana. Keep medicine names, numbers and "FDA" in English.',
     exemplar:
@@ -41,7 +46,7 @@ const langs = [
   Lang(
     code: 'ee',
     name: 'Ewe',
-    nativeLine: 'Nyawo ava le Eʋegbe me',
+    endonym: 'Eʋegbe',
     promptLine:
         "Write in everyday Ewe as spoken in Ghana's Volta Region. Keep medicine names, numbers and \"FDA\" in English. Use short simple sentences.",
     early: true,
@@ -50,6 +55,7 @@ const langs = [
   Lang(
     code: 'dag',
     name: 'Dagbani',
+    endonym: 'Dagbanli',
     promptLine:
         'Write in everyday Dagbani as spoken in northern Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
     early: true,
@@ -57,7 +63,8 @@ const langs = [
   Lang(
     code: 'ha',
     name: 'Hausa',
-    nativeLine: 'Za a rubuta amsoshi da Hausa',
+    endonym: 'Hausa',
+    nativeLine: 'A yi amfani da Hausa',
     promptLine:
         'Write in everyday Hausa as understood in Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
     early: true,

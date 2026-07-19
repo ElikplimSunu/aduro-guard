@@ -6,6 +6,7 @@ import '../services/gemma.dart';
 import '../services/languages.dart';
 import '../services/prefs.dart';
 import '../services/registry.dart';
+import '../services/strings.dart';
 import '../services/voices.dart';
 import '../theme/tokens.dart';
 
@@ -25,11 +26,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final c = context.c;
     final registry = Registry.instance;
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(S.settings)),
       body: ListView(
         padding: const EdgeInsets.all(T.s5),
         children: [
-          Text('Language', style: T.h3),
+          Text(S.language, style: T.h3),
           const SizedBox(height: T.s3),
           _Card(
             child: Column(
@@ -37,8 +38,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 for (final (i, l) in langs.indexed) ...[
                   if (i > 0) const Divider(),
                   _RadioRow(
-                    label: l.name,
-                    caption: l.early ? 'Early support' : null,
+                    label: l.endonym,
+                    caption: l.early ? S.earlySupport : null,
                     selected: _language == l.code,
                     onTap: () => _setLanguage(l.code),
                   ),
@@ -47,25 +48,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: T.s8),
-          Text('Appearance', style: T.h3),
+          Text(S.appearance, style: T.h3),
           const SizedBox(height: T.s3),
           _Card(
             child: Column(
               children: [
                 _RadioRow(
-                  label: 'Match the phone',
+                  label: S.matchPhone,
                   selected: _themeMode == 'system',
                   onTap: () => _setThemeMode('system'),
                 ),
                 const Divider(),
                 _RadioRow(
-                  label: 'Light',
+                  label: S.light,
                   selected: _themeMode == 'light',
                   onTap: () => _setThemeMode('light'),
                 ),
                 const Divider(),
                 _RadioRow(
-                  label: 'Dark',
+                  label: S.dark,
                   selected: _themeMode == 'dark',
                   onTap: () => _setThemeMode('dark'),
                 ),
@@ -73,31 +74,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: T.s8),
-          Text('Offline brain', style: T.h3),
+          Text(S.offlineBrain, style: T.h3),
           const SizedBox(height: T.s1),
-          Text(
-            'Gemma 4 runs entirely on this phone. Download once on Wi-Fi; scanning then needs no internet at all.',
-            style: T.small.copyWith(color: c.inkMuted),
-          ),
+          Text(S.offlineBrainBlurb,
+              style: T.small.copyWith(color: c.inkMuted)),
           const SizedBox(height: T.s3),
           for (final m in modelOptions) ...[
             _ModelCard(option: m),
             const SizedBox(height: T.s3),
           ],
           const SizedBox(height: T.s5),
-          Text('Voices', style: T.h3),
+          Text(S.voices, style: T.h3),
           const SizedBox(height: T.s1),
-          Text(
-            'Optional offline voices so guidance can be read aloud in local languages. Each is a one-time download.',
-            style: T.small.copyWith(color: c.inkMuted),
-          ),
+          Text(S.voicesBlurb, style: T.small.copyWith(color: c.inkMuted)),
           const SizedBox(height: T.s3),
           for (final l in langs.where((l) => l.mmsCode != null)) ...[
             _VoiceCard(lang: l),
             const SizedBox(height: T.s3),
           ],
           const SizedBox(height: T.s5),
-          Text('About', style: T.h3),
+          Text(S.about, style: T.h3),
           const SizedBox(height: T.s3),
           _Card(
             child: Column(
@@ -105,7 +101,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 if (registry.isLoaded) ...[
                   Text(
-                    'Register snapshot: ${registry.productCount} products · ${registry.snapshotDate}',
+                    S.snapshotLine(
+                        registry.productCount, registry.snapshotDate),
                     style: T.bodyStrong.copyWith(color: c.ink),
                   ),
                   const SizedBox(height: T.s2),
@@ -116,10 +113,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       style: T.small.copyWith(color: c.inkMuted)),
                   const SizedBox(height: T.s4),
                 ],
-                Text(
-                  'Aduro Guard is a verification aid, not medical advice. For any health decision, talk to a pharmacist, a clinic, or the FDA on 0551112224 (WhatsApp).',
-                  style: T.small.copyWith(color: c.inkMuted),
-                ),
+                Text(S.disclaimer,
+                    style: T.small.copyWith(color: c.inkMuted)),
               ],
             ),
           ),
@@ -129,8 +124,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _setLanguage(String v) {
-    Prefs.instance.language = v;
     setState(() => _language = v);
+    AduroApp.setLanguage(context, v); // whole UI follows
   }
 
   void _setThemeMode(String v) {
@@ -177,7 +172,11 @@ class _RadioRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    return InkWell(
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: T.s2),
@@ -204,6 +203,7 @@ class _RadioRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -243,9 +243,8 @@ class _VoiceCardState extends State<_VoiceCard> {
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content:
-                Text('The download stopped. Check your connection and retry.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(S.downloadStopped)));
       }
     } finally {
       if (mounted) {
@@ -266,7 +265,7 @@ class _VoiceCardState extends State<_VoiceCard> {
           Row(
             children: [
               Expanded(
-                  child: Text('${widget.lang.name} voice',
+                  child: Text(S.voiceName(widget.lang.endonym),
                       style: T.bodyStrong.copyWith(color: c.ink))),
               if (_installed == true)
                 Icon(Icons.check_circle_outline,
@@ -276,7 +275,7 @@ class _VoiceCardState extends State<_VoiceCard> {
             ],
           ),
           const SizedBox(height: T.s1),
-          Text('Reads ${widget.lang.name} guidance aloud, offline.',
+          Text(S.voiceBlurb(widget.lang.endonym),
               style: T.small.copyWith(color: c.inkMuted)),
           const SizedBox(height: T.s3),
           if (downloading) ...[
@@ -287,12 +286,12 @@ class _VoiceCardState extends State<_VoiceCard> {
                   minHeight: 6),
             ),
             const SizedBox(height: T.s2),
-            Text('Downloading… $_progress%',
+            Text(S.downloading(_progress),
                 style: T.caption.copyWith(color: c.inkMuted)),
           ] else if (_installed == true)
             Row(
               children: [
-                Text('Installed', style: T.small.copyWith(color: c.inkMuted)),
+                Text(S.installed, style: T.small.copyWith(color: c.inkMuted)),
                 const Spacer(),
                 TextButton(
                   onPressed: () async {
@@ -300,7 +299,7 @@ class _VoiceCardState extends State<_VoiceCard> {
                     _check();
                   },
                   style: TextButton.styleFrom(foregroundColor: c.dangerAccent),
-                  child: const Text('Remove'),
+                  child: Text(S.remove),
                 ),
               ],
             )
@@ -310,7 +309,7 @@ class _VoiceCardState extends State<_VoiceCard> {
               style: FilledButton.styleFrom(
                   minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(horizontal: T.s5)),
-              child: const Text('Download'),
+              child: Text(S.download),
             ),
         ],
       ),
@@ -353,9 +352,8 @@ class _ModelCardState extends State<_ModelCard> {
       Prefs.instance.modelFile = widget.option.fileName;
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content:
-                Text('The download stopped. Check your connection and retry.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(S.downloadStopped)));
       }
     } finally {
       if (mounted) {
@@ -376,8 +374,8 @@ class _ModelCardState extends State<_ModelCard> {
       Prefs.instance.modelFile = widget.option.fileName;
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('That file could not be imported.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(S.importFailed)));
       }
     } finally {
       if (mounted) {
@@ -424,17 +422,17 @@ class _ModelCardState extends State<_ModelCard> {
                   minHeight: 6),
             ),
             const SizedBox(height: T.s2),
-            Text('Downloading… $_progress%',
+            Text(S.downloading(_progress),
                 style: T.caption.copyWith(color: c.inkMuted)),
           ] else if (_installed == true)
             Row(
               children: [
-                Text('Installed', style: T.small.copyWith(color: c.inkMuted)),
+                Text(S.installed, style: T.small.copyWith(color: c.inkMuted)),
                 const Spacer(),
                 TextButton(
                   onPressed: _delete,
                   style: TextButton.styleFrom(foregroundColor: c.dangerAccent),
-                  child: const Text('Remove'),
+                  child: Text(S.remove),
                 ),
               ],
             )
@@ -447,7 +445,7 @@ class _ModelCardState extends State<_ModelCard> {
                       minimumSize: const Size(0, 44),
                       padding:
                           const EdgeInsets.symmetric(horizontal: T.s5)),
-                  child: const Text('Download'),
+                  child: Text(S.download),
                 ),
                 const SizedBox(width: T.s3),
                 OutlinedButton(
@@ -456,7 +454,7 @@ class _ModelCardState extends State<_ModelCard> {
                       minimumSize: const Size(0, 44),
                       padding:
                           const EdgeInsets.symmetric(horizontal: T.s4)),
-                  child: const Text('Import file'),
+                  child: Text(S.importFile),
                 ),
               ],
             ),

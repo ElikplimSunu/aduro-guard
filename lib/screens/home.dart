@@ -6,6 +6,7 @@ import '../main.dart' show routeObserver;
 import '../models/scan.dart';
 import '../services/history.dart';
 import '../services/registry.dart';
+import '../services/strings.dart';
 import '../theme/tokens.dart';
 import 'history.dart';
 import 'scan.dart';
@@ -75,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 Expanded(child: Text('Aduro Guard', style: T.h1)),
                 IconButton(
                   onPressed: () => _open(const SettingsScreen()),
-                  tooltip: 'Settings',
+                  tooltip: S.settings,
                   icon: const Icon(Icons.tune, size: 22),
                 ),
               ],
@@ -97,7 +98,8 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                     const SizedBox(width: T.s2),
                     Expanded(
                       child: Text(
-                        'Works offline · register snapshot of ${registry.productCount} products · ${registry.snapshotDate}',
+                        S.worksOffline(
+                            registry.productCount, registry.snapshotDate),
                         style: T.caption.copyWith(color: c.inkMuted),
                       ),
                     ),
@@ -108,14 +110,14 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
             if (_loaded && _recent.isNotEmpty) ...[
               Row(
                 children: [
-                  Expanded(child: Text('Recent checks', style: T.h3)),
+                  Expanded(child: Text(S.recentChecks, style: T.h3)),
                   TextButton(
                     onPressed: () => _open(const HistoryScreen()),
                     style: TextButton.styleFrom(
                         minimumSize: const Size(0, 36),
                         padding:
                             const EdgeInsets.symmetric(horizontal: T.s2)),
-                    child: const Text('See all'),
+                    child: Text(S.seeAll),
                   ),
                 ],
               ),
@@ -125,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 const SizedBox(height: T.s2),
               ],
             ] else if (_loaded) ...[
-              Text('Recent checks', style: T.h3),
+              Text(S.recentChecks, style: T.h3),
               const SizedBox(height: T.s3),
               Container(
                 width: double.infinity,
@@ -136,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                 ),
                 padding: const EdgeInsets.all(T.s5),
                 child: Text(
-                  'Nothing checked yet. Scan your first medicine and the verdict lands here.',
+                  S.nothingChecked,
                   style: T.body.copyWith(color: c.inkMuted),
                 ),
               ),
@@ -156,7 +158,10 @@ class _ScanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
+    return Semantics(
+      button: true,
+      label: '${S.scanAMedicine}. ${S.scanBlurb}',
+      child: Material(
       color: T.brand700,
       borderRadius: BorderRadius.circular(T.rLg),
       child: InkWell(
@@ -166,32 +171,42 @@ class _ScanCard extends StatelessWidget {
           padding: const EdgeInsets.all(T.s5),
           child: Row(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: T.brand800,
-                  borderRadius: BorderRadius.circular(T.rMd),
+              ExcludeSemantics(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: T.brand800,
+                    borderRadius: BorderRadius.circular(T.rMd),
+                  ),
+                  padding: const EdgeInsets.all(T.s3),
+                  child: const Icon(Icons.center_focus_strong_outlined,
+                      color: T.brand200, size: 26),
                 ),
-                padding: const EdgeInsets.all(T.s3),
-                child: const Icon(Icons.center_focus_strong_outlined,
-                    color: T.brand200, size: 26),
               ),
               const SizedBox(width: T.s4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Scan a medicine',
-                        style: T.h3.copyWith(color: T.neutral0)),
+                    ExcludeSemantics(
+                      child: Text(S.scanAMedicine,
+                          style: T.h3.copyWith(color: T.neutral0)),
+                    ),
                     const SizedBox(height: 2),
-                    Text('Point at the pack. Get a verdict in seconds.',
-                        style: T.small.copyWith(color: T.brand100)),
+                    ExcludeSemantics(
+                      child: Text(S.scanBlurb,
+                          style: T.small.copyWith(color: T.brand100)),
+                    ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward, color: T.brand200, size: 20),
+              const ExcludeSemantics(
+                child:
+                    Icon(Icons.arrow_forward, color: T.brand200, size: 20),
+              ),
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -214,9 +229,20 @@ class ScanTile extends StatelessWidget {
       _ => c.inkFaint,
     };
     final name = record.extraction.productName.isEmpty
-        ? 'Unnamed pack'
+        ? S.unnamedPack
         : record.extraction.productName;
-    return Material(
+    final headline = switch (record.verdictStatus) {
+      'registered' => S.vRegistered,
+      'expired' => S.vExpired,
+      'recalled' => S.vRecalled,
+      'caution' => S.vCaution,
+      'notFound' => S.vNotFound,
+      _ => S.vChecked,
+    };
+    return Semantics(
+      button: true,
+      label: '$name. $headline. ${_when(record.at)}',
+      child: Material(
       color: c.surface,
       borderRadius: BorderRadius.circular(T.rMd),
       child: InkWell(
@@ -269,24 +295,28 @@ class ScanTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: T.s2),
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: dot),
+              ExcludeSemantics(
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration:
+                      BoxDecoration(shape: BoxShape.circle, color: dot),
+                ),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }
 
   static String _when(DateTime t) {
     final d = DateTime.now().difference(t);
-    if (d.inMinutes < 1) return 'Just now';
-    if (d.inHours < 1) return '${d.inMinutes} min ago';
-    if (d.inDays < 1) return '${d.inHours} h ago';
-    if (d.inDays == 1) return 'Yesterday';
+    if (d.inMinutes < 1) return S.justNow;
+    if (d.inHours < 1) return S.minAgo(d.inMinutes);
+    if (d.inDays < 1) return S.hAgo(d.inHours);
+    if (d.inDays == 1) return S.yesterday;
     return '${t.day}/${t.month}/${t.year}';
   }
 }

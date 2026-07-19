@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show SemanticsService;
 import 'package:path_provider/path_provider.dart';
 
 import '../models/scan.dart';
@@ -9,6 +10,7 @@ import '../models/verdict.dart';
 import '../services/gemma.dart';
 import '../services/history.dart';
 import '../services/registry.dart';
+import '../services/strings.dart';
 import '../theme/tokens.dart';
 import '../widgets/counseling_section.dart';
 import '../widgets/fact_row.dart';
@@ -73,13 +75,14 @@ class _ResultScreenState extends State<ResultScreen> {
         _verdict = verdict;
         _stage = _Stage.done;
       });
+      // Screen readers hear the verdict the moment it lands.
+      SemanticsService.sendAnnouncement(
+          View.of(context), verdictHeadline(verdict.status), TextDirection.ltr);
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _stage = _Stage.failed;
-        _error = e is StateError
-            ? 'The offline model is not set up yet. Download it in Settings, then scan again.'
-            : 'Something went wrong while checking. Try again.';
+        _error = e is StateError ? S.modelNotSetUp : S.somethingWrong;
       });
     }
   }
@@ -92,7 +95,7 @@ class _ResultScreenState extends State<ResultScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Result')),
+      appBar: AppBar(title: Text(S.resultTitle)),
       body: switch (_stage) {
         _Stage.reading || _Stage.checking => _progressView(),
         _Stage.failed => _failedView(),
@@ -105,17 +108,18 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Widget _progressView() {
     final c = context.c;
-    final label = _stage == _Stage.reading
-        ? 'Reading the pack…'
-        : 'Checking the register…';
+    final label =
+        _stage == _Stage.reading ? S.readingPack : S.checkingRegister;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(T.rMd),
-            child: Image.memory(widget.imageBytes,
-                width: 160, height: 160, fit: BoxFit.cover, cacheWidth: 480),
+          ExcludeSemantics(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(T.rMd),
+              child: Image.memory(widget.imageBytes,
+                  width: 160, height: 160, fit: BoxFit.cover, cacheWidth: 480),
+            ),
           ),
           const SizedBox(height: T.s6),
           const SizedBox(
@@ -126,8 +130,7 @@ class _ResultScreenState extends State<ResultScreen> {
           const SizedBox(height: T.s4),
           Text(label, style: T.bodyStrong.copyWith(color: c.ink)),
           const SizedBox(height: T.s2),
-          Text('Everything runs on this phone. No internet needed.',
-              style: T.small.copyWith(color: c.inkMuted)),
+          Text(S.allOnPhone, style: T.small.copyWith(color: c.inkMuted)),
         ],
       ),
     );
@@ -147,7 +150,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 style: T.body.copyWith(color: c.ink),
                 textAlign: TextAlign.center),
             const SizedBox(height: T.s6),
-            FilledButton(onPressed: _scanAgain, child: const Text('Scan again')),
+            FilledButton(onPressed: _scanAgain, child: Text(S.scanAgain)),
           ],
         ),
       ),
@@ -163,16 +166,11 @@ class _ResultScreenState extends State<ResultScreen> {
         children: [
           VerdictBanner(verdict: _verdict!),
           const SizedBox(height: T.s5),
-          Text('Tips for a clear read', style: T.h3),
+          Text(S.tipsTitle, style: T.h3),
           const SizedBox(height: T.s3),
-          Text(
-            '• Move to brighter light. Daylight works best.\n'
-            '• Fill the frame with the front of the pack.\n'
-            '• Hold still until the photo is sharp.',
-            style: T.body.copyWith(color: c.inkMuted, height: 1.7),
-          ),
+          Text(S.tips, style: T.body.copyWith(color: c.inkMuted, height: 1.7)),
           const Spacer(),
-          FilledButton(onPressed: _scanAgain, child: const Text('Try again')),
+          FilledButton(onPressed: _scanAgain, child: Text(S.tryAgain)),
           const SizedBox(height: T.s4),
         ],
       ),
@@ -188,7 +186,7 @@ class _ResultScreenState extends State<ResultScreen> {
       children: [
         VerdictBanner(verdict: v),
         const SizedBox(height: T.s6),
-        Text('What the pack says', style: T.h3),
+        Text(S.whatPackSays, style: T.h3),
         const SizedBox(height: T.s3),
         Container(
           decoration: BoxDecoration(
@@ -204,20 +202,23 @@ class _ResultScreenState extends State<ResultScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    FactRow(label: 'Product', value: e.productName),
-                    FactRow(label: 'Made by', value: e.manufacturer),
-                    FactRow(label: 'Batch', value: e.batchNumber),
-                    FactRow(label: 'Expiry', value: e.expiryRaw),
+                    FactRow(label: S.product, value: e.productName),
+                    FactRow(label: S.madeBy, value: e.manufacturer),
+                    FactRow(label: S.batch, value: e.batchNumber),
+                    FactRow(label: S.expiry, value: e.expiryRaw),
                     if (e.regNo.isNotEmpty)
-                      FactRow(label: 'FDA number', value: e.regNo),
+                      FactRow(label: S.fdaNumber, value: e.regNo),
                   ],
                 ),
               ),
               const SizedBox(width: T.s3),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(T.rSm),
-                child: Image.memory(widget.imageBytes,
-                    width: 64, height: 64, fit: BoxFit.cover, cacheWidth: 192),
+              ExcludeSemantics(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(T.rSm),
+                  child: Image.memory(widget.imageBytes,
+                      width: 64, height: 64, fit: BoxFit.cover,
+                      cacheWidth: 192),
+                ),
               ),
             ],
           ),
@@ -227,8 +228,7 @@ class _ResultScreenState extends State<ResultScreen> {
         const SizedBox(height: T.s6),
         FollowUpSection(extraction: e, verdict: v),
         const SizedBox(height: T.s8),
-        OutlinedButton(
-            onPressed: _scanAgain, child: const Text('Scan another medicine')),
+        OutlinedButton(onPressed: _scanAgain, child: Text(S.scanAnother)),
         const SizedBox(height: T.s4),
       ],
     );

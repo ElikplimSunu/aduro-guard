@@ -1,13 +1,16 @@
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart' show AduroApp;
 import '../services/gemma.dart';
+import '../services/languages.dart';
 import '../services/prefs.dart';
+import '../services/strings.dart';
 import '../theme/tokens.dart';
 import 'home.dart';
 
-/// First run: pick a language, set up the offline brain, go.
-/// Never shown again once completed.
+/// First run: pick a language (each option labelled in its own language),
+/// set up the offline brain, go. Never shown again once completed.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -17,7 +20,6 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _step = 0;
-  String _language = 'en';
   int _progress = -1;
   String _error = '';
 
@@ -37,8 +39,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (mounted) {
         setState(() {
           _progress = -1;
-          _error =
-              'The download stopped. Check your connection and try again, or import the file if you already have it.';
+          _error = S.downloadStoppedRetryImport;
         });
       }
     }
@@ -61,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (mounted) {
         setState(() {
           _progress = -1;
-          _error = 'That file could not be imported.';
+          _error = S.importFailed;
         });
       }
     }
@@ -87,43 +88,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _welcome() {
     final c = context.c;
+    final selected = Prefs.instance.language;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: T.s12),
+        const SizedBox(height: T.s8),
         Text('Aduro Guard', style: T.display.copyWith(color: c.ink)),
         const SizedBox(height: T.s3),
         Text(
-          'Point your camera at any medicine pack. It gets checked against the Ghana FDA register, right here on your phone, no internet needed.',
+          S.welcomeBlurb,
           style: T.body.copyWith(color: c.inkMuted, height: 1.6),
         ),
-        const SizedBox(height: T.s10),
-        Text('Choose your language', style: T.h3),
+        const SizedBox(height: T.s8),
+        Text(S.chooseLanguage, style: T.h3),
         const SizedBox(height: T.s3),
-        _LangCard(
-          title: 'English',
-          selected: _language == 'en',
-          onTap: () => setState(() => _language = 'en'),
+        Expanded(
+          child: ListView(
+            children: [
+              for (final l in langs) ...[
+                _LangCard(
+                  title: l.endonym,
+                  subtitle: l.nativeLine,
+                  selected: selected == l.code,
+                  onTap: () {
+                    // The whole UI flips to the chosen language immediately.
+                    AduroApp.setLanguage(context, l.code);
+                  },
+                ),
+                const SizedBox(height: T.s3),
+              ],
+            ],
+          ),
         ),
-        const SizedBox(height: T.s3),
-        _LangCard(
-          title: 'Twi',
-          subtitle: 'Nsɛm no bɛba Twi kasa mu',
-          selected: _language == 'tw',
-          onTap: () => setState(() => _language = 'tw'),
-        ),
-        const SizedBox(height: T.s3),
-        Text(
-          'Ewe, Dagbani and Hausa are in Settings.',
-          style: T.caption.copyWith(color: context.c.inkMuted),
-        ),
-        const Spacer(),
+        const SizedBox(height: T.s2),
         FilledButton(
-          onPressed: () {
-            Prefs.instance.language = _language;
-            setState(() => _step = 1);
-          },
-          child: const Text('Continue'),
+          onPressed: () => setState(() => _step = 1),
+          child: Text(S.continueLabel),
         ),
       ],
     );
@@ -136,10 +136,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: T.s12),
-        Text('Set up the offline brain', style: T.h1.copyWith(color: c.ink)),
+        Text(S.setupBrainTitle, style: T.h1.copyWith(color: c.ink)),
         const SizedBox(height: T.s3),
         Text(
-          'Aduro Guard reads packs with Gemma 4, a model that lives on your phone. One download of ${e2b.sizeLabel}, best on Wi-Fi, and every scan after that works with no signal at all.',
+          S.setupBrainBlurb(e2b.sizeLabel),
           style: T.body.copyWith(color: c.inkMuted, height: 1.6),
         ),
         const SizedBox(height: T.s8),
@@ -150,7 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 value: _progress == 0 ? null : _progress / 100, minHeight: 8),
           ),
           const SizedBox(height: T.s3),
-          Text('Downloading ${e2b.displayName} · $_progress%',
+          Text(S.downloadingModel(e2b.displayName, _progress),
               style: T.small.copyWith(color: c.inkMuted)),
         ] else ...[
           if (_error.isNotEmpty) ...[
@@ -159,14 +159,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
           FilledButton(
               onPressed: _download,
-              child: Text('Download · ${e2b.sizeLabel}')),
+              child: Text(S.downloadSize(e2b.sizeLabel))),
           const SizedBox(height: T.s3),
           OutlinedButton(
-              onPressed: _import,
-              child: const Text('I already have the file')),
+              onPressed: _import, child: Text(S.alreadyHaveFile)),
           const SizedBox(height: T.s4),
           Text(
-            'This is the version sized for everyday phones. A stronger ${e4b.sizeLabel} version for 8 GB phones lives in Settings whenever you want it.',
+            S.e4bNote(e4b.sizeLabel),
             style: T.caption.copyWith(color: c.inkMuted),
             textAlign: TextAlign.center,
           ),
@@ -176,7 +175,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Center(
             child: TextButton(
               onPressed: _finish,
-              child: const Text('Set up later'),
+              child: Text(S.setUpLater),
             ),
           ),
       ],
@@ -200,43 +199,52 @@ class _LangCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(T.rMd),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(T.rMd),
-          border: Border.all(
-            color: selected ? c.brandAccent : c.hairline,
-            width: selected ? 1.5 : 1,
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: title,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(T.rMd),
+        child: Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(minHeight: 56),
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(T.rMd),
+            border: Border.all(
+              color: selected ? c.brandAccent : c.hairline,
+              width: selected ? 1.5 : 1,
+            ),
           ),
-        ),
-        padding: const EdgeInsets.all(T.s4),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: T.bodyStrong.copyWith(color: c.ink)),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(subtitle!,
-                        style: T.small.copyWith(color: c.inkMuted)),
+          padding: const EdgeInsets.all(T.s4),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(title, style: T.bodyStrong.copyWith(color: c.ink)),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(subtitle!,
+                          style: T.small.copyWith(color: c.inkMuted)),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            Icon(
-              selected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              size: 20,
-              color: selected ? c.brandAccent : c.inkFaint,
-            ),
-          ],
+              ExcludeSemantics(
+                child: Icon(
+                  selected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 20,
+                  color: selected ? c.brandAccent : c.inkFaint,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

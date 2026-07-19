@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../main.dart' show AduroApp;
 import '../models/scan.dart';
 import '../models/verdict.dart';
 import '../services/gemma.dart';
 import '../services/history.dart';
 import '../services/languages.dart';
 import '../services/prefs.dart';
+import '../services/strings.dart';
 import '../services/tts.dart';
 import '../theme/tokens.dart';
 
@@ -73,10 +75,7 @@ class _CounselingSectionState extends State<CounselingSection> {
         await History.instance.updateCounseling(widget.historyId!, trimmed);
       }
     } catch (_) {
-      if (mounted) {
-        setState(() => _error =
-            'Guidance is unavailable right now. The verdict above still stands.');
-      }
+      if (mounted) setState(() => _error = S.guidanceUnavailable);
     } finally {
       if (mounted) setState(() => _generating = false);
     }
@@ -84,7 +83,8 @@ class _CounselingSectionState extends State<CounselingSection> {
 
   void _setLanguage(String lang) {
     if (_language == lang || _generating) return;
-    Prefs.instance.language = lang;
+    // Flips the whole app's UI language too, not just the counseling.
+    AduroApp.setLanguage(context, lang);
     Tts.instance.stop();
     setState(() {
       _language = lang;
@@ -110,7 +110,7 @@ class _CounselingSectionState extends State<CounselingSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('What this means', style: T.h3),
+        Text(S.whatThisMeans, style: T.h3),
         const SizedBox(height: T.s2),
         Wrap(
           spacing: T.s2,
@@ -118,7 +118,7 @@ class _CounselingSectionState extends State<CounselingSection> {
           children: [
             for (final l in langs)
               _LangChip(
-                  label: l.name,
+                  label: l.endonym,
                   selected: _language == l.code,
                   onTap: () => _setLanguage(l.code)),
           ],
@@ -145,7 +145,7 @@ class _CounselingSectionState extends State<CounselingSection> {
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2)),
                     const SizedBox(width: T.s3),
-                    Text('Putting it in plain words…',
+                    Text(S.puttingPlainWords,
                         style: T.small.copyWith(color: c.inkMuted)),
                   ],
                 )
@@ -165,14 +165,13 @@ class _CounselingSectionState extends State<CounselingSection> {
                             ? Icons.stop_circle_outlined
                             : Icons.volume_up_outlined,
                         size: 18),
-                    label: Text(_speaking ? 'Stop' : 'Read aloud'),
+                    label: Text(_speaking ? S.stopReading : S.readAloud),
                   )
                 else if (langBy(_language).mmsCode != null)
-                  Text(
-                      'Download the ${langBy(_language).name} voice in Settings to hear this aloud.',
+                  Text(S.downloadVoiceHint(langBy(_language).name),
                       style: T.caption.copyWith(color: c.inkMuted))
                 else
-                  Text('A ${langBy(_language).name} voice is on the roadmap.',
+                  Text(S.voiceRoadmap(langBy(_language).name),
                       style: T.caption.copyWith(color: c.inkMuted)),
               ],
             ],
@@ -194,22 +193,30 @@ class _LangChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(T.rSm),
-      child: Container(
-        decoration: BoxDecoration(
-          color: selected ? c.ink : c.surface,
-          borderRadius: BorderRadius.circular(T.rSm),
-          border: Border.all(color: selected ? c.ink : c.hairlineStrong),
-        ),
-        padding:
-            const EdgeInsets.symmetric(horizontal: T.s3, vertical: T.s1 + 2),
-        child: Text(
-          label,
-          style: T.caption.copyWith(
-              color: selected ? c.bg : c.inkMuted,
-              fontWeight: FontWeight.w600),
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(T.rSm),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 36, minWidth: 48),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? c.ink : c.surface,
+            borderRadius: BorderRadius.circular(T.rSm),
+            border: Border.all(color: selected ? c.ink : c.hairlineStrong),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: T.s3),
+          child: ExcludeSemantics(
+            child: Text(
+              label,
+              style: T.caption.copyWith(
+                  color: selected ? c.bg : c.inkMuted,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
       ),
     );
