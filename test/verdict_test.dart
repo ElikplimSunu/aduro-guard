@@ -58,6 +58,15 @@ void main() {
       expect(v.product!.name, 'Coartem');
     });
 
+    test('brand plus strength still counts as an exact read', () {
+      final v = engine.evaluate(const Extraction(
+          productName: 'Coartem 20/120',
+          manufacturer: 'Novartis',
+          expiryRaw: '08/2027'));
+      expect(v.status, VerdictStatus.registered);
+      expect(v.lookalikeNote, isNotNull); // note stays informational
+    });
+
     test('generic name matches generic row', () {
       final v = engine.evaluate(const Extraction(productName: 'Paracetamol 500mg'));
       expect(v.status, VerdictStatus.registered);

@@ -6,6 +6,9 @@ import 'services/prefs.dart';
 import 'services/registry.dart';
 import 'theme/theme.dart';
 
+/// Lets screens refresh when the user navigates back to them.
+final routeObserver = RouteObserver<PageRoute<void>>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Prefs.instance.load();
@@ -22,6 +25,7 @@ class AduroApp extends StatelessWidget {
       title: 'Aduro Guard',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
+      navigatorObservers: [routeObserver],
       home: Prefs.instance.onboarded
           ? const HomeScreen()
           : const OnboardingScreen(),

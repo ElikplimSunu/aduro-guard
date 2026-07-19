@@ -115,9 +115,10 @@ class VerdictEngine {
     if (matched != null) {
       // A lookalike pairing only downgrades the verdict when the read name
       // is NOT an exact match — exact reads keep the note as information.
-      final exact = similarity(e.productName, matched.name) == 1 ||
-          (matched.generic.isNotEmpty &&
-              similarity(e.productName, matched.generic) == 1);
+      // Exactness ignores strength/form tokens: "Coartem 20/120" IS Coartem.
+      final core = coreName(e.productName);
+      final exact = core == coreName(matched.name) ||
+          (matched.generic.isNotEmpty && core == coreName(matched.generic));
       return Verdict(
         status: (lookNote == null || exact)
             ? VerdictStatus.registered
@@ -174,6 +175,16 @@ class VerdictEngine {
       .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
       .trim()
       .replaceAll(RegExp(r'\s+'), ' ');
+
+  static final _noiseToken = RegExp(
+      r'^(\d+([./x]\d+)*|mg|ml|g|mcg|iu|tablets?|tab|caps?|capsules?|susp|suspension|syrup|injection|inj|softgel|dispersible|oral|solution|cream|drops?)$');
+
+  /// The name with strength/form noise removed — used for exactness only.
+  static String coreName(String s) {
+    final kept =
+        normalize(s).split(' ').where((t) => !_noiseToken.hasMatch(t));
+    return kept.join(' ');
+  }
 
   /// 0..1 similarity blending token overlap and edit distance.
   static double similarity(String a, String b) {

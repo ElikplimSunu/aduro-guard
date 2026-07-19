@@ -199,7 +199,11 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
             padding: const EdgeInsets.all(T.s4),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(T.rMd),
-              child: Image.memory(_shot!, fit: BoxFit.contain),
+              // cacheWidth: preview needs no full-res texture (and the
+              // emulator's software GL can't paint one); Gemma still gets
+              // the original bytes.
+              child: Image.memory(_shot!,
+                  fit: BoxFit.contain, cacheWidth: 1000),
             ),
           ),
         ),
