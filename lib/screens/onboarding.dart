@@ -1,4 +1,4 @@
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart' show AduroApp;
@@ -22,6 +22,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _step = 0;
   int _progress = -1;
+  bool _importing = false;
   String _error = '';
 
   Future<void> _download() async {
@@ -47,21 +48,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _import() async {
-    final file = await openFile(acceptedTypeGroups: const [
-      XTypeGroup(label: 'Gemma model', extensions: ['litertlm'])
-    ]);
-    if (file == null) return;
+    final result = await FilePicker.pickFiles(
+      // The native side streams the picked file out of shared storage
+      // before returning a path; for a 2.4GB model that takes a while,
+      // so flip to the busy state the moment it starts.
+      onFileLoading: (status) {
+        if (status == FilePickerStatus.picking && mounted) {
+          setState(() {
+            _importing = true;
+            _progress = 0;
+            _error = '';
+          });
+        }
+      },
+    );
+    final path = result?.files.single.path;
+    if (path == null) {
+      if (mounted) {
+        setState(() {
+          _importing = false;
+          _progress = -1;
+        });
+      }
+      return;
+    }
     setState(() {
+      _importing = true;
       _progress = 0;
       _error = '';
     });
     try {
-      await Gemma.instance.importFile(file.path);
+      await Gemma.instance.importFile(path);
       Prefs.instance.modelFile = e2b.fileName;
       _finish();
     } catch (_) {
       if (mounted) {
         setState(() {
+          _importing = false;
           _progress = -1;
           _error = S.importFailed;
         });
@@ -167,7 +190,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 value: _progress == 0 ? null : _progress / 100, minHeight: 8),
           ),
           const SizedBox(height: T.s3),
-          Text(S.downloadingModel(e2b.displayName, _progress),
+          Text(
+              _importing
+                  ? S.preparingFile
+                  : S.downloadingModel(e2b.displayName, _progress),
               style: T.small.copyWith(color: c.inkMuted)),
         ] else ...[
           if (_error.isNotEmpty) ...[

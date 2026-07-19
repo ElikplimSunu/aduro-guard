@@ -1,4 +1,4 @@
-import 'package:file_selector/file_selector.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart' show AduroApp;
@@ -330,6 +330,7 @@ class _ModelCard extends StatefulWidget {
 class _ModelCardState extends State<_ModelCard> {
   bool? _installed;
   int _progress = -1; // -1 = not downloading
+  bool _importing = false;
 
   @override
   void initState() {
@@ -364,13 +365,34 @@ class _ModelCardState extends State<_ModelCard> {
   }
 
   Future<void> _import() async {
-    final file = await openFile(acceptedTypeGroups: const [
-      XTypeGroup(label: 'Gemma model', extensions: ['litertlm'])
-    ]);
-    if (file == null) return;
-    setState(() => _progress = 0);
+    final result = await FilePicker.pickFiles(
+      // Native side streams the picked file out of shared storage before
+      // returning a path; show the busy state while that runs.
+      onFileLoading: (status) {
+        if (status == FilePickerStatus.picking && mounted) {
+          setState(() {
+            _importing = true;
+            _progress = 0;
+          });
+        }
+      },
+    );
+    final path = result?.files.single.path;
+    if (path == null) {
+      if (mounted) {
+        setState(() {
+          _importing = false;
+          _progress = -1;
+        });
+      }
+      return;
+    }
+    setState(() {
+      _importing = true;
+      _progress = 0;
+    });
     try {
-      await Gemma.instance.importFile(file.path);
+      await Gemma.instance.importFile(path);
       Prefs.instance.modelFile = widget.option.fileName;
     } catch (_) {
       if (mounted) {
@@ -379,7 +401,10 @@ class _ModelCardState extends State<_ModelCard> {
       }
     } finally {
       if (mounted) {
-        setState(() => _progress = -1);
+        setState(() {
+          _importing = false;
+          _progress = -1;
+        });
         _check();
       }
     }
@@ -422,7 +447,7 @@ class _ModelCardState extends State<_ModelCard> {
                   minHeight: 6),
             ),
             const SizedBox(height: T.s2),
-            Text(S.downloading(_progress),
+            Text(_importing ? S.preparingFile : S.downloading(_progress),
                 style: T.caption.copyWith(color: c.inkMuted)),
           ] else if (_installed == true)
             Row(

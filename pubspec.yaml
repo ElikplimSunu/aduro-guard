@@ -22,9 +22,9 @@ dependencies:
   flutter_dotenv: ^6.0.1
   flutter_gemma_litertlm: ^1.1.0
   image_picker: ^1.2.3
-  file_selector: ^1.1.0
   sherpa_onnx: ^1.13.4
   audioplayers: ^6.8.1
+  file_picker: ^11.0.2
 
 dev_dependencies:
   flutter_test:

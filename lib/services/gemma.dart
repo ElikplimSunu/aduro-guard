@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_gemma/flutter_gemma.dart';
 import 'package:flutter_gemma_litertlm/flutter_gemma_litertlm.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../models/scan.dart';
 import '../models/verdict.dart';
@@ -128,10 +129,31 @@ class Gemma {
   Future<void> importFile(String path) async {
     if (fake) return;
     await init();
+    if (!path.endsWith('.litertlm')) {
+      throw ArgumentError('Expected a .litertlm file');
+    }
+    // On mobile the picker hands back a purgeable cache copy, and
+    // flutter_gemma references fromFile paths in place, so move the file
+    // somewhere permanent first. On desktop the path is the user's own
+    // file: leave it where it is.
+    var installPath = path;
+    if (Platform.isAndroid || Platform.isIOS) {
+      final docs = await getApplicationDocumentsDirectory();
+      final dest = File('${docs.path}/models/${path.split('/').last}');
+      await dest.parent.create(recursive: true);
+      try {
+        await File(path).rename(dest.path);
+      } on FileSystemException {
+        // Cross-volume fallback; dart:io copy streams natively.
+        await File(path).copy(dest.path);
+        await File(path).delete();
+      }
+      installPath = dest.path;
+    }
     await FlutterGemma.installModel(
       modelType: ModelType.gemma4,
       fileType: ModelFileType.litertlm,
-    ).fromFile(path).install();
+    ).fromFile(installPath).install();
     await _reload();
   }
 

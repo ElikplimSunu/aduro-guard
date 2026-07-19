@@ -156,6 +156,8 @@ abstract final class S {
   static String get downloadStopped => _l(
       'The download stopped. Check your connection and retry.');
   static String get importFailed => _l('That file could not be imported.');
+  static String get preparingFile => _l('Getting the file ready. This can take a minute.',
+      tw: 'Yɛresiesie fael no. Ebetumi agye bere kakra.');
   static String get about => _l('About', tw: 'Ɛfa ho');
   static String snapshotLine(int count, String date) => _l(
       'Register snapshot: $count products · $date',
