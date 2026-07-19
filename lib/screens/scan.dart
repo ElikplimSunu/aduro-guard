@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../services/strings.dart';
 import '../theme/tokens.dart';
+import '../widgets/motion.dart';
 import 'result.dart';
 
 /// Camera capture with a confirm step. On desktop (no camera plugin support)
@@ -122,7 +123,15 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
             style: T.h3.copyWith(color: T.neutral0)),
         iconTheme: const IconThemeData(color: T.neutral0, size: 22),
       ),
-      body: _shot != null ? _confirmView() : _captureView(),
+      body: AnimatedSwitcher(
+        duration: M.swap,
+        switchInCurve: M.curve,
+        switchOutCurve: Curves.easeOut,
+        child: KeyedSubtree(
+          key: ValueKey(_shot != null),
+          child: _shot != null ? _confirmView() : _captureView(),
+        ),
+      ),
     );
   }
 
@@ -196,13 +205,16 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(T.s4),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(T.rMd),
-              // cacheWidth: preview needs no full-res texture (and the
-              // emulator's software GL can't paint one); Gemma still gets
-              // the original bytes.
-              child: Image.memory(_shot!,
-                  fit: BoxFit.contain, cacheWidth: 1000),
+            child: Hero(
+              tag: 'scan-shot',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(T.rMd),
+                // cacheWidth: preview needs no full-res texture (and the
+                // emulator's software GL can't paint one); Gemma still gets
+                // the original bytes.
+                child: Image.memory(_shot!,
+                    fit: BoxFit.contain, cacheWidth: 1000),
+              ),
             ),
           ),
         ),
@@ -249,6 +261,8 @@ class _ShutterButton extends StatelessWidget {
       button: true,
       enabled: enabled,
       label: S.takePhoto,
+      child: Pressable(
+      enabled: enabled,
       child: GestureDetector(
       onTap: enabled ? onPressed : null,
       child: AnimatedOpacity(
@@ -267,6 +281,7 @@ class _ShutterButton extends StatelessWidget {
                 BoxDecoration(shape: BoxShape.circle, color: T.brand400),
           ),
         ),
+      ),
       ),
       ),
     );

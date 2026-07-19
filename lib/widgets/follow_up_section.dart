@@ -11,6 +11,7 @@ import '../services/gemma.dart';
 import '../services/prefs.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
+import 'motion.dart';
 
 class _Turn {
   final String question; // '' when the question was spoken
@@ -156,11 +157,14 @@ class _FollowUpSectionState extends State<FollowUpSection> {
                   button: true,
                   label: S.spokenQuestion,
                   hint: S.holdToRecordHint,
+                  child: Pressable(
                   child: GestureDetector(
                     onLongPressStart: (_) => _startRecording(),
                     onLongPressEnd: (_) => _stopRecording(),
                     onLongPressCancel: () => _stopRecording(send: false),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: M.swap,
+                      curve: M.curve,
                       constraints:
                           const BoxConstraints(minWidth: 44, minHeight: 44),
                       alignment: Alignment.center,
@@ -168,13 +172,17 @@ class _FollowUpSectionState extends State<FollowUpSection> {
                         color: _recording ? c.dangerAccent : c.brandPrimary,
                         borderRadius: BorderRadius.circular(T.rSm),
                       ),
-                      child: Icon(
-                        _recording ? Icons.mic : Icons.mic_none_outlined,
-                        color: c.onBrandPrimary,
-                        size: 20,
+                      child: FadeSwap(
+                        child: Icon(
+                          _recording ? Icons.mic : Icons.mic_none_outlined,
+                          key: ValueKey(_recording),
+                          color: c.onBrandPrimary,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
+                ),
                 ),
               const SizedBox(width: T.s1),
             ],
@@ -182,8 +190,11 @@ class _FollowUpSectionState extends State<FollowUpSection> {
         ),
         if (_micSupported) ...[
           const SizedBox(height: T.s2),
-          Text(_recording ? S.listeningLetGo : S.holdAndSpeak,
-              style: T.caption.copyWith(color: c.inkMuted)),
+          FadeSwap(
+            child: Text(_recording ? S.listeningLetGo : S.holdAndSpeak,
+                key: ValueKey(_recording),
+                style: T.caption.copyWith(color: c.inkMuted)),
+          ),
         ],
       ],
     );

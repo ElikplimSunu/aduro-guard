@@ -8,6 +8,7 @@ import '../services/history.dart';
 import '../services/registry.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
+import '../widgets/motion.dart';
 import 'history.dart';
 import 'scan.dart';
 import 'settings.dart';
@@ -71,21 +72,27 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(T.s5, T.s4, T.s5, T.s6),
           children: [
-            Row(
-              children: [
-                Expanded(child: Text('Aduro Guard', style: T.h1)),
-                IconButton(
-                  onPressed: () => _open(const SettingsScreen()),
-                  tooltip: S.settings,
-                  icon: const Icon(Icons.tune, size: 22),
-                ),
-              ],
+            Entrance(
+              child: Row(
+                children: [
+                  Expanded(child: Text('Aduro Guard', style: T.h1)),
+                  IconButton(
+                    onPressed: () => _open(const SettingsScreen()),
+                    tooltip: S.settings,
+                    icon: const Icon(Icons.tune, size: 22),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: T.s6),
-            _ScanCard(onTap: () => _open(const ScanScreen())),
+            Entrance(
+                index: 1,
+                child: _ScanCard(onTap: () => _open(const ScanScreen()))),
             const SizedBox(height: T.s3),
             if (registry.isLoaded)
-              Padding(
+              Entrance(
+                index: 2,
+                child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: T.s1),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,9 +113,12 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   ],
                 ),
               ),
+              ),
             const SizedBox(height: T.s8),
             if (_loaded && _recent.isNotEmpty) ...[
-              Row(
+              Entrance(
+                index: 3,
+                child: Row(
                 children: [
                   Expanded(child: Text(S.recentChecks, style: T.h3)),
                   TextButton(
@@ -121,15 +131,20 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   ),
                 ],
               ),
+              ),
               const SizedBox(height: T.s2),
-              for (final r in _recent) ...[
-                ScanTile(record: r, onChanged: _refresh),
+              for (final (i, r) in _recent.indexed) ...[
+                Entrance(
+                    index: 4 + i,
+                    child: ScanTile(record: r, onChanged: _refresh)),
                 const SizedBox(height: T.s2),
               ],
             ] else if (_loaded) ...[
-              Text(S.recentChecks, style: T.h3),
+              Entrance(index: 3, child: Text(S.recentChecks, style: T.h3)),
               const SizedBox(height: T.s3),
-              Container(
+              Entrance(
+                index: 4,
+                child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: c.surface,
@@ -141,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
                   S.nothingChecked,
                   style: T.body.copyWith(color: c.inkMuted),
                 ),
+              ),
               ),
             ],
           ],
@@ -161,6 +177,7 @@ class _ScanCard extends StatelessWidget {
     return Semantics(
       button: true,
       label: '${S.scanAMedicine}. ${S.scanBlurb}',
+      child: Pressable(
       child: Material(
       color: T.brand700,
       borderRadius: BorderRadius.circular(T.rLg),
@@ -208,6 +225,7 @@ class _ScanCard extends StatelessWidget {
         ),
       ),
       ),
+      ),
     );
   }
 }
@@ -242,6 +260,7 @@ class ScanTile extends StatelessWidget {
     return Semantics(
       button: true,
       label: '$name. $headline. ${_when(record.at)}',
+      child: Pressable(
       child: Material(
       color: c.surface,
       borderRadius: BorderRadius.circular(T.rMd),
@@ -306,6 +325,7 @@ class ScanTile extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
       ),
     );

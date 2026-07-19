@@ -7,6 +7,7 @@ import '../services/languages.dart';
 import '../services/prefs.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
+import '../widgets/motion.dart';
 import 'home.dart';
 
 /// First run: pick a language (each option labelled in its own language),
@@ -80,7 +81,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(T.s6),
-          child: _step == 0 ? _welcome() : _brain(),
+          child: AnimatedSwitcher(
+            duration: M.swap,
+            switchInCurve: M.curve,
+            switchOutCurve: Curves.easeOut,
+            child: KeyedSubtree(
+              key: ValueKey(_step),
+              child: _step == 0 ? _welcome() : _brain(),
+            ),
+          ),
         ),
       ),
     );
@@ -93,27 +102,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: T.s8),
-        Text('Aduro Guard', style: T.display.copyWith(color: c.ink)),
+        Entrance(
+            child: Text('Aduro Guard',
+                style: T.display.copyWith(color: c.ink))),
         const SizedBox(height: T.s3),
-        Text(
-          S.welcomeBlurb,
-          style: T.body.copyWith(color: c.inkMuted, height: 1.6),
+        Entrance(
+          index: 1,
+          child: Text(
+            S.welcomeBlurb,
+            style: T.body.copyWith(color: c.inkMuted, height: 1.6),
+          ),
         ),
         const SizedBox(height: T.s8),
-        Text(S.chooseLanguage, style: T.h3),
+        Entrance(index: 2, child: Text(S.chooseLanguage, style: T.h3)),
         const SizedBox(height: T.s3),
         Expanded(
           child: ListView(
             children: [
-              for (final l in langs) ...[
-                _LangCard(
-                  title: l.endonym,
-                  subtitle: l.nativeLine,
-                  selected: selected == l.code,
-                  onTap: () {
-                    // The whole UI flips to the chosen language immediately.
-                    AduroApp.setLanguage(context, l.code);
-                  },
+              for (final (i, l) in langs.indexed) ...[
+                Entrance(
+                  index: 3 + i,
+                  child: _LangCard(
+                    title: l.endonym,
+                    subtitle: l.nativeLine,
+                    selected: selected == l.code,
+                    onTap: () {
+                      // The whole UI flips to the chosen language immediately.
+                      AduroApp.setLanguage(context, l.code);
+                    },
+                  ),
                 ),
                 const SizedBox(height: T.s3),
               ],
@@ -203,10 +220,13 @@ class _LangCard extends StatelessWidget {
       button: true,
       selected: selected,
       label: title,
-      child: InkWell(
+      child: Pressable(
+        child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(T.rMd),
-        child: Container(
+        child: AnimatedContainer(
+          duration: M.swap,
+          curve: M.curve,
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 56),
           decoration: BoxDecoration(
@@ -235,16 +255,20 @@ class _LangCard extends StatelessWidget {
                 ),
               ),
               ExcludeSemantics(
-                child: Icon(
-                  selected
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  size: 20,
-                  color: selected ? c.brandAccent : c.inkFaint,
+                child: FadeSwap(
+                  child: Icon(
+                    selected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    key: ValueKey(selected),
+                    size: 20,
+                    color: selected ? c.brandAccent : c.inkFaint,
+                  ),
                 ),
               ),
             ],
           ),
+        ),
         ),
       ),
     );

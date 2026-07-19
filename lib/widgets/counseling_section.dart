@@ -10,6 +10,7 @@ import '../services/prefs.dart';
 import '../services/strings.dart';
 import '../services/tts.dart';
 import '../theme/tokens.dart';
+import 'motion.dart';
 
 /// "What this means": Gemma phrases the settled verdict in the user's
 /// language, streamed in as it generates; spoken aloud on request.
@@ -160,11 +161,14 @@ class _CounselingSectionState extends State<CounselingSection> {
                         minimumSize: const Size(0, 40),
                         padding:
                             const EdgeInsets.symmetric(horizontal: T.s4)),
-                    icon: Icon(
-                        _speaking
-                            ? Icons.stop_circle_outlined
-                            : Icons.volume_up_outlined,
-                        size: 18),
+                    icon: FadeSwap(
+                      child: Icon(
+                          _speaking
+                              ? Icons.stop_circle_outlined
+                              : Icons.volume_up_outlined,
+                          key: ValueKey(_speaking),
+                          size: 18),
+                    ),
                     label: Text(_speaking ? S.stopReading : S.readAloud),
                   )
                 else if (langBy(_language).mmsCode != null)
@@ -197,24 +201,30 @@ class _LangChip extends StatelessWidget {
       button: true,
       selected: selected,
       label: label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(T.rSm),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 36, minWidth: 48),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? c.ink : c.surface,
-            borderRadius: BorderRadius.circular(T.rSm),
-            border: Border.all(color: selected ? c.ink : c.hairlineStrong),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: T.s3),
-          child: ExcludeSemantics(
-            child: Text(
-              label,
-              style: T.caption.copyWith(
-                  color: selected ? c.bg : c.inkMuted,
-                  fontWeight: FontWeight.w600),
+      child: Pressable(
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(T.rSm),
+          child: AnimatedContainer(
+            duration: M.swap,
+            curve: M.curve,
+            constraints: const BoxConstraints(minHeight: 36, minWidth: 48),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? c.ink : c.surface,
+              borderRadius: BorderRadius.circular(T.rSm),
+              border: Border.all(color: selected ? c.ink : c.hairlineStrong),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: T.s3),
+            child: ExcludeSemantics(
+              child: AnimatedDefaultTextStyle(
+                duration: M.swap,
+                curve: M.curve,
+                style: T.caption.copyWith(
+                    color: selected ? c.bg : c.inkMuted,
+                    fontWeight: FontWeight.w600),
+                child: Text(label),
+              ),
             ),
           ),
         ),

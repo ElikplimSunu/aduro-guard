@@ -14,6 +14,7 @@ import '../services/strings.dart';
 import '../theme/tokens.dart';
 import '../widgets/counseling_section.dart';
 import '../widgets/fact_row.dart';
+import '../widgets/motion.dart';
 import '../widgets/follow_up_section.dart';
 import '../widgets/verdict_banner.dart';
 import 'scan.dart';
@@ -96,13 +97,21 @@ class _ResultScreenState extends State<ResultScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(S.resultTitle)),
-      body: switch (_stage) {
-        _Stage.reading || _Stage.checking => _progressView(),
-        _Stage.failed => _failedView(),
-        _Stage.done => _verdict!.status == VerdictStatus.unreadable
-            ? _unreadableView()
-            : _resultView(),
-      },
+      body: AnimatedSwitcher(
+        duration: M.swap,
+        switchInCurve: M.curve,
+        switchOutCurve: Curves.easeOut,
+        child: KeyedSubtree(
+          key: ValueKey(_stage == _Stage.checking ? _Stage.reading : _stage),
+          child: switch (_stage) {
+            _Stage.reading || _Stage.checking => _progressView(),
+            _Stage.failed => _failedView(),
+            _Stage.done => _verdict!.status == VerdictStatus.unreadable
+                ? _unreadableView()
+                : _resultView(),
+          },
+        ),
+      ),
     );
   }
 
@@ -115,10 +124,14 @@ class _ResultScreenState extends State<ResultScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           ExcludeSemantics(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(T.rMd),
-              child: Image.memory(widget.imageBytes,
-                  width: 160, height: 160, fit: BoxFit.cover, cacheWidth: 480),
+            child: Hero(
+              tag: 'scan-shot',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(T.rMd),
+                child: Image.memory(widget.imageBytes,
+                    width: 160, height: 160, fit: BoxFit.cover,
+                    cacheWidth: 480),
+              ),
             ),
           ),
           const SizedBox(height: T.s6),
@@ -128,7 +141,11 @@ class _ResultScreenState extends State<ResultScreen> {
             child: CircularProgressIndicator(strokeWidth: 2.5),
           ),
           const SizedBox(height: T.s4),
-          Text(label, style: T.bodyStrong.copyWith(color: c.ink)),
+          FadeSwap(
+            child: Text(label,
+                key: ValueKey(label),
+                style: T.bodyStrong.copyWith(color: c.ink)),
+          ),
           const SizedBox(height: T.s2),
           Text(S.allOnPhone, style: T.small.copyWith(color: c.inkMuted)),
         ],
@@ -184,11 +201,13 @@ class _ResultScreenState extends State<ResultScreen> {
     return ListView(
       padding: const EdgeInsets.all(T.s5),
       children: [
-        VerdictBanner(verdict: v),
+        Entrance(child: VerdictBanner(verdict: v)),
         const SizedBox(height: T.s6),
-        Text(S.whatPackSays, style: T.h3),
+        Entrance(index: 1, child: Text(S.whatPackSays, style: T.h3)),
         const SizedBox(height: T.s3),
-        Container(
+        Entrance(
+          index: 2,
+          child: Container(
           decoration: BoxDecoration(
             color: c.surface,
             borderRadius: BorderRadius.circular(T.rMd),
@@ -223,12 +242,20 @@ class _ResultScreenState extends State<ResultScreen> {
             ],
           ),
         ),
+        ),
         const SizedBox(height: T.s6),
-        CounselingSection(extraction: e, verdict: v, historyId: _historyId),
+        Entrance(
+            index: 3,
+            child: CounselingSection(
+                extraction: e, verdict: v, historyId: _historyId)),
         const SizedBox(height: T.s6),
-        FollowUpSection(extraction: e, verdict: v),
+        Entrance(
+            index: 4, child: FollowUpSection(extraction: e, verdict: v)),
         const SizedBox(height: T.s8),
-        OutlinedButton(onPressed: _scanAgain, child: Text(S.scanAnother)),
+        Entrance(
+            index: 5,
+            child: OutlinedButton(
+                onPressed: _scanAgain, child: Text(S.scanAnother))),
         const SizedBox(height: T.s4),
       ],
     );
