@@ -71,6 +71,7 @@ class VerdictEngine {
     // being in the neighbourhood: a genuine reg number printed on a
     // wrong-named pack is exactly the counterfeit pattern, and must not
     // upgrade to "registered" on the number alone.
+    var regConfirmed = false;
     if (e.regNo.isNotEmpty) {
       final reg = normalizeReg(e.regNo);
       if (reg.length >= 8) {
@@ -80,6 +81,7 @@ class VerdictEngine {
               similarity(e.productName, p.name) >= weakMatch) {
             best = p;
             bestScore = 1.0;
+            regConfirmed = true;
             break;
           }
         }
@@ -132,6 +134,27 @@ class VerdictEngine {
     }
 
     if (matched != null) {
+      // A name match whose pack prints a DIFFERENT registration number than
+      // the register lists is a counterfeit tell (or a lapsed variant, like
+      // a dosage form whose own registration expired). Never "registered".
+      final packReg = normalizeReg(e.regNo);
+      if (!regConfirmed &&
+          packReg.length >= 8 &&
+          matched.regNo.isNotEmpty &&
+          packReg != normalizeReg(matched.regNo)) {
+        return Verdict(
+          status: VerdictStatus.caution,
+          product: matched,
+          matchScore: bestScore,
+          expiryDate: expiry,
+          lookalikeNote: lookNote,
+          reasons: [
+            'The name matches “${matched.name}” in the register, but the pack prints registration number ${e.regNo} while the register lists ${matched.regNo} for that product.',
+            'A registration number that does not match the register is a known counterfeit sign. It can also mean this particular variant is no longer registered.',
+            'Verify with your pharmacist or the FDA (0551112224 on WhatsApp) before use.',
+          ],
+        );
+      }
       // A lookalike pairing only downgrades the verdict when the read name
       // is NOT an exact match — exact reads keep the note as information.
       // Exactness ignores strength/form tokens: "Coartem 20/120" IS Coartem.

@@ -113,16 +113,22 @@ class _CounselingSectionState extends State<CounselingSection> {
       children: [
         Text(S.whatThisMeans, style: T.h3),
         const SizedBox(height: T.s2),
-        Wrap(
-          spacing: T.s2,
-          runSpacing: T.s2,
-          children: [
-            for (final l in langs)
-              _LangChip(
-                  label: l.endonym,
-                  selected: _language == l.code,
-                  onTap: () => _setLanguage(l.code)),
-          ],
+        // One horizontal row, scrollable past the edge: verdict pages are
+        // long, so the picker must not stack vertically.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: Row(
+            children: [
+              for (final l in langs) ...[
+                _LangChip(
+                    label: l.endonym,
+                    selected: _language == l.code,
+                    onTap: () => _setLanguage(l.code)),
+                if (l != langs.last) const SizedBox(width: T.s2),
+              ],
+            ],
+          ),
         ),
         const SizedBox(height: T.s3),
         Container(

@@ -69,6 +69,17 @@ void main() {
       expect(v.status, isNot(VerdictStatus.registered));
     });
 
+    test('name match with a mismatched pack reg number downgrades to caution',
+        () {
+      // Real case: Coldrilif capsules fuzzy-match the registered sachets
+      // entry, but the capsules print their own (lapsed) reg number.
+      final v = engine.evaluate(const Extraction(
+          productName: 'Lufart 20mg+120mg Tablets',
+          regNo: 'FDA/SD.999-00000'));
+      expect(v.status, VerdictStatus.caution);
+      expect(v.reasons.first, contains('registration number'));
+    });
+
     test('normalizeReg', () {
       expect(VerdictEngine.normalizeReg('FDB/SD.165-8501'),
           VerdictEngine.normalizeReg('fda/sd 165 8501'));
