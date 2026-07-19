@@ -158,6 +158,8 @@ abstract final class S {
   static String get importFailed => _l('That file could not be imported.');
   static String get notSeenOnPack =>
       _l('The camera did not see:', tw: 'Kamera no anhu:');
+  static String get fromRegisterTag => _l('register', tw: 'nhoma mu');
+  static String get packPhoto => _l('Pack photo', tw: 'Aduro no mfonini');
   static String get addAnotherSide =>
       _l('Add a photo of another side', tw: 'Fa ɔfa foforo mfonini ka ho');
   static String get sideFailed => _l(

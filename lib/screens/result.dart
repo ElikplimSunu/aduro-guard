@@ -38,6 +38,7 @@ class _ResultScreenState extends State<ResultScreen> {
   String _error = '';
   int? _historyId;
   int _extraShots = 0;
+  late final List<Uint8List> _shots = [widget.imageBytes];
 
   @override
   void initState() {
@@ -120,6 +121,7 @@ class _ResultScreenState extends State<ResultScreen> {
         _verdict = verdict;
         _stage = _Stage.done;
         _extraShots++;
+        _shots.add(bytes);
       });
       SemanticsService.sendAnnouncement(View.of(context),
           verdictHeadline(verdict.status), TextDirection.ltr);
@@ -271,10 +273,24 @@ class _ResultScreenState extends State<ResultScreen> {
     );
   }
 
+  void _openPhotos() {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => _PhotoViewer(shots: List.of(_shots))));
+  }
+
   Widget _resultView() {
     final c = context.c;
     final e = _extraction!;
     final v = _verdict!;
+    // A confidently matched register entry fills what the camera missed,
+    // visibly tagged so pack reads and register data never blur.
+    final regProduct = (v.status == VerdictStatus.registered ||
+            v.status == VerdictStatus.expired)
+        ? v.product
+        : null;
+    final regMaker =
+        e.manufacturer.isEmpty ? (regProduct?.manufacturer ?? '') : '';
+    final regNumber = e.regNo.isEmpty ? (regProduct?.regNo ?? '') : '';
     return ListView(
       padding: const EdgeInsets.all(T.s5),
       children: [
@@ -299,21 +315,36 @@ class _ResultScreenState extends State<ResultScreen> {
                 child: Column(
                   children: [
                     FactRow(label: S.product, value: e.productName),
-                    FactRow(label: S.madeBy, value: e.manufacturer),
+                    FactRow(
+                        label: S.madeBy,
+                        value: e.manufacturer.isNotEmpty
+                            ? e.manufacturer
+                            : regMaker,
+                        fromRegister: regMaker.isNotEmpty),
                     FactRow(label: S.batch, value: e.batchNumber),
                     FactRow(label: S.expiry, value: e.expiryRaw),
-                    if (e.regNo.isNotEmpty)
-                      FactRow(label: S.fdaNumber, value: e.regNo),
+                    if (e.regNo.isNotEmpty || regNumber.isNotEmpty)
+                      FactRow(
+                          label: S.fdaNumber,
+                          value: e.regNo.isNotEmpty ? e.regNo : regNumber,
+                          fromRegister: regNumber.isNotEmpty),
                   ],
                 ),
               ),
               const SizedBox(width: T.s3),
-              ExcludeSemantics(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(T.rSm),
-                  child: Image.memory(widget.imageBytes,
-                      width: 64, height: 64, fit: BoxFit.cover,
-                      cacheWidth: 192),
+              Semantics(
+                button: true,
+                label: S.packPhoto,
+                child: Pressable(
+                  child: GestureDetector(
+                    onTap: _openPhotos,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(T.rSm),
+                      child: Image.memory(widget.imageBytes,
+                          width: 64, height: 64, fit: BoxFit.cover,
+                          cacheWidth: 192),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -347,6 +378,36 @@ class _ResultScreenState extends State<ResultScreen> {
                 onPressed: _scanAgain, child: Text(S.scanAnother))),
         const SizedBox(height: T.s4),
       ],
+    );
+  }
+}
+
+/// Full-screen look at the exact photos taken, pinch-zoomable, swipeable
+/// when a second side was added.
+class _PhotoViewer extends StatelessWidget {
+  final List<Uint8List> shots;
+
+  const _PhotoViewer({required this.shots});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: T.neutral950,
+      appBar: AppBar(
+        backgroundColor: T.neutral950,
+        foregroundColor: T.neutral0,
+        title: Text(S.packPhoto, style: T.h3.copyWith(color: T.neutral0)),
+        iconTheme: const IconThemeData(color: T.neutral0, size: 22),
+      ),
+      body: PageView(
+        children: [
+          for (final b in shots)
+            InteractiveViewer(
+              maxScale: 5,
+              child: Center(child: Image.memory(b, fit: BoxFit.contain)),
+            ),
+        ],
+      ),
     );
   }
 }
