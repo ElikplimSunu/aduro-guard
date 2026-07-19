@@ -133,7 +133,7 @@ class VerdictEngine {
             'Expiry ${_fmtMonth(expiry)} — still in date.'
           else if (e.expiryRaw.isEmpty)
             'No expiry date was read from the pack — check it yourself before use.',
-          if (lookNote != null) lookNote,
+          ?lookNote,
         ],
       );
     }
@@ -149,7 +149,7 @@ class VerdictEngine {
           'The name read as “${e.productName}”, which is close to '
               '“${best.name}” in the register — but not an exact match.',
           'Check the spelling on the pack carefully. Small name changes are a known counterfeit trick.',
-          if (lookNote != null) lookNote,
+          ?lookNote,
         ],
       );
     }

@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Used only for the one-time model download; inference is offline. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="aduro"
+        android:label="Aduro Guard"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:largeHeap="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,6 +35,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Required for the LiteRT-LM GPU backend on Android 12+: the OpenCL
+             loader dlopens the vendor driver via libvndksupport; without these
+             entries OpenCL can't load and inference falls back badly. -->
+        <uses-native-library android:name="libvndksupport.so" android:required="false"/>
+        <uses-native-library android:name="libOpenCL.so" android:required="false"/>
+        <uses-native-library android:name="libOpenCL-car.so" android:required="false"/>
+        <uses-native-library android:name="libOpenCL-pixel.so" android:required="false"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

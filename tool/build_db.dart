@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 // Builds assets/db/registry.db from the TSVs in tool/data/.
 //
 // Run from the project root:  dart run tool/build_db.dart

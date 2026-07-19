@@ -20,6 +20,7 @@ dependencies:
   flutter_tts: ^4.2.5
   record: ^6.2.1
   flutter_dotenv: ^6.0.1
+  flutter_gemma_litertlm: ^1.1.0
 
 dev_dependencies:
   flutter_test:
