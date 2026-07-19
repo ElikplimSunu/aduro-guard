@@ -66,6 +66,25 @@ class VerdictEngine {
         best = p;
       }
     }
+    // Exact registration-number hit outranks name fuzz — with the full FDA
+    // register export every product carries one. Gated on the read name still
+    // being in the neighbourhood: a genuine reg number printed on a
+    // wrong-named pack is exactly the counterfeit pattern, and must not
+    // upgrade to "registered" on the number alone.
+    if (e.regNo.isNotEmpty) {
+      final reg = normalizeReg(e.regNo);
+      if (reg.length >= 8) {
+        for (final p in products) {
+          if (p.regNo.isNotEmpty &&
+              normalizeReg(p.regNo) == reg &&
+              similarity(e.productName, p.name) >= weakMatch) {
+            best = p;
+            bestScore = 1.0;
+            break;
+          }
+        }
+      }
+    }
     final matched = bestScore >= strongMatch ? best : null;
 
     // Lookalike note — attaches to whatever the verdict ends up being.
@@ -175,6 +194,15 @@ class VerdictEngine {
       .replaceAll(RegExp(r'[^a-z0-9]+'), ' ')
       .trim()
       .replaceAll(RegExp(r'\s+'), ' ');
+
+  /// Registration numbers compared with punctuation and spacing ignored.
+  /// FDB is the pre-2013 prefix (Food and Drugs Board); older packs still
+  /// print it while the register lists the same number under FDA.
+  static String normalizeReg(String s) {
+    var t = s.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    if (t.startsWith('FDB')) t = 'FDA${t.substring(3)}';
+    return t;
+  }
 
   static final _noiseToken = RegExp(
       r'^(\d+([./x]\d+)*|mg|ml|g|mcg|iu|tablets?|tab|caps?|capsules?|susp|suspension|syrup|injection|inj|softgel|dispersible|oral|solution|cream|drops?)$');

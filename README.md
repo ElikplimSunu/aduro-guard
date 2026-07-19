@@ -76,8 +76,8 @@ lib/
   widgets/      verdict banner, counseling, follow-up, fact rows
 tool/
   build_db.dart        compiles tool/data/*.tsv into assets/db/registry.db, with self-check
-  scrape_register.py   full FDA register export, for when the public server is reachable
-  data/                curated snapshot: real products, real FDA recalls, lookalike pairs
+  scrape_register.py   full FDA register export (resumable, polite paging)
+  data/                register export + curated FDA recalls, alerts, lookalike pairs
 test/verdict_test.dart the safety logic's unit checks
 docs/                  writeup draft and screenshots
 ```
@@ -98,14 +98,15 @@ fully offline.
 
 ## The register snapshot
 
-The Ghana FDA's public register of 30,000+ products is served from
-`fdaghana.gov.gh/product-register/`, and its backend is intermittently unreachable. The
-committed snapshot is therefore a curated subset of real products compiled from FDA Ghana
-public alerts, WHO medical product alerts, Ghana's essential medicines list, and common
-registered brands, with a source recorded per row in
-[tool/data/products.tsv](tool/data/products.tsv). The app labels it honestly as a
-snapshot. When the server responds, `tool/scrape_register.py` exports the full register
-and `tool/build_db.dart` folds it in automatically.
+The committed snapshot is a full export of the Ghana FDA public product register
+(`verifypermit.fdaghana.gov.gh/publicsearch`, 16,454 products with registration numbers,
+generics, and manufacturers), taken with [tool/scrape_register.py](tool/scrape_register.py)
+and merged by [tool/build_db.dart](tool/build_db.dart) with a curated layer of real FDA
+Ghana recall and safety alerts, WHO medical product alerts, essential-medicines generics,
+and lookalike name pairs ([tool/data/](tool/data/)). The government server is
+intermittently unreachable and its search only answers online; the app carries the whole
+register on the phone and labels it honestly as a dated snapshot. Re-run the scraper and
+`dart run tool/build_db.dart` any time to refresh it.
 
 ## Design
 
@@ -130,7 +131,8 @@ switch-access users.
 
 ## Honest limits
 
-- The snapshot is a subset, so "not found" always means verify, never fake.
+- The snapshot is dated the day it was exported, so "not found" always means verify,
+  never fake.
 - Twi output is code-switched everyday Twi. Ewe, Dagbani, and Hausa output is newer and
   labelled early support in the app.
 - The MMS voices are intelligible rather than natural, and Dagbani has no published

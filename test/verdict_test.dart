@@ -15,6 +15,7 @@ void main() {
       Product(id: 4, name: 'Lonart DS', generic: 'Artemether + Lumefantrine', manufacturer: 'Bliss GVS Pharma'),
       Product(id: 5, name: 'Amatem Softgel', generic: 'Artemether + Lumefantrine', manufacturer: 'Elbe Pharma'),
       Product(id: 6, name: 'Combiart', generic: 'Artemether + Lumefantrine', manufacturer: 'Strides Pharma'),
+      Product(id: 7, name: 'Lufart 20mg+120mg Tablets', generic: 'Artemether + Lumefantrine', manufacturer: 'Entrance Pharmaceuticals', regNo: 'FDA/SD.165-8501'),
     ],
     recalls: const [
       Recall(name: 'Naturcold', manufacturer: 'Fraken International (Cameroon)', type: 'alert', reason: 'Contaminated cough syrup.'),
@@ -47,6 +48,30 @@ void main() {
     });
     test('garbage returns null', () {
       expect(VerdictEngine.parseExpiry('see carton'), isNull);
+    });
+  });
+
+  group('registration numbers', () {
+    test('old FDB prefix and punctuation drift still hit the FDA entry', () {
+      // Fuzzy name alone lands short of a strong match here; the reg number
+      // printed on the pack (old FDB prefix, as on real Lufart boxes) closes it.
+      final v = engine.evaluate(const Extraction(
+          productName: 'Lufart Tablets',
+          regNo: 'FDB/SD.165-8501',
+          expiryRaw: '09/2026'));
+      expect(v.status, VerdictStatus.registered);
+      expect(v.product!.name, 'Lufart 20mg+120mg Tablets');
+    });
+
+    test('a genuine reg number on a wrong-named pack does not upgrade', () {
+      final v = engine.evaluate(const Extraction(
+          productName: 'Malacure', regNo: 'FDA/SD.165-8501'));
+      expect(v.status, isNot(VerdictStatus.registered));
+    });
+
+    test('normalizeReg', () {
+      expect(VerdictEngine.normalizeReg('FDB/SD.165-8501'),
+          VerdictEngine.normalizeReg('fda/sd 165 8501'));
     });
   });
 

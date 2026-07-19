@@ -82,8 +82,10 @@ Future<void> main() async {
     for (final r in _readTsv(live)) {
       await insertProduct({
         'name': r['product_name'] ?? '',
+        'generic': r['generic'] ?? '',
         'manufacturer': r['manufacturer'] ?? '',
         'category': r['category'] ?? '',
+        'reg_no': r['reg_no'] ?? '',
         'status': r['status'] ?? 'active',
         'source': 'fda-register-export',
       });
@@ -124,8 +126,9 @@ Future<void> main() async {
     'sources': liveCount > 0
         ? 'Ghana FDA public register export; FDA Ghana public alerts; WHO medical product alerts'
         : 'Curated snapshot: FDA Ghana public alerts, WHO alerts, Ghana EML generics, common registered brands',
-    'register_note':
-        'The Ghana FDA online register lists 30,000+ products; this offline snapshot is a subset.',
+    'register_note': liveCount > 0
+        ? 'Full export of the FDA Ghana public product register, taken $today.'
+        : 'The Ghana FDA online register lists 16,000+ products; this offline snapshot is a subset.',
   }.entries) {
     await db.insert('meta', {'key': e.key, 'value': e.value});
   }

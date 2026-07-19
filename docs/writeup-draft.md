@@ -27,8 +27,9 @@ quality testing.
 
 The defense a Ghanaian buyer actually has today is mPedigree: scratch a code, SMS it,
 wait. It only works for products whose manufacturers opted in, and it assumes the buyer
-reads English comfortably. The FDA's own register of 30,000+ products is public, but
-nobody at a market stall queries a website while a drug peddler waits.
+reads English comfortably. The FDA's own register of 16,000+ products is public, but its
+server is intermittently down, the search only answers online, and nobody at a market
+stall queries a website while a drug peddler waits.
 
 [ONE HUMAN SENTENCE. For example: "My aunt buys her hypertension medicine from a roadside
 stall in Kumasi; this is for her."]
@@ -54,12 +55,14 @@ The safety-critical design decision: **the model never invents a verdict.**
 1. **Vision.** Gemma 4 E2B (on-device, LiteRT-LM, GPU) receives the pack photo with a
    strict-JSON prompt and returns `{product_name, manufacturer, batch_number,
    expiry_date, registration_number, pack_text, legible}`.
-2. **Decision.** Pure Dart code checks the extraction against an offline SQLite snapshot
-   of the Ghana FDA product register, a recall and alert table built from real FDA Ghana
-   and WHO notices, and a lookalike-name table. Expiry parsing, fuzzy matching, and recall
-   precedence are deterministic and unit-tested. A one-letter near-miss like "Pamadol" can
-   never pass as "Panadol"; single-word spellings short of exact are capped below the
-   match threshold.
+2. **Decision.** Pure Dart code checks the extraction against a full offline export of
+   the Ghana FDA product register (16,454 products with registration numbers), a recall
+   and alert table built from real FDA Ghana and WHO notices, and a lookalike-name table.
+   Registration numbers match exactly (including the old FDB prefix still printed on many
+   packs), expiry parsing, fuzzy matching, and recall precedence are deterministic and
+   unit-tested. A one-letter near-miss like "Pamadol" can never pass as "Panadol";
+   single-word spellings short of exact are capped below the match threshold, and a
+   genuine registration number on a wrong-named pack never upgrades the verdict.
 3. **Explanation.** Gemma phrases the settled verdict as 3 to 5 simple sentences in
    English, Twi, Ewe, Dagbani, or Hausa (few-shot exemplars; medicine names stay in
    English). Speech out is offline as well: the device voice covers English, and Twi,
