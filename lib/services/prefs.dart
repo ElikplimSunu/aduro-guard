@@ -23,6 +23,10 @@ class Prefs {
   String get modelFile => (_data['modelFile'] ?? '') as String;
   set modelFile(String v) => _set('modelFile', v);
 
+  /// 'system' | 'light' | 'dark'
+  String get themeMode => (_data['themeMode'] ?? 'system') as String;
+  set themeMode(String v) => _set('themeMode', v);
+
   Future<void> load() async {
     final dir = await getApplicationDocumentsDirectory();
     _file = File('${dir.path}/prefs.json');

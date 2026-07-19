@@ -1,6 +1,7 @@
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
+import '../main.dart' show AduroApp;
 import '../services/gemma.dart';
 import '../services/prefs.dart';
 import '../services/registry.dart';
@@ -15,9 +16,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String _language = Prefs.instance.language;
+  String _themeMode = Prefs.instance.themeMode;
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final registry = Registry.instance;
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
@@ -44,11 +47,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: T.s8),
+          Text('Appearance', style: T.h3),
+          const SizedBox(height: T.s3),
+          _Card(
+            child: Column(
+              children: [
+                _RadioRow(
+                  label: 'Match the phone',
+                  selected: _themeMode == 'system',
+                  onTap: () => _setThemeMode('system'),
+                ),
+                const Divider(),
+                _RadioRow(
+                  label: 'Light',
+                  selected: _themeMode == 'light',
+                  onTap: () => _setThemeMode('light'),
+                ),
+                const Divider(),
+                _RadioRow(
+                  label: 'Dark',
+                  selected: _themeMode == 'dark',
+                  onTap: () => _setThemeMode('dark'),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: T.s8),
           Text('Offline brain', style: T.h3),
           const SizedBox(height: T.s1),
           Text(
             'Gemma 4 runs entirely on this phone. Download once on Wi-Fi; scanning then needs no internet at all.',
-            style: T.small,
+            style: T.small.copyWith(color: c.inkMuted),
           ),
           const SizedBox(height: T.s3),
           for (final m in modelOptions) ...[
@@ -65,17 +94,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (registry.isLoaded) ...[
                   Text(
                     'Register snapshot: ${registry.productCount} products · ${registry.snapshotDate}',
-                    style: T.bodyStrong,
+                    style: T.bodyStrong.copyWith(color: c.ink),
                   ),
                   const SizedBox(height: T.s2),
-                  Text(registry.sources, style: T.small),
+                  Text(registry.sources,
+                      style: T.small.copyWith(color: c.inkMuted)),
                   const SizedBox(height: T.s2),
-                  Text(registry.registerNote, style: T.small),
+                  Text(registry.registerNote,
+                      style: T.small.copyWith(color: c.inkMuted)),
                   const SizedBox(height: T.s4),
                 ],
                 Text(
-                  'Aduro Guard is a verification aid, not medical advice. For any health decision, talk to a pharmacist, a clinic, or the FDA — 0551112224 on WhatsApp.',
-                  style: T.small,
+                  'Aduro Guard is a verification aid, not medical advice. For any health decision, talk to a pharmacist, a clinic, or the FDA on 0551112224 (WhatsApp).',
+                  style: T.small.copyWith(color: c.inkMuted),
                 ),
               ],
             ),
@@ -89,6 +120,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Prefs.instance.language = v;
     setState(() => _language = v);
   }
+
+  void _setThemeMode(String v) {
+    setState(() => _themeMode = v);
+    AduroApp.setThemeMode(
+        context, ThemeMode.values.firstWhere((m) => m.name == v));
+  }
 }
 
 class _Card extends StatelessWidget {
@@ -98,12 +135,13 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: T.neutral0,
+        color: c.surface,
         borderRadius: BorderRadius.circular(T.rMd),
-        border: Border.all(color: T.neutral200),
+        border: Border.all(color: c.hairline),
       ),
       padding: const EdgeInsets.all(T.s4),
       child: child,
@@ -121,19 +159,20 @@ class _RadioRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return InkWell(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: T.s2),
         child: Row(
           children: [
-            Expanded(child: Text(label, style: T.body)),
+            Expanded(child: Text(label, style: T.body.copyWith(color: c.ink))),
             Icon(
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               size: 20,
-              color: selected ? T.brand700 : T.neutral400,
+              color: selected ? c.brandAccent : c.inkFaint,
             ),
           ],
         ),
@@ -218,6 +257,7 @@ class _ModelCardState extends State<_ModelCard> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final m = widget.option;
     final downloading = _progress >= 0;
     return _Card(
@@ -226,16 +266,18 @@ class _ModelCardState extends State<_ModelCard> {
         children: [
           Row(
             children: [
-              Expanded(child: Text(m.displayName, style: T.bodyStrong)),
+              Expanded(
+                  child:
+                      Text(m.displayName, style: T.bodyStrong.copyWith(color: c.ink))),
               if (_installed == true)
-                const Icon(Icons.check_circle_outline,
-                    size: 18, color: T.success600)
+                Icon(Icons.check_circle_outline,
+                    size: 18, color: c.successAccent)
               else
-                Text(m.sizeLabel, style: T.caption),
+                Text(m.sizeLabel, style: T.caption.copyWith(color: c.inkMuted)),
             ],
           ),
           const SizedBox(height: T.s1),
-          Text(m.blurb, style: T.small),
+          Text(m.blurb, style: T.small.copyWith(color: c.inkMuted)),
           const SizedBox(height: T.s3),
           if (downloading) ...[
             ClipRRect(
@@ -245,16 +287,16 @@ class _ModelCardState extends State<_ModelCard> {
                   minHeight: 6),
             ),
             const SizedBox(height: T.s2),
-            Text('Downloading… $_progress%', style: T.caption),
+            Text('Downloading… $_progress%',
+                style: T.caption.copyWith(color: c.inkMuted)),
           ] else if (_installed == true)
             Row(
               children: [
-                Text('Installed', style: T.small),
+                Text('Installed', style: T.small.copyWith(color: c.inkMuted)),
                 const Spacer(),
                 TextButton(
                   onPressed: _delete,
-                  style:
-                      TextButton.styleFrom(foregroundColor: T.danger600),
+                  style: TextButton.styleFrom(foregroundColor: c.dangerAccent),
                   child: const Text('Remove'),
                 ),
               ],

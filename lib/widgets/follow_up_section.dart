@@ -18,7 +18,7 @@ class _Turn {
   _Turn(this.question);
 }
 
-/// "Ask about this pack" — hold the mic and speak, or type. Every answer is
+/// "Ask about this pack": hold the mic and speak, or type. Every answer is
 /// grounded in the pack text; off-pack questions get referred, not guessed.
 class FollowUpSection extends StatefulWidget {
   final Extraction extraction;
@@ -96,7 +96,7 @@ class _FollowUpSectionState extends State<FollowUpSection> {
         setState(() => turn.answer += chunk);
       }
     } catch (_) {
-      turn.answer = 'That didn’t work — ask again.';
+      turn.answer = 'That didn’t work. Ask again.';
     } finally {
       if (mounted) {
         setState(() {
@@ -109,20 +109,21 @@ class _FollowUpSectionState extends State<FollowUpSection> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Ask about this pack', style: T.h3),
         const SizedBox(height: T.s1),
         Text('Answers come only from what the pack itself says.',
-            style: T.small),
+            style: T.small.copyWith(color: c.inkMuted)),
         const SizedBox(height: T.s3),
         for (final t in _turns) _TurnView(turn: t),
         Container(
           decoration: BoxDecoration(
-            color: T.neutral0,
+            color: c.surface,
             borderRadius: BorderRadius.circular(T.rMd),
-            border: Border.all(color: T.neutral200),
+            border: Border.all(color: c.hairline),
           ),
           padding: const EdgeInsets.symmetric(horizontal: T.s2, vertical: T.s1),
           child: Row(
@@ -130,7 +131,7 @@ class _FollowUpSectionState extends State<FollowUpSection> {
               Expanded(
                 child: TextField(
                   controller: _controller,
-                  style: T.body,
+                  style: T.body.copyWith(color: c.ink),
                   enabled: !_answering,
                   decoration: const InputDecoration(
                     hintText: 'Type a question…',
@@ -157,13 +158,13 @@ class _FollowUpSectionState extends State<FollowUpSection> {
                   onLongPressCancel: () => _stopRecording(send: false),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _recording ? T.danger600 : T.brand700,
+                      color: _recording ? c.dangerAccent : c.brandPrimary,
                       borderRadius: BorderRadius.circular(T.rSm),
                     ),
                     padding: const EdgeInsets.all(T.s2 + 2),
                     child: Icon(
                       _recording ? Icons.mic : Icons.mic_none_outlined,
-                      color: T.neutral0,
+                      color: c.onBrandPrimary,
                       size: 20,
                     ),
                   ),
@@ -178,7 +179,7 @@ class _FollowUpSectionState extends State<FollowUpSection> {
               _recording
                   ? 'Listening… let go to send.'
                   : 'Hold the gold button and speak your question.',
-              style: T.caption),
+              style: T.caption.copyWith(color: c.inkMuted)),
         ],
       ],
     );
@@ -192,6 +193,7 @@ class _TurnView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.only(bottom: T.s3),
       child: Column(
@@ -204,12 +206,13 @@ class _TurnView extends StatelessWidget {
                       ? Icons.mic_none_outlined
                       : Icons.chat_bubble_outline,
                   size: 15,
-                  color: T.neutral500),
+                  color: c.inkFaint),
               const SizedBox(width: T.s2),
               Expanded(
                 child: Text(
                   turn.question.isEmpty ? 'Spoken question' : turn.question,
-                  style: T.small.copyWith(fontWeight: FontWeight.w600),
+                  style: T.small
+                      .copyWith(color: c.inkMuted, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -223,11 +226,13 @@ class _TurnView extends StatelessWidget {
                     height: 13,
                     child: CircularProgressIndicator(strokeWidth: 2)),
                 const SizedBox(width: T.s3),
-                Text('Listening to the pack…', style: T.small),
+                Text('Listening to the pack…',
+                    style: T.small.copyWith(color: c.inkMuted)),
               ],
             )
           else
-            Text(turn.answer.trim(), style: T.body.copyWith(height: 1.55)),
+            Text(turn.answer.trim(),
+                style: T.body.copyWith(height: 1.55, color: c.ink)),
         ],
       ),
     );

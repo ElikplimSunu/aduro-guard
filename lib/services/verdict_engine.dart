@@ -104,7 +104,7 @@ class VerdictEngine {
         expiryDate: expiry,
         lookalikeNote: lookNote,
         reasons: [
-          'The pack shows an expiry of ${_fmtMonth(expiry)} — that date has passed.',
+          'The pack shows an expiry of ${_fmtMonth(expiry)}. That date has passed.',
           if (matched != null)
             'The product itself (${matched.name}) is in the register snapshot, but this pack is expired.',
           'Expired medicine can be weak or unsafe. Do not take it.',
@@ -131,9 +131,9 @@ class VerdictEngine {
           'Found in the register snapshot as “${matched.name}”'
               '${matched.manufacturer.isNotEmpty ? ' by ${matched.manufacturer}' : ''}.',
           if (expiry != null)
-            'Expiry ${_fmtMonth(expiry)} — still in date.'
+            'Expiry ${_fmtMonth(expiry)}, still in date.'
           else if (e.expiryRaw.isEmpty)
-            'No expiry date was read from the pack — check it yourself before use.',
+            'No expiry date was read from the pack. Check it yourself before use.',
           ?lookNote,
         ],
       );
@@ -148,7 +148,7 @@ class VerdictEngine {
         lookalikeNote: lookNote,
         reasons: [
           'The name read as “${e.productName}”, which is close to '
-              '“${best.name}” in the register — but not an exact match.',
+              '“${best.name}” in the register, but not an exact match.',
           'Check the spelling on the pack carefully. Small name changes are a known counterfeit trick.',
           ?lookNote,
         ],
@@ -162,7 +162,7 @@ class VerdictEngine {
       lookalikeNote: lookNote,
       reasons: [
         '“${e.productName}” was not found in this offline register snapshot.',
-        'That does not prove it is fake — but treat it with caution.',
+        'That does not prove it is fake, but treat it with caution.',
         'Verify with your pharmacist or the FDA (0551112224 on WhatsApp) before use.',
       ],
     );

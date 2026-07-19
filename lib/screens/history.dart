@@ -36,6 +36,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Scaffold(
       appBar: AppBar(title: const Text('All checks')),
       body: !_loaded
@@ -45,7 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(T.s6),
                     child: Text('No checks yet.',
-                        style: T.body.copyWith(color: T.neutral600)),
+                        style: T.body.copyWith(color: c.inkMuted)),
                   ),
                 )
               : ListView.separated(
@@ -59,26 +60,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 }
 
-/// A saved check, re-opened. Shows what was decided at scan time —
-/// no re-run, no model needed.
+/// A saved check, re-opened. Shows what was decided at scan time.
+/// No re-run, no model needed.
 class HistoryDetailScreen extends StatelessWidget {
   final ScanRecord record;
 
   const HistoryDetailScreen({super.key, required this.record});
 
-  static const _status = {
-    'registered': ('In the register', T.success700, T.successSurface),
-    'expired': ('Expired — do not take', T.danger700, T.dangerSurface),
-    'recalled': ('Do not take this', T.danger700, T.dangerSurface),
-    'caution': ('Check this carefully', T.warning700, T.warningSurface),
-    'notFound': ('Not in the register snapshot', T.warning700, T.warningSurface),
-  };
-
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final e = record.extraction;
-    final s = _status[record.verdictStatus] ??
-        ('Checked', T.neutral700, T.neutral100);
+    final (headline, fg, bg) = switch (record.verdictStatus) {
+      'registered' => ('In the register', c.successText, c.successSurface),
+      'expired' => ('Expired', c.dangerText, c.dangerSurface),
+      'recalled' => ('Do not take this', c.dangerText, c.dangerSurface),
+      'caution' => ('Check this carefully', c.warningText, c.warningSurface),
+      'notFound' => (
+          'Not in the register snapshot',
+          c.warningText,
+          c.warningSurface
+        ),
+      _ => ('Checked', c.muteText, c.muteSurface),
+    };
     return Scaffold(
       appBar: AppBar(
         title: const Text('Saved check'),
@@ -90,9 +94,6 @@ class HistoryDetailScreen extends StatelessWidget {
               final confirmed = await showDialog<bool>(
                 context: context,
                 builder: (ctx) => AlertDialog(
-                  backgroundColor: T.neutral0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(T.rLg)),
                   title: Text('Delete this check?', style: T.h3),
                   content: Text('This only removes the saved record.',
                       style: T.body),
@@ -103,7 +104,7 @@ class HistoryDetailScreen extends StatelessWidget {
                     TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
                         style: TextButton.styleFrom(
-                            foregroundColor: T.danger600),
+                            foregroundColor: c.dangerAccent),
                         child: const Text('Delete')),
                   ],
                 ),
@@ -126,18 +127,18 @@ class HistoryDetailScreen extends StatelessWidget {
           Container(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: s.$3,
+              color: bg,
               borderRadius: BorderRadius.circular(T.rLg),
             ),
             padding: const EdgeInsets.all(T.s5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(s.$1, style: T.h2.copyWith(color: s.$2)),
+                Text(headline, style: T.h2.copyWith(color: fg)),
                 if (record.verdictSummary.isNotEmpty) ...[
                   const SizedBox(height: T.s2),
                   Text(record.verdictSummary,
-                      style: T.body.copyWith(color: T.neutral800)),
+                      style: T.body.copyWith(color: c.ink)),
                 ],
               ],
             ),
@@ -148,7 +149,7 @@ class HistoryDetailScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(T.rMd),
               child: Image.file(File(record.imagePath),
-                  height: 180, fit: BoxFit.cover),
+                  height: 180, fit: BoxFit.cover, cacheHeight: 540),
             ),
             const SizedBox(height: T.s6),
           ],
@@ -156,9 +157,9 @@ class HistoryDetailScreen extends StatelessWidget {
           const SizedBox(height: T.s3),
           Container(
             decoration: BoxDecoration(
-              color: T.neutral0,
+              color: c.surface,
               borderRadius: BorderRadius.circular(T.rMd),
-              border: Border.all(color: T.neutral200),
+              border: Border.all(color: c.hairline),
             ),
             padding:
                 const EdgeInsets.symmetric(horizontal: T.s4, vertical: T.s3),
@@ -178,18 +179,19 @@ class HistoryDetailScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: T.neutral0,
+                color: c.surface,
                 borderRadius: BorderRadius.circular(T.rMd),
-                border: Border.all(color: T.neutral200),
+                border: Border.all(color: c.hairline),
               ),
               padding: const EdgeInsets.all(T.s4),
               child: Text(record.counseling,
-                  style: T.body.copyWith(height: 1.6)),
+                  style: T.body.copyWith(height: 1.6, color: c.ink)),
             ),
           ],
           const SizedBox(height: T.s4),
-          Text('Checked ${record.at.day}/${record.at.month}/${record.at.year}',
-              style: T.caption),
+          Text(
+              'Checked ${record.at.day}/${record.at.month}/${record.at.year}',
+              style: T.caption.copyWith(color: c.inkMuted)),
         ],
       ),
     );

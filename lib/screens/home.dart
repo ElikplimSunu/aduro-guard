@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     final registry = Registry.instance;
     return Scaffold(
       body: SafeArea(
@@ -86,14 +87,18 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: T.s1),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.cloud_off_outlined,
-                        size: 14, color: T.neutral500),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 1),
+                      child: Icon(Icons.cloud_off_outlined,
+                          size: 14, color: c.inkFaint),
+                    ),
                     const SizedBox(width: T.s2),
                     Expanded(
                       child: Text(
                         'Works offline · register snapshot of ${registry.productCount} products · ${registry.snapshotDate}',
-                        style: T.caption,
+                        style: T.caption.copyWith(color: c.inkMuted),
                       ),
                     ),
                   ],
@@ -125,14 +130,14 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: T.neutral0,
+                  color: c.surface,
                   borderRadius: BorderRadius.circular(T.rMd),
-                  border: Border.all(color: T.neutral200),
+                  border: Border.all(color: c.hairline),
                 ),
                 padding: const EdgeInsets.all(T.s5),
                 child: Text(
-                  'Nothing checked yet. Scan your first medicine — the verdict lands here.',
-                  style: T.body.copyWith(color: T.neutral600),
+                  'Nothing checked yet. Scan your first medicine and the verdict lands here.',
+                  style: T.body.copyWith(color: c.inkMuted),
                 ),
               ),
             ],
@@ -143,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> with RouteAware {
   }
 }
 
-/// The one gold moment on the screen — everything else stays quiet.
+/// The one gold moment on the screen. Deliberately identical in both themes.
 class _ScanCard extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -199,21 +204,20 @@ class ScanTile extends StatelessWidget {
 
   const ScanTile({super.key, required this.record, this.onChanged});
 
-  static const _dot = {
-    'registered': T.success600,
-    'expired': T.danger600,
-    'recalled': T.danger600,
-    'caution': T.warning600,
-    'notFound': T.warning600,
-  };
-
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
+    final dot = switch (record.verdictStatus) {
+      'registered' => c.successAccent,
+      'expired' || 'recalled' => c.dangerAccent,
+      'caution' || 'notFound' => c.warningAccent,
+      _ => c.inkFaint,
+    };
     final name = record.extraction.productName.isEmpty
         ? 'Unnamed pack'
         : record.extraction.productName;
     return Material(
-      color: T.neutral0,
+      color: c.surface,
       borderRadius: BorderRadius.circular(T.rMd),
       child: InkWell(
         onTap: () async {
@@ -225,7 +229,7 @@ class ScanTile extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(T.rMd),
-            border: Border.all(color: T.neutral200),
+            border: Border.all(color: c.hairline),
           ),
           padding: const EdgeInsets.all(T.s3),
           child: Row(
@@ -235,18 +239,19 @@ class ScanTile extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(T.rSm),
                   child: Image.file(File(record.imagePath),
-                      width: 44, height: 44, fit: BoxFit.cover),
+                      width: 44, height: 44, fit: BoxFit.cover,
+                      cacheWidth: 132),
                 )
               else
                 Container(
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: T.neutral100,
+                    color: c.surfaceDim,
                     borderRadius: BorderRadius.circular(T.rSm),
                   ),
-                  child: const Icon(Icons.medication_outlined,
-                      color: T.neutral400, size: 22),
+                  child: Icon(Icons.medication_outlined,
+                      color: c.inkFaint, size: 22),
                 ),
               const SizedBox(width: T.s3),
               Expanded(
@@ -254,11 +259,12 @@ class ScanTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name,
-                        style: T.bodyStrong,
+                        style: T.bodyStrong.copyWith(color: c.ink),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis),
                     const SizedBox(height: 2),
-                    Text(_when(record.at), style: T.caption),
+                    Text(_when(record.at),
+                        style: T.caption.copyWith(color: c.inkMuted)),
                   ],
                 ),
               ),
@@ -266,10 +272,7 @@ class ScanTile extends StatelessWidget {
               Container(
                 width: 10,
                 height: 10,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _dot[record.verdictStatus] ?? T.neutral400,
-                ),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: dot),
               ),
             ],
           ),

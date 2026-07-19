@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 
 /// Label + value pair for pack facts. Values use the data face (mono) so
-/// batch numbers and dates align and read as record data.
+/// batch numbers and dates align and read as record data. An absent value
+/// shows a dash placeholder by design.
 class FactRow extends StatelessWidget {
   final String label;
   final String value;
@@ -12,6 +13,7 @@ class FactRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: T.s2),
       child: Row(
@@ -19,15 +21,14 @@ class FactRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 118,
-            child: Text(label, style: T.small),
+            child: Text(label, style: T.small.copyWith(color: c.inkMuted)),
           ),
           const SizedBox(width: T.s3),
           Expanded(
             child: Text(
               value.isEmpty ? '—' : value,
-              style: value.isEmpty
-                  ? T.data.copyWith(color: T.neutral400)
-                  : T.data,
+              style: T.data
+                  .copyWith(color: value.isEmpty ? c.inkFaint : c.ink),
             ),
           ),
         ],

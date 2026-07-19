@@ -8,7 +8,7 @@ import '../services/prefs.dart';
 import '../services/tts.dart';
 import '../theme/tokens.dart';
 
-/// "What this means" — Gemma phrases the settled verdict in the user's
+/// "What this means": Gemma phrases the settled verdict in the user's
 /// language, streamed in as it generates; spoken aloud on request.
 class CounselingSection extends StatefulWidget {
   final Extraction extraction;
@@ -66,8 +66,8 @@ class _CounselingSectionState extends State<CounselingSection> {
       }
     } catch (_) {
       if (mounted) {
-        setState(() =>
-            _error = 'Guidance is unavailable right now. The verdict above still stands.');
+        setState(() => _error =
+            'Guidance is unavailable right now. The verdict above still stands.');
       }
     } finally {
       if (mounted) setState(() => _generating = false);
@@ -97,6 +97,7 @@ class _CounselingSectionState extends State<CounselingSection> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -118,16 +119,16 @@ class _CounselingSectionState extends State<CounselingSection> {
         Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: T.neutral0,
+            color: c.surface,
             borderRadius: BorderRadius.circular(T.rMd),
-            border: Border.all(color: T.neutral200),
+            border: Border.all(color: c.hairline),
           ),
           padding: const EdgeInsets.all(T.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (_error.isNotEmpty)
-                Text(_error, style: T.body.copyWith(color: T.neutral600))
+                Text(_error, style: T.body.copyWith(color: c.inkMuted))
               else if (_text.isEmpty && _generating)
                 Row(
                   children: [
@@ -136,7 +137,8 @@ class _CounselingSectionState extends State<CounselingSection> {
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2)),
                     const SizedBox(width: T.s3),
-                    Text('Putting it in plain words…', style: T.small),
+                    Text('Putting it in plain words…',
+                        style: T.small.copyWith(color: c.inkMuted)),
                   ],
                 )
               else
@@ -161,7 +163,7 @@ class _CounselingSectionState extends State<CounselingSection> {
                       )
                     else
                       Text('Twi voice arrives with the online tier.',
-                          style: T.caption),
+                          style: T.caption.copyWith(color: c.inkMuted)),
                   ],
                 ),
               ],
@@ -183,22 +185,22 @@ class _LangChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(T.rSm),
       child: Container(
         decoration: BoxDecoration(
-          color: selected ? T.neutral900 : T.neutral0,
+          color: selected ? c.ink : c.surface,
           borderRadius: BorderRadius.circular(T.rSm),
-          border: Border.all(
-              color: selected ? T.neutral900 : T.neutral300),
+          border: Border.all(color: selected ? c.ink : c.hairlineStrong),
         ),
         padding:
             const EdgeInsets.symmetric(horizontal: T.s3, vertical: T.s1 + 2),
         child: Text(
           label,
           style: T.caption.copyWith(
-              color: selected ? T.neutral0 : T.neutral700,
+              color: selected ? c.bg : c.inkMuted,
               fontWeight: FontWeight.w600),
         ),
       ),

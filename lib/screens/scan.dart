@@ -150,7 +150,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
                           const SizedBox(height: T.s4),
                           Text(
                             _cameraError ??
-                                'No camera on this device — pick a photo of the pack instead.',
+                                'No camera on this device. Pick a photo of the pack instead.',
                             style: T.body.copyWith(color: T.neutral300),
                             textAlign: TextAlign.center,
                           ),

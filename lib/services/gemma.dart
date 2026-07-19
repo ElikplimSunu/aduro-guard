@@ -245,7 +245,7 @@ Example of the tone for English (this one is for a registered, in-date pack):
     final prompt = '''
 You are Aduro Guard, a medicine safety helper used in Ghana.
 
-A scan of a medicine pack produced this verdict. The verdict was decided by the Ghana FDA register database — it is settled fact; your job is only to explain it simply.
+A scan of a medicine pack produced this verdict. The verdict was decided by the Ghana FDA register database. It is settled fact; your job is only to explain it simply.
 
 VERDICT: ${verdict.status.name}
 ${verdict.reasons.map((r) => '- $r').join('\n')}
@@ -258,7 +258,7 @@ WHAT THE PACK SAYS:
 
 $languageLine
 Rules:
-- 3 to 5 short sentences, simple words.
+- 3 to 5 short sentences, simple words. No dashes; use plain full sentences.
 - Start by saying what the verdict means for the user.
 - Use ONLY facts from the verdict and pack text above. Never invent doses, uses, or claims that are not printed on the pack.
 - Do not diagnose. For health questions the answer is a pharmacist or clinic.
@@ -296,7 +296,7 @@ Your guidance:''';
     assert(typedQuestion != null || audioWavBytes != null);
     if (fake) {
       const canned =
-          'The pack says to store it below 30°C, away from children. Anything beyond what the pack states — like use in pregnancy — is a question for your pharmacist.';
+          'The pack says to store it below 30°C, away from children. Anything beyond what the pack states, like use in pregnancy, is a question for your pharmacist.';
       for (final w in canned.split(' ')) {
         await Future<void>.delayed(const Duration(milliseconds: 40));
         yield '$w ';
@@ -317,10 +317,10 @@ THE PACK (everything known about it):
 - Batch: ${extraction.batchNumber}
 - Expiry: ${extraction.expiryRaw}
 - Pack text: ${extraction.packText}
-- Register verdict: ${verdict.status.name} — ${verdict.reasons.join(' ')}
+- Register verdict: ${verdict.status.name}. ${verdict.reasons.join(' ')}
 
 Rules:
-- Answer ONLY from the pack facts and verdict above. 2 to 4 short sentences.
+- Answer ONLY from the pack facts and verdict above. 2 to 4 short sentences, no dashes.
 - If the answer is not printed on the pack (child doses, pregnancy, mixing with other medicines, what to treat), say plainly that the pack does not say, and that a pharmacist or clinic should answer it. Do not guess.
 - $languageLine
 ${audioWavBytes != null ? 'The question was spoken aloud and is attached as audio. First understand it, then answer it.' : 'Question: $typedQuestion'}

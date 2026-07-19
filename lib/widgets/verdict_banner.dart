@@ -10,60 +10,60 @@ class VerdictBanner extends StatelessWidget {
 
   const VerdictBanner({super.key, required this.verdict});
 
-  static const _spec = {
-    VerdictStatus.registered: (
-      headline: 'In the register',
-      icon: Icons.verified_outlined,
-      fg: T.success700,
-      accent: T.success600,
-      bg: T.successSurface,
-    ),
-    VerdictStatus.expired: (
-      headline: 'Expired — do not take',
-      icon: Icons.event_busy_outlined,
-      fg: T.danger700,
-      accent: T.danger600,
-      bg: T.dangerSurface,
-    ),
-    VerdictStatus.recalled: (
-      headline: 'Do not take this',
-      icon: Icons.report_outlined,
-      fg: T.danger700,
-      accent: T.danger600,
-      bg: T.dangerSurface,
-    ),
-    VerdictStatus.caution: (
-      headline: 'Check this carefully',
-      icon: Icons.error_outline,
-      fg: T.warning700,
-      accent: T.warning600,
-      bg: T.warningSurface,
-    ),
-    VerdictStatus.notFound: (
-      headline: 'Not in the register snapshot',
-      icon: Icons.help_outline,
-      fg: T.warning700,
-      accent: T.warning600,
-      bg: T.warningSurface,
-    ),
-    VerdictStatus.unreadable: (
-      headline: 'Couldn’t read the pack',
-      icon: Icons.visibility_off_outlined,
-      fg: T.neutral700,
-      accent: T.neutral500,
-      bg: T.neutral100,
-    ),
-  };
-
   @override
   Widget build(BuildContext context) {
-    final s = _spec[verdict.status]!;
+    final c = context.c;
+    final (headline, icon, accent, fg, bg) = switch (verdict.status) {
+      VerdictStatus.registered => (
+          'In the register',
+          Icons.verified_outlined,
+          c.successAccent,
+          c.successText,
+          c.successSurface,
+        ),
+      VerdictStatus.expired => (
+          'Expired',
+          Icons.event_busy_outlined,
+          c.dangerAccent,
+          c.dangerText,
+          c.dangerSurface,
+        ),
+      VerdictStatus.recalled => (
+          'Do not take this',
+          Icons.report_outlined,
+          c.dangerAccent,
+          c.dangerText,
+          c.dangerSurface,
+        ),
+      VerdictStatus.caution => (
+          'Check this carefully',
+          Icons.error_outline,
+          c.warningAccent,
+          c.warningText,
+          c.warningSurface,
+        ),
+      VerdictStatus.notFound => (
+          'Not in the register snapshot',
+          Icons.help_outline,
+          c.warningAccent,
+          c.warningText,
+          c.warningSurface,
+        ),
+      VerdictStatus.unreadable => (
+          'Couldn’t read the pack',
+          Icons.visibility_off_outlined,
+          c.muteAccent,
+          c.muteText,
+          c.muteSurface,
+        ),
+    };
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: s.bg,
+        color: bg,
         borderRadius: BorderRadius.circular(T.rLg),
-        border: Border.all(color: s.accent.withValues(alpha: 0.2)),
+        border: Border.all(color: accent.withValues(alpha: 0.2)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -74,7 +74,7 @@ class VerdictBanner extends StatelessWidget {
             top: 0,
             bottom: 0,
             width: 5,
-            child: ColoredBox(color: s.accent),
+            child: ColoredBox(color: accent),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(T.s5 + 5, T.s5, T.s5, T.s4),
@@ -83,24 +83,19 @@ class VerdictBanner extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(s.icon, size: 26, color: s.fg),
+                    Icon(icon, size: 26, color: fg),
                     const SizedBox(width: T.s3),
                     Expanded(
-                      child: Text(
-                        s.headline,
-                        style: T.h2.copyWith(color: s.fg),
-                      ),
+                      child: Text(headline, style: T.h2.copyWith(color: fg)),
                     ),
                   ],
                 ),
                 const SizedBox(height: T.s3),
-                for (final r in verdict.reasons) ...[
+                for (final r in verdict.reasons)
                   Padding(
                     padding: const EdgeInsets.only(bottom: T.s2),
-                    child:
-                        Text(r, style: T.body.copyWith(color: T.neutral800)),
+                    child: Text(r, style: T.body.copyWith(color: c.ink)),
                   ),
-                ],
               ],
             ),
           ),

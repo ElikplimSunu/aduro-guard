@@ -38,7 +38,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         setState(() {
           _progress = -1;
           _error =
-              'The download stopped. Check your connection and try again — or import the file if you already have it.';
+              'The download stopped. Check your connection and try again, or import the file if you already have it.';
         });
       }
     }
@@ -86,15 +86,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _welcome() {
+    final c = context.c;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: T.s12),
-        Text('Aduro Guard', style: T.display),
+        Text('Aduro Guard', style: T.display.copyWith(color: c.ink)),
         const SizedBox(height: T.s3),
         Text(
-          'Point your camera at any medicine pack. It gets checked against the Ghana FDA register — right here on your phone, no internet needed.',
-          style: T.body.copyWith(color: T.neutral600, height: 1.6),
+          'Point your camera at any medicine pack. It gets checked against the Ghana FDA register, right here on your phone, no internet needed.',
+          style: T.body.copyWith(color: c.inkMuted, height: 1.6),
         ),
         const SizedBox(height: T.s10),
         Text('Choose your language', style: T.h3),
@@ -124,16 +125,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _brain() {
+    final c = context.c;
     final downloading = _progress >= 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: T.s12),
-        Text('Set up the offline brain', style: T.h1),
+        Text('Set up the offline brain', style: T.h1.copyWith(color: c.ink)),
         const SizedBox(height: T.s3),
         Text(
-          'Aduro Guard reads packs with Gemma 4, a model that lives on your phone. One download of ${e2b.sizeLabel} — best on Wi-Fi — and every scan after that works with no signal at all.',
-          style: T.body.copyWith(color: T.neutral600, height: 1.6),
+          'Aduro Guard reads packs with Gemma 4, a model that lives on your phone. One download of ${e2b.sizeLabel}, best on Wi-Fi, and every scan after that works with no signal at all.',
+          style: T.body.copyWith(color: c.inkMuted, height: 1.6),
         ),
         const SizedBox(height: T.s8),
         if (downloading) ...[
@@ -144,10 +146,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           const SizedBox(height: T.s3),
           Text('Downloading ${e2b.displayName} · $_progress%',
-              style: T.small),
+              style: T.small.copyWith(color: c.inkMuted)),
         ] else ...[
           if (_error.isNotEmpty) ...[
-            Text(_error, style: T.body.copyWith(color: T.danger700)),
+            Text(_error, style: T.body.copyWith(color: c.dangerText)),
             const SizedBox(height: T.s4),
           ],
           FilledButton(
@@ -157,6 +159,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           OutlinedButton(
               onPressed: _import,
               child: const Text('I already have the file')),
+          const SizedBox(height: T.s4),
+          Text(
+            'This is the version sized for everyday phones. A stronger ${e4b.sizeLabel} version for 8 GB phones lives in Settings whenever you want it.',
+            style: T.caption.copyWith(color: c.inkMuted),
+            textAlign: TextAlign.center,
+          ),
         ],
         const Spacer(),
         if (!downloading)
@@ -186,16 +194,17 @@ class _LangCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.c;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(T.rMd),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: T.neutral0,
+          color: c.surface,
           borderRadius: BorderRadius.circular(T.rMd),
           border: Border.all(
-            color: selected ? T.brand600 : T.neutral200,
+            color: selected ? c.brandAccent : c.hairline,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -206,10 +215,11 @@ class _LangCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: T.bodyStrong),
+                  Text(title, style: T.bodyStrong.copyWith(color: c.ink)),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle!, style: T.small),
+                    Text(subtitle!,
+                        style: T.small.copyWith(color: c.inkMuted)),
                   ],
                 ],
               ),
@@ -219,7 +229,7 @@ class _LangCard extends StatelessWidget {
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               size: 20,
-              color: selected ? T.brand700 : T.neutral400,
+              color: selected ? c.brandAccent : c.inkFaint,
             ),
           ],
         ),

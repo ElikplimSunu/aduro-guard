@@ -18,7 +18,7 @@ import 'scan.dart';
 
 enum _Stage { reading, checking, done, failed }
 
-/// Runs the scan pipeline (Gemma reads → engine decides) and shows the result.
+/// Runs the scan pipeline (Gemma reads, the engine decides) and shows the result.
 class ResultScreen extends StatefulWidget {
   final Uint8List imageBytes;
 
@@ -104,6 +104,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _progressView() {
+    final c = context.c;
     final label = _stage == _Stage.reading
         ? 'Reading the pack…'
         : 'Checking the register…';
@@ -114,7 +115,7 @@ class _ResultScreenState extends State<ResultScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(T.rMd),
             child: Image.memory(widget.imageBytes,
-                width: 160, height: 160, fit: BoxFit.cover),
+                width: 160, height: 160, fit: BoxFit.cover, cacheWidth: 480),
           ),
           const SizedBox(height: T.s6),
           const SizedBox(
@@ -123,25 +124,28 @@ class _ResultScreenState extends State<ResultScreen> {
             child: CircularProgressIndicator(strokeWidth: 2.5),
           ),
           const SizedBox(height: T.s4),
-          Text(label, style: T.bodyStrong),
+          Text(label, style: T.bodyStrong.copyWith(color: c.ink)),
           const SizedBox(height: T.s2),
-          Text('Everything runs on this phone — no internet needed.',
-              style: T.small),
+          Text('Everything runs on this phone. No internet needed.',
+              style: T.small.copyWith(color: c.inkMuted)),
         ],
       ),
     );
   }
 
   Widget _failedView() {
+    final c = context.c;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(T.s6),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 40, color: T.neutral400),
+            Icon(Icons.error_outline, size: 40, color: c.inkFaint),
             const SizedBox(height: T.s4),
-            Text(_error, style: T.body, textAlign: TextAlign.center),
+            Text(_error,
+                style: T.body.copyWith(color: c.ink),
+                textAlign: TextAlign.center),
             const SizedBox(height: T.s6),
             FilledButton(onPressed: _scanAgain, child: const Text('Scan again')),
           ],
@@ -151,6 +155,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _unreadableView() {
+    final c = context.c;
     return Padding(
       padding: const EdgeInsets.all(T.s5),
       child: Column(
@@ -161,10 +166,10 @@ class _ResultScreenState extends State<ResultScreen> {
           Text('Tips for a clear read', style: T.h3),
           const SizedBox(height: T.s3),
           Text(
-            '• Move to brighter light — daylight works best.\n'
+            '• Move to brighter light. Daylight works best.\n'
             '• Fill the frame with the front of the pack.\n'
             '• Hold still until the photo is sharp.',
-            style: T.body.copyWith(color: T.neutral600, height: 1.7),
+            style: T.body.copyWith(color: c.inkMuted, height: 1.7),
           ),
           const Spacer(),
           FilledButton(onPressed: _scanAgain, child: const Text('Try again')),
@@ -175,6 +180,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _resultView() {
+    final c = context.c;
     final e = _extraction!;
     final v = _verdict!;
     return ListView(
@@ -186,43 +192,38 @@ class _ResultScreenState extends State<ResultScreen> {
         const SizedBox(height: T.s3),
         Container(
           decoration: BoxDecoration(
-            color: T.neutral0,
+            color: c.surface,
             borderRadius: BorderRadius.circular(T.rMd),
-            border: Border.all(color: T.neutral200),
+            border: Border.all(color: c.hairline),
           ),
-          padding: const EdgeInsets.symmetric(
-              horizontal: T.s4, vertical: T.s3),
-          child: Column(
+          padding:
+              const EdgeInsets.symmetric(horizontal: T.s4, vertical: T.s3),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        FactRow(label: 'Product', value: e.productName),
-                        FactRow(label: 'Made by', value: e.manufacturer),
-                        FactRow(label: 'Batch', value: e.batchNumber),
-                        FactRow(label: 'Expiry', value: e.expiryRaw),
-                        if (e.regNo.isNotEmpty)
-                          FactRow(label: 'FDA number', value: e.regNo),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: T.s3),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(T.rSm),
-                    child: Image.memory(widget.imageBytes,
-                        width: 64, height: 64, fit: BoxFit.cover),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  children: [
+                    FactRow(label: 'Product', value: e.productName),
+                    FactRow(label: 'Made by', value: e.manufacturer),
+                    FactRow(label: 'Batch', value: e.batchNumber),
+                    FactRow(label: 'Expiry', value: e.expiryRaw),
+                    if (e.regNo.isNotEmpty)
+                      FactRow(label: 'FDA number', value: e.regNo),
+                  ],
+                ),
+              ),
+              const SizedBox(width: T.s3),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(T.rSm),
+                child: Image.memory(widget.imageBytes,
+                    width: 64, height: 64, fit: BoxFit.cover, cacheWidth: 192),
               ),
             ],
           ),
         ),
         const SizedBox(height: T.s6),
-        CounselingSection(
-            extraction: e, verdict: v, historyId: _historyId),
+        CounselingSection(extraction: e, verdict: v, historyId: _historyId),
         const SizedBox(height: T.s6),
         FollowUpSection(extraction: e, verdict: v),
         const SizedBox(height: T.s8),
