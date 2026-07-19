@@ -1,0 +1,174 @@
+name	generic	manufacturer	category	form	strength	reg_no	status	source
+Coartem	Artemether + Lumefantrine	Novartis	Antimalarial	Tablet	20mg/120mg		active	brand:national first-line ACT
+Coartem Dispersible	Artemether + Lumefantrine	Novartis	Antimalarial	Dispersible tablet	20mg/120mg		active	brand:national first-line ACT
+Coartem 80/480	Artemether + Lumefantrine	Novartis	Antimalarial	Tablet	80mg/480mg		active	brand:national first-line ACT
+Lonart DS	Artemether + Lumefantrine	Bliss GVS Pharma	Antimalarial	Tablet	80mg/480mg		active	brand:common Ghana market
+Lonart	Artemether + Lumefantrine	Bliss GVS Pharma	Antimalarial	Tablet	20mg/120mg		active	brand:common Ghana market
+Artefan	Artemether + Lumefantrine	Ajanta Pharma	Antimalarial	Tablet	20mg/120mg		active	brand:common Ghana market
+Artefan 80/480	Artemether + Lumefantrine	Ajanta Pharma	Antimalarial	Tablet	80mg/480mg		active	brand:common Ghana market
+Lumartem	Artemether + Lumefantrine	Cipla	Antimalarial	Tablet	20mg/120mg		active	brand:common Ghana market
+Combiart	Artemether + Lumefantrine	Strides Pharma	Antimalarial	Tablet	20mg/120mg		active	brand:common Ghana market
+Amatem Softgel	Artemether + Lumefantrine	Elbe Pharma	Antimalarial	Soft gelatin capsule	40mg/240mg		active	brand:common Ghana market
+Amatem Forte Softgel	Artemether + Lumefantrine	Elbe Pharma	Antimalarial	Soft gelatin capsule	80mg/480mg		active	brand:common Ghana market
+P-Alaxin	Dihydroartemisinin + Piperaquine	Bliss GVS Pharma	Antimalarial	Tablet	40mg/320mg		active	brand:common Ghana market
+Duo-Cotecxin	Dihydroartemisinin + Piperaquine	Zhejiang Holley	Antimalarial	Tablet	40mg/320mg		active	brand:common Ghana market
+Artesunate Injection	Artesunate	Guilin Pharmaceutical	Antimalarial	Injection	60mg		active	brand:WHO-prequalified severe malaria treatment
+Camosunate	Artesunate + Amodiaquine	Adams Pharma	Antimalarial	Tablet	100mg/270mg		active	brand:common Ghana market
+Artesunate + Amodiaquine	Artesunate + Amodiaquine		Antimalarial	Tablet	100mg/270mg		active	eml:Ghana EML antimalarial
+Quinine Sulphate	Quinine		Antimalarial	Tablet	300mg		active	eml:Ghana EML antimalarial
+Sulphadoxine + Pyrimethamine	Sulphadoxine + Pyrimethamine		Antimalarial	Tablet	500mg/25mg		active	eml:IPTp in pregnancy per GHS policy
+Panadol	Paracetamol	Haleon (GSK)	Analgesic	Tablet	500mg		active	brand:common Ghana market
+Panadol Extra	Paracetamol + Caffeine	Haleon (GSK)	Analgesic	Tablet	500mg/65mg		active	brand:common Ghana market
+Efpac	Paracetamol + Aspirin + Caffeine	Ernest Chemists	Analgesic	Tablet			active	brand:Ghanaian manufacturer
+Letap Paracetamol	Paracetamol	Letap Pharmaceuticals	Analgesic	Tablet	500mg		active	brand:Ghanaian manufacturer
+Ayrton Paracetamol	Paracetamol	Ayrton Drug Manufacturing	Analgesic	Tablet	500mg		active	brand:Ghanaian manufacturer
+M&G Paracetamol	Paracetamol	M&G Pharmaceuticals	Analgesic	Tablet	500mg		active	brand:Ghanaian manufacturer
+Paracetamol	Paracetamol		Analgesic	Tablet	500mg		active	eml:Ghana EML analgesic
+Paracetamol Syrup	Paracetamol		Analgesic	Oral suspension	120mg/5ml		active	eml:Ghana EML analgesic
+Ibuprofen	Ibuprofen		Analgesic	Tablet	200mg		active	eml:Ghana EML analgesic
+Ibuprofen 400	Ibuprofen		Analgesic	Tablet	400mg		active	eml:Ghana EML analgesic
+Diclofenac	Diclofenac sodium		Analgesic	Tablet	50mg		active	eml:Ghana EML analgesic
+Voltaren	Diclofenac sodium	Novartis	Analgesic	Tablet	50mg		active	brand:common Ghana market
+Cataflam	Diclofenac potassium	Novartis	Analgesic	Tablet	50mg		active	brand:common Ghana market
+Gebedol Forte	Diclofenac + Paracetamol	Denk Pharma	Analgesic	Tablet			active	brand:common Ghana market
+Aspirin	Acetylsalicylic acid		Analgesic	Tablet	300mg		active	eml:Ghana EML analgesic
+Tramadol	Tramadol hydrochloride		Analgesic	Capsule	50mg		active	eml:prescription-only; FDA Ghana controlled
+Amoxicillin	Amoxicillin		Antibiotic	Capsule	500mg		active	eml:Ghana EML antibiotic
+Amoxicillin 250	Amoxicillin		Antibiotic	Capsule	250mg		active	eml:Ghana EML antibiotic
+Amoxicillin Suspension	Amoxicillin		Antibiotic	Oral suspension	125mg/5ml		active	eml:Ghana EML antibiotic
+Augmentin	Amoxicillin + Clavulanic acid	GlaxoSmithKline	Antibiotic	Tablet	500mg/125mg		active	brand:common Ghana market
+Augmentin 1g	Amoxicillin + Clavulanic acid	GlaxoSmithKline	Antibiotic	Tablet	875mg/125mg		active	brand:common Ghana market
+Amoksiklav	Amoxicillin + Clavulanic acid	Sandoz	Antibiotic	Tablet	500mg/125mg		active	brand:common Ghana market
+Co-Amoxiclav	Amoxicillin + Clavulanic acid		Antibiotic	Tablet	500mg/125mg		active	eml:Ghana EML antibiotic
+Flagyl	Metronidazole	Sanofi	Antibiotic	Tablet	400mg		active	brand:common Ghana market
+Metronidazole	Metronidazole		Antibiotic	Tablet	400mg		active	eml:Ghana EML antibiotic
+Metronidazole Suspension	Metronidazole		Antibiotic	Oral suspension	200mg/5ml		active	eml:Ghana EML antibiotic
+Ciprotab	Ciprofloxacin	Fidson Healthcare	Antibiotic	Tablet	500mg		active	brand:common West Africa market
+Ciprofloxacin	Ciprofloxacin		Antibiotic	Tablet	500mg		active	eml:Ghana EML antibiotic
+Azithromycin	Azithromycin		Antibiotic	Tablet	500mg		active	eml:Ghana EML antibiotic
+Zithromax	Azithromycin	Pfizer	Antibiotic	Tablet	500mg		active	brand:common Ghana market
+Cefuroxime	Cefuroxime		Antibiotic	Tablet	500mg		active	eml:Ghana EML antibiotic
+Zinnat	Cefuroxime	GlaxoSmithKline	Antibiotic	Tablet	500mg		active	brand:common Ghana market
+Ceftriaxone Injection	Ceftriaxone		Antibiotic	Injection	1g		active	eml:Ghana EML antibiotic
+Cloxacillin	Cloxacillin		Antibiotic	Capsule	500mg		active	eml:Ghana EML antibiotic
+Flucloxacillin	Flucloxacillin		Antibiotic	Capsule	500mg		active	eml:Ghana EML antibiotic
+Erythromycin	Erythromycin		Antibiotic	Tablet	500mg		active	eml:Ghana EML antibiotic
+Doxycycline	Doxycycline		Antibiotic	Capsule	100mg		active	eml:Ghana EML antibiotic
+Gentamicin Injection	Gentamicin		Antibiotic	Injection	80mg/2ml		active	eml:Ghana EML antibiotic
+Chloramphenicol	Chloramphenicol		Antibiotic	Capsule	250mg		active	eml:Ghana EML antibiotic
+Cotrimoxazole	Sulfamethoxazole + Trimethoprim		Antibiotic	Tablet	400mg/80mg		active	eml:Ghana EML antibiotic
+Septrin	Sulfamethoxazole + Trimethoprim	Aspen	Antibiotic	Tablet	400mg/80mg		active	brand:common Ghana market
+Clarithromycin	Clarithromycin		Antibiotic	Tablet	500mg		active	eml:Ghana EML antibiotic
+Levofloxacin	Levofloxacin		Antibiotic	Tablet	500mg		active	eml:Ghana EML antibiotic
+Nitrofurantoin	Nitrofurantoin		Antibiotic	Tablet	100mg		active	eml:Ghana EML antibiotic
+Penicillin V	Phenoxymethylpenicillin		Antibiotic	Tablet	250mg		active	eml:Ghana EML antibiotic
+Benzathine Penicillin	Benzathine benzylpenicillin		Antibiotic	Injection	2.4MU		active	eml:Ghana EML antibiotic
+Zentel	Albendazole	GlaxoSmithKline	Anthelmintic	Tablet	400mg		active	brand:common Ghana market
+Albendazole	Albendazole		Anthelmintic	Tablet	400mg		active	eml:Ghana EML anthelmintic
+Vermox	Mebendazole	Johnson & Johnson	Anthelmintic	Tablet	500mg		active	brand:common Ghana market
+Mebendazole	Mebendazole		Anthelmintic	Tablet	100mg		active	eml:Ghana EML anthelmintic
+Praziquantel	Praziquantel		Anthelmintic	Tablet	600mg		active	eml:Ghana EML anthelmintic
+Ivermectin	Ivermectin		Anthelmintic	Tablet	3mg		active	eml:Ghana EML anthelmintic
+ORS	Oral rehydration salts		Rehydration	Powder for solution	20.5g/1L		active	eml:Ghana EML diarrhoea management
+Zinc Sulphate	Zinc sulphate		Rehydration	Dispersible tablet	20mg		active	eml:Ghana EML diarrhoea management
+Loperamide	Loperamide		Gastrointestinal	Capsule	2mg		active	eml:common OTC
+Imodium	Loperamide	Johnson & Johnson	Gastrointestinal	Capsule	2mg		active	brand:common Ghana market
+Danacid	Magnesium trisilicate compound	Danadams Pharmaceuticals	Antacid	Tablet			active	brand:Ghanaian manufacturer
+Gaviscon	Sodium alginate compound	Reckitt	Antacid	Oral suspension			active	brand:common Ghana market
+Omeprazole	Omeprazole		Gastrointestinal	Capsule	20mg		active	eml:Ghana EML ulcer treatment
+Losec	Omeprazole	AstraZeneca	Gastrointestinal	Capsule	20mg		active	brand:common Ghana market
+Ranitidine	Ranitidine		Gastrointestinal	Tablet	150mg		active	eml:legacy; withdrawn in several markets
+Buscopan	Hyoscine butylbromide	Sanofi	Gastrointestinal	Tablet	10mg		active	brand:common Ghana market
+Amlodipine	Amlodipine		Antihypertensive	Tablet	5mg		active	eml:Ghana EML cardiovascular
+Amlodipine 10	Amlodipine		Antihypertensive	Tablet	10mg		active	eml:Ghana EML cardiovascular
+Norvasc	Amlodipine	Pfizer	Antihypertensive	Tablet	5mg		active	brand:common Ghana market
+Lisinopril	Lisinopril		Antihypertensive	Tablet	10mg		active	eml:Ghana EML cardiovascular
+Losartan	Losartan potassium		Antihypertensive	Tablet	50mg		active	eml:Ghana EML cardiovascular
+Nifedipine	Nifedipine		Antihypertensive	Tablet	20mg		active	eml:Ghana EML cardiovascular
+Methyldopa	Methyldopa		Antihypertensive	Tablet	250mg		active	eml:Ghana EML pregnancy hypertension
+Aldomet	Methyldopa	Organon (MSD)	Antihypertensive	Tablet	250mg		active	brand:common Ghana market
+Atenolol	Atenolol		Antihypertensive	Tablet	50mg		active	eml:Ghana EML cardiovascular
+Bendroflumethiazide	Bendroflumethiazide		Antihypertensive	Tablet	5mg		active	eml:Ghana EML cardiovascular
+Furosemide	Furosemide		Diuretic	Tablet	40mg		active	eml:Ghana EML cardiovascular
+Lasix	Furosemide	Sanofi	Diuretic	Tablet	40mg		active	brand:common Ghana market
+Hydrochlorothiazide	Hydrochlorothiazide		Diuretic	Tablet	25mg		active	eml:Ghana EML cardiovascular
+Spironolactone	Spironolactone		Diuretic	Tablet	25mg		active	eml:Ghana EML cardiovascular
+Atorvastatin	Atorvastatin		Lipid-lowering	Tablet	20mg		active	eml:Ghana EML cardiovascular
+Lipitor	Atorvastatin	Pfizer	Lipid-lowering	Tablet	20mg		active	brand:common Ghana market
+Simvastatin	Simvastatin		Lipid-lowering	Tablet	20mg		active	eml:Ghana EML cardiovascular
+Metformin	Metformin hydrochloride		Antidiabetic	Tablet	500mg		active	eml:Ghana EML diabetes
+Metformin 850	Metformin hydrochloride		Antidiabetic	Tablet	850mg		active	eml:Ghana EML diabetes
+Glucophage	Metformin hydrochloride	Merck	Antidiabetic	Tablet	500mg		active	brand:common Ghana market
+Glibenclamide	Glibenclamide		Antidiabetic	Tablet	5mg		active	eml:Ghana EML diabetes
+Daonil	Glibenclamide	Sanofi	Antidiabetic	Tablet	5mg		active	brand:common Ghana market
+Gliclazide	Gliclazide		Antidiabetic	Tablet	80mg		active	eml:Ghana EML diabetes
+Amaryl	Glimepiride	Sanofi	Antidiabetic	Tablet	2mg		active	brand:common Ghana market
+Insulin Soluble	Insulin (soluble)		Antidiabetic	Injection	100IU/ml		active	eml:Ghana EML diabetes
+Mixtard 30	Insulin (biphasic isophane)	Novo Nordisk	Antidiabetic	Injection	100IU/ml		active	brand:common Ghana market
+Ferrous Sulphate	Ferrous sulphate		Haematinic	Tablet	200mg		active	eml:Ghana EML anaemia
+Ferrous Sulphate + Folic Acid	Ferrous sulphate + Folic acid		Haematinic	Tablet	200mg/0.25mg		active	eml:Ghana EML antenatal
+Folic Acid	Folic acid		Haematinic	Tablet	5mg		active	eml:Ghana EML anaemia
+Tot'hema	Iron + Manganese + Copper	Laboratoire Innotech (Innothera)	Haematinic	Oral solution ampoules	50mg/1.33mg/0.7mg per 10ml		active	brand:common Ghana market
+Chemiron	Iron compound blood tonic	Chemiron International	Haematinic	Capsule			active	brand:common West Africa market
+Astymin	Amino acids + Vitamins	Tablets India (TABLETS)	Haematinic	Capsule			active	brand:common West Africa market
+Vitamin B Complex	Vitamin B complex		Vitamin	Tablet			active	eml:Ghana EML supplement
+Vitamin C	Ascorbic acid		Vitamin	Tablet	100mg		active	eml:Ghana EML supplement
+Multivitamin Syrup	Multivitamins		Vitamin	Syrup			active	eml:common OTC
+Vitamin A	Retinol		Vitamin	Capsule	200000IU		active	eml:Ghana EML child health
+Salbutamol Inhaler	Salbutamol		Respiratory	Inhaler	100mcg/dose		active	eml:Ghana EML asthma
+Ventolin Inhaler	Salbutamol	GlaxoSmithKline	Respiratory	Inhaler	100mcg/dose		active	brand:common Ghana market
+Salbutamol	Salbutamol		Respiratory	Tablet	4mg		active	eml:Ghana EML asthma
+Prednisolone	Prednisolone		Corticosteroid	Tablet	5mg		active	eml:Ghana EML
+Dexamethasone	Dexamethasone		Corticosteroid	Tablet	0.5mg		active	eml:Ghana EML
+Hydrocortisone Injection	Hydrocortisone		Corticosteroid	Injection	100mg		active	eml:Ghana EML emergency
+Cetirizine	Cetirizine		Antihistamine	Tablet	10mg		active	eml:Ghana EML allergy
+Zyrtec	Cetirizine	UCB	Antihistamine	Tablet	10mg		active	brand:common Ghana market
+Loratadine	Loratadine		Antihistamine	Tablet	10mg		active	eml:Ghana EML allergy
+Chlorpheniramine	Chlorpheniramine maleate		Antihistamine	Tablet	4mg		active	eml:Ghana EML allergy
+Piriton	Chlorpheniramine maleate	Haleon (GSK)	Antihistamine	Tablet	4mg		active	brand:common Ghana market
+Promethazine	Promethazine		Antihistamine	Tablet	25mg		active	eml:Ghana EML
+Phenergan	Promethazine	Sanofi	Antihistamine	Tablet	25mg		active	brand:common Ghana market
+Diazepam	Diazepam		Psychiatric	Tablet	5mg		active	eml:Ghana EML; prescription-only
+Amitriptyline	Amitriptyline		Psychiatric	Tablet	25mg		active	eml:Ghana EML mental health
+Fluoxetine	Fluoxetine		Psychiatric	Capsule	20mg		active	eml:Ghana EML mental health
+Carbamazepine	Carbamazepine		Antiepileptic	Tablet	200mg		active	eml:Ghana EML epilepsy
+Tegretol	Carbamazepine	Novartis	Antiepileptic	Tablet	200mg		active	brand:common Ghana market
+Phenobarbitone	Phenobarbital		Antiepileptic	Tablet	30mg		active	eml:Ghana EML epilepsy
+Phenytoin	Phenytoin sodium		Antiepileptic	Capsule	100mg		active	eml:Ghana EML epilepsy
+Sodium Valproate	Sodium valproate		Antiepileptic	Tablet	200mg		active	eml:Ghana EML epilepsy
+Postinor-2	Levonorgestrel	Gedeon Richter	Contraceptive	Tablet	0.75mg		active	brand:common Ghana market
+Lydia Postpill	Levonorgestrel	DKT International	Contraceptive	Tablet	1.5mg		active	brand:common Ghana market
+Microgynon	Ethinylestradiol + Levonorgestrel	Bayer	Contraceptive	Tablet	0.03mg/0.15mg		active	brand:common Ghana market
+Secure	Medroxyprogesterone acetate	DKT International	Contraceptive	Injection	150mg/ml		active	brand:common Ghana market
+Depo-Provera	Medroxyprogesterone acetate	Pfizer	Contraceptive	Injection	150mg/ml		active	brand:common Ghana market
+Nystatin	Nystatin		Antifungal	Oral suspension	100000IU/ml		active	eml:Ghana EML antifungal
+Clotrimazole Cream	Clotrimazole		Antifungal	Cream	1%		active	eml:Ghana EML antifungal
+Canesten	Clotrimazole	Bayer	Antifungal	Cream	1%		active	brand:common Ghana market
+Fluconazole	Fluconazole		Antifungal	Capsule	150mg		active	eml:Ghana EML antifungal
+Diflucan	Fluconazole	Pfizer	Antifungal	Capsule	150mg		active	brand:common Ghana market
+Griseofulvin	Griseofulvin		Antifungal	Tablet	500mg		active	eml:Ghana EML antifungal
+Ketoconazole Cream	Ketoconazole		Antifungal	Cream	2%		active	eml:common dermatological
+Whitfield Ointment	Benzoic acid + Salicylic acid		Dermatological	Ointment			active	eml:classic dermatological
+Calamine Lotion	Calamine		Dermatological	Lotion	15%		active	eml:Ghana EML dermatological
+Silver Sulphadiazine Cream	Silver sulphadiazine		Dermatological	Cream	1%		active	eml:Ghana EML burns
+Chloramphenicol Eye Drops	Chloramphenicol		Ophthalmic	Eye drops	0.5%		active	eml:Ghana EML eye care
+Gentamicin Eye Drops	Gentamicin		Ophthalmic	Eye drops	0.3%		active	eml:Ghana EML eye care
+Tetracycline Eye Ointment	Tetracycline		Ophthalmic	Eye ointment	1%		active	eml:Ghana EML eye care
+Artificial Tears	Hypromellose		Ophthalmic	Eye drops	0.3%		active	eml:common eye care
+Aciclovir	Aciclovir		Antiviral	Tablet	400mg		active	eml:Ghana EML antiviral
+Zovirax	Aciclovir	GlaxoSmithKline	Antiviral	Tablet	400mg		active	brand:common Ghana market
+Tenofovir + Lamivudine + Dolutegravir	TDF + 3TC + DTG		Antiretroviral	Tablet	300mg/300mg/50mg		active	eml:Ghana ART first-line (TLD)
+Nevirapine	Nevirapine		Antiretroviral	Tablet	200mg		active	eml:Ghana ART programme
+Oxytocin Injection	Oxytocin		Maternal health	Injection	10IU/ml		active	eml:Ghana EML obstetric care
+Ergometrine Injection	Ergometrine		Maternal health	Injection	0.5mg/ml		active	eml:Ghana EML obstetric care
+Misoprostol	Misoprostol		Maternal health	Tablet	200mcg		active	eml:Ghana EML obstetric care
+Magnesium Sulphate Injection	Magnesium sulphate		Maternal health	Injection	50%		active	eml:Ghana EML eclampsia care
+Mist Magnesium Trisilicate	Magnesium trisilicate		Antacid	Oral suspension			active	eml:classic Ghana pharmacy staple
+Paracetamol Suppositories	Paracetamol		Analgesic	Suppository	125mg		active	eml:Ghana EML paediatric
+Diazepam Rectal	Diazepam		Antiepileptic	Rectal solution	5mg		active	eml:Ghana EML paediatric emergency
+Amoxicillin + Clavulanate Suspension	Amoxicillin + Clavulanic acid		Antibiotic	Oral suspension	228mg/5ml		active	eml:Ghana EML paediatric
+Cefixime	Cefixime		Antibiotic	Tablet	400mg		active	eml:Ghana EML antibiotic
+Suprax	Cefixime	Astellas	Antibiotic	Tablet	400mg		active	brand:common Ghana market
+Taabea Herbal Mixture	Herbal (multi-ingredient)	Taabea Company Limited	Herbal	Oral liquid			active	brand:FDA-registered Ghanaian herbal
+Adutwumwaa Bitters	Herbal bitters	Adutwumwaa Herbal Industry	Herbal	Oral liquid			active	brand:FDA-registered Ghanaian herbal
+Living Bitters	Herbal bitters	Amen Scientific Herbal Hospital	Herbal	Oral liquid			active	brand:common Ghana market herbal
