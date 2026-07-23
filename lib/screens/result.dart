@@ -9,8 +9,10 @@ import '../models/scan.dart';
 import '../models/verdict.dart';
 import '../services/gemma.dart';
 import '../services/history.dart';
+import '../services/prefs.dart';
 import '../services/registry.dart';
 import '../services/strings.dart';
+import '../services/tts.dart';
 import '../theme/tokens.dart';
 import '../widgets/counseling_section.dart';
 import '../widgets/fact_row.dart';
@@ -47,6 +49,9 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Future<void> _run() async {
+    // Free time-slice while extraction/verdict run: get the counseling
+    // voice warm so "listen" is instant once guidance text is ready.
+    Tts.instance.warmUp(Prefs.instance.language);
     try {
       final extraction = await Gemma.instance.extract(widget.imageBytes);
       if (!mounted) return;

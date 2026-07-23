@@ -38,6 +38,11 @@ class _CounselingSectionState extends State<CounselingSection> {
   bool _canSpeak = false;
   String _error = '';
 
+  // Finished guidance text per language, for this scan only: switching back
+  // to a language already generated shows it instantly instead of re-running
+  // the model.
+  final Map<String, String> _cache = {};
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +62,18 @@ class _CounselingSectionState extends State<CounselingSection> {
   }
 
   Future<void> _generate() async {
+    final cached = _cache[_language];
+    if (cached != null) {
+      setState(() {
+        _text = cached;
+        _error = '';
+        _generating = false;
+      });
+      if (widget.historyId != null && cached.isNotEmpty) {
+        History.instance.updateCounseling(widget.historyId!, cached);
+      }
+      return;
+    }
     setState(() {
       _text = '';
       _error = '';
@@ -72,6 +89,7 @@ class _CounselingSectionState extends State<CounselingSection> {
         setState(() => _text += chunk);
       }
       final trimmed = _text.trim();
+      _cache[_language] = trimmed;
       if (widget.historyId != null && trimmed.isNotEmpty) {
         await History.instance.updateCounseling(widget.historyId!, trimmed);
       }

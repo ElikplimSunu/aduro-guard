@@ -42,6 +42,8 @@ class Prefs {
 
   void _set(String key, Object? value) {
     _data[key] = value;
-    _file?.writeAsStringSync(jsonEncode(_data), flush: true);
+    // _data is already updated above, so reads are consistent immediately;
+    // the write to disk can happen in the background.
+    _file?.writeAsString(jsonEncode(_data), flush: true);
   }
 }

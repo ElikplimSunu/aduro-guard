@@ -4,6 +4,7 @@ import 'screens/home.dart';
 import 'screens/onboarding.dart';
 import 'services/prefs.dart';
 import 'services/registry.dart';
+import 'services/tts.dart';
 import 'theme/theme.dart';
 
 /// Lets screens refresh when the user navigates back to them.
@@ -13,6 +14,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Prefs.instance.load();
   Registry.instance.load(); // warm the snapshot; screens await it again
+  Tts.instance.warmUp(Prefs.instance.language); // warm the current voice
   runApp(const AduroApp());
 }
 
@@ -29,6 +31,7 @@ class AduroApp extends StatefulWidget {
   /// every S.* string re-resolves.
   static void setLanguage(BuildContext context, String code) {
     Prefs.instance.language = code;
+    Tts.instance.warmUp(code); // pre-load the new language's voice
     context.findAncestorStateOfType<_AduroAppState>()!._rebuild();
   }
 

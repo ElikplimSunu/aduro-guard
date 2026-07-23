@@ -66,7 +66,9 @@ class Gemma {
       (!kIsWeb && Platform.isMacOS && Platform.version.contains('x64'));
 
   InferenceModel? _model;
+  Future<InferenceModel>? _modelFuture;
   bool _initialized = false;
+  bool _warming = false;
 
   Future<void> init() async {
     if (_initialized || fake) return;
@@ -162,24 +164,56 @@ class Gemma {
     await init();
     await FlutterGemma.uninstallModel(m.fileName);
     _model = null;
+    _modelFuture = null;
   }
 
   Future<void> _reload() async {
     await _model?.close();
     _model = null;
+    _modelFuture = null;
   }
 
-  Future<InferenceModel> _ensureModel() async {
-    if (_model != null) return _model!;
-    await init();
-    _model = await FlutterGemma.getActiveModel(
-      maxTokens: 4096,
-      preferredBackend: PreferredBackend.gpu,
-      supportImage: true,
-      supportAudio: true,
-      maxNumImages: 1,
-    );
-    return _model!;
+  // Caches the in-flight Future (not just the resolved model) so concurrent
+  // callers — e.g. a warmUp() still loading when a real scan starts — share
+  // one FlutterGemma.getActiveModel() call instead of racing two.
+  Future<InferenceModel> _ensureModel() {
+    return _modelFuture ??= () async {
+      await init();
+      final model = await FlutterGemma.getActiveModel(
+        maxTokens: 4096,
+        preferredBackend: PreferredBackend.gpu,
+        supportImage: true,
+        supportAudio: true,
+        maxNumImages: 1,
+        enableSpeculativeDecoding: true,
+      );
+      _model = model;
+      return model;
+    }();
+  }
+
+  /// Preloads model weights and forces first-inference costs (GPU shader
+  /// compilation, JIT) to happen now instead of on the user's first real
+  /// scan. Safe to call speculatively and to call more than once; never
+  /// throws — a warmup failure just means the first scan pays the cost it
+  /// would have paid anyway.
+  Future<void> warmUp() async {
+    if (fake || _warming) return;
+    _warming = true;
+    try {
+      final model = await _ensureModel();
+      final session = await model.createSession(maxOutputTokens: 1);
+      try {
+        await session.addQueryChunk(Message.text(text: 'Hi', isUser: true));
+        await session.getResponse();
+      } finally {
+        await session.close();
+      }
+    } catch (_) {
+      // Best-effort; the real scan will retry and surface errors there.
+    } finally {
+      _warming = false;
+    }
   }
 
   // ── Vision extraction ──────────────────────────────────────────────────
@@ -224,8 +258,21 @@ Answer with only the JSON object.''';
       await session.addQueryChunk(
         Message.withImage(text: _extractionPrompt, imageBytes: imageBytes, isUser: true),
       );
-      final raw = await session.getResponse();
-      final json = _parseJson(raw);
+      // Streamed rather than a single getResponse(): the prompt puts
+      // "legible" first, so an unreadable-photo answer completes as a tiny
+      // JSON object within the first few tokens. Detecting that early and
+      // calling stopGeneration() skips waiting out the rest of the
+      // 512-token budget on the blurry/blank-photo path.
+      final buffer = StringBuffer();
+      await for (final chunk in session.getResponseAsync()) {
+        buffer.write(chunk);
+        final partial = _parseJson(buffer.toString());
+        if (partial != null && partial['legible'] == false) {
+          await session.stopGeneration();
+          return const Extraction(legible: false);
+        }
+      }
+      final json = _parseJson(buffer.toString());
       if (json == null) return const Extraction(legible: false);
       return Extraction.fromJson(json);
     } finally {
@@ -295,31 +342,23 @@ Your guidance:''';
 
   // ── Follow-up Q&A (typed or spoken) ────────────────────────────────────
 
-  /// Answers a question about the scanned pack — and only the pack.
-  /// Pass [audioWavBytes] (16kHz mono WAV) for a spoken question, or
-  /// [typedQuestion] for text. Questions beyond the pack get a referral, not
-  /// an answer; that rule lives in the prompt and the demo shows it off.
-  Stream<String> ask({
+  /// Starts a reusable multi-turn conversation for follow-up questions about
+  /// one scanned pack. The pack facts are folded into the first question
+  /// only, then persist in the chat's own history — so a second or third
+  /// question in the same scan reuses the session (its KV-cache) instead of
+  /// re-stating the whole pack from scratch, and the model can refer back to
+  /// an earlier answer. Start a new chat (and let this one be garbage
+  /// collected) if the pack facts change (a second photo merged in) or the
+  /// language changes.
+  Future<FollowUpChat> startFollowUpChat({
     required Extraction extraction,
     required Verdict verdict,
-    String? typedQuestion,
-    Uint8List? audioWavBytes,
     required String language,
-  }) async* {
-    assert(typedQuestion != null || audioWavBytes != null);
-    if (fake) {
-      const canned =
-          'The pack says to store it below 30°C, away from children. Anything beyond what the pack states, like use in pregnancy, is a question for your pharmacist.';
-      for (final w in canned.split(' ')) {
-        await Future<void>.delayed(const Duration(milliseconds: 40));
-        yield '$w ';
-      }
-      return;
-    }
-
+  }) async {
+    if (fake) return FollowUpChat._fake();
     final model = await _ensureModel();
     final lang = langBy(language);
-    final prompt = '''
+    final facts = '''
 You are Aduro Guard, a medicine safety helper used in Ghana. The user scanned a medicine pack and now asks a question about it.
 
 THE PACK (everything known about it):
@@ -330,29 +369,17 @@ THE PACK (everything known about it):
 - Pack text: ${extraction.packText}
 - Register verdict: ${verdict.status.name}. ${verdict.reasons.join(' ')}
 
-Rules:
+Rules for every answer below:
 - Answer ONLY from the pack facts and verdict above. 2 to 4 short sentences, no dashes.
 - If the answer is not printed on the pack (child doses, pregnancy, mixing with other medicines, what to treat), say plainly that the pack does not say, and that a pharmacist or clinic should answer it. Do not guess.
-- ${lang.promptLine}
-${audioWavBytes != null ? 'The question was spoken aloud and is attached as audio. First understand it, then answer it.' : 'Question: $typedQuestion'}
-
-Your answer:''';
-
-    final session = await model.createSession(
+- ${lang.promptLine}''';
+    final chat = await model.createChat(
       temperature: 0.4,
       topK: 40,
-      enableAudioModality: audioWavBytes != null,
+      supportAudio: true,
       maxOutputTokens: 192,
     );
-    try {
-      await session.addQueryChunk(audioWavBytes != null
-          ? Message.withAudio(
-              text: prompt, audioBytes: audioWavBytes, isUser: true)
-          : Message.text(text: prompt, isUser: true));
-      yield* session.getResponseAsync();
-    } finally {
-      await session.close();
-    }
+    return FollowUpChat._(chat, facts);
   }
 
   /// Pulls the first JSON object out of model output, tolerating code fences
@@ -380,5 +407,53 @@ Your answer:''';
       } catch (_) {/* try next repair */}
     }
     return null;
+  }
+}
+
+/// One scan's reusable follow-up conversation, returned by
+/// [Gemma.startFollowUpChat]. Call [ask] once per question; the pack facts
+/// are sent only with the first question, then live in the chat's own
+/// history for every question after that.
+class FollowUpChat {
+  FollowUpChat._(InferenceChat chat, String factsPreamble)
+      : _chat = chat,
+        _factsPreamble = factsPreamble,
+        _fake = false;
+  FollowUpChat._fake()
+      : _chat = null,
+        _factsPreamble = null,
+        _fake = true;
+
+  final InferenceChat? _chat;
+  String? _factsPreamble;
+  final bool _fake;
+
+  Stream<String> ask({String? typedQuestion, Uint8List? audioWavBytes}) async* {
+    assert(typedQuestion != null || audioWavBytes != null);
+    if (_fake) {
+      const canned =
+          'The pack says to store it below 30°C, away from children. Anything beyond what the pack states, like use in pregnancy, is a question for your pharmacist.';
+      for (final w in canned.split(' ')) {
+        await Future<void>.delayed(const Duration(milliseconds: 40));
+        yield '$w ';
+      }
+      return;
+    }
+    final questionLine = audioWavBytes != null
+        ? 'The question was spoken aloud and is attached as audio. First understand it, then answer it.'
+        : 'Question: $typedQuestion';
+    final preamble = _factsPreamble;
+    _factsPreamble = null; // the pack facts are sent only once
+    final text = preamble == null ? questionLine : '$preamble\n$questionLine';
+    await _chat!.addQueryChunk(audioWavBytes != null
+        ? Message.withAudio(text: text, audioBytes: audioWavBytes, isUser: true)
+        : Message.text(text: text, isUser: true));
+    await for (final r in _chat.generateChatResponseAsync()) {
+      if (r is TextResponse) yield r.token;
+    }
+  }
+
+  Future<void> close() async {
+    if (_chat != null) await _chat.close();
   }
 }

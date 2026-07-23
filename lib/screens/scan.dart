@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../services/image_prep.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
 import '../widgets/motion.dart';
@@ -92,7 +93,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     setState(() => _busy = true);
     try {
       final file = await cam.takePicture();
-      final bytes = await file.readAsBytes();
+      final raw = await file.readAsBytes();
+      final bytes = await compute(resizeForScan, raw);
       if (mounted) setState(() => _shot = bytes);
     } on CameraException {
       if (mounted) {
@@ -108,7 +110,8 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
     final picked =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null) return;
-    final bytes = await picked.readAsBytes();
+    final raw = await picked.readAsBytes();
+    final bytes = await compute(resizeForScan, raw);
     if (mounted) setState(() => _shot = bytes);
   }
 

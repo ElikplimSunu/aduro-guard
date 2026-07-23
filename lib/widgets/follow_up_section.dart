@@ -40,11 +40,29 @@ class _FollowUpSectionState extends State<FollowUpSection> {
   bool _recording = false;
   bool _answering = false;
 
+  // Reused across every question in this scan so the model isn't re-fed the
+  // full pack facts each time; restarted only if the language changes.
+  Future<FollowUpChat>? _chatFuture;
+  String? _chatLanguage;
+
   static final bool _micSupported =
       !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
 
+  Future<FollowUpChat> _ensureChat() {
+    final lang = Prefs.instance.language;
+    if (_chatFuture != null && _chatLanguage == lang) return _chatFuture!;
+    _chatFuture?.then((c) => c.close());
+    _chatLanguage = lang;
+    return _chatFuture = Gemma.instance.startFollowUpChat(
+      extraction: widget.extraction,
+      verdict: widget.verdict,
+      language: lang,
+    );
+  }
+
   @override
   void dispose() {
+    _chatFuture?.then((c) => c.close());
     _recorder.dispose();
     _controller.dispose();
     super.dispose();
@@ -87,13 +105,9 @@ class _FollowUpSectionState extends State<FollowUpSection> {
       _answering = true;
     });
     try {
-      await for (final chunk in Gemma.instance.ask(
-        extraction: widget.extraction,
-        verdict: widget.verdict,
-        typedQuestion: question,
-        audioWavBytes: audio,
-        language: Prefs.instance.language,
-      )) {
+      final chat = await _ensureChat();
+      await for (final chunk
+          in chat.ask(typedQuestion: question, audioWavBytes: audio)) {
         if (!mounted) return;
         setState(() => turn.answer += chunk);
       }

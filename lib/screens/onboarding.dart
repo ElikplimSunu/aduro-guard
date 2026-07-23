@@ -36,6 +36,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         setState(() => _progress = p);
       }
       Prefs.instance.modelFile = e2b.fileName;
+      // Fire-and-forget: load weights + pay first-inference costs now, on
+      // this idle moment, instead of on the user's first real scan.
+      Gemma.instance.warmUp();
       _finish();
     } catch (_) {
       if (mounted) {
@@ -80,6 +83,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     try {
       await Gemma.instance.importFile(path);
       Prefs.instance.modelFile = e2b.fileName;
+      Gemma.instance.warmUp();
       _finish();
     } catch (_) {
       if (mounted) {
