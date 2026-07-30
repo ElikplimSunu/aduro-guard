@@ -32,19 +32,36 @@ the model is downloaded or imported, and after that the app never needs a networ
 | --- | --- | --- | --- |
 | ![Home screen](docs/screenshots/home-empty.png) | ![Camera capture](docs/screenshots/camera.png) | ![Confirm the photo](docs/screenshots/confirm-photo.png) | ![Reading the pack, offline](docs/screenshots/reading-pack.png) |
 
-**The verdict, and what it means.** The database decides; Gemma explains it in your
-language. Twi here is the reviewed wording that replaces model output when it drifts.
+**The verdict.** The database decides; Gemma explains it in your language. Green when the
+register confirms the pack, amber when the name or number does not line up exactly, amber
+again when the product is simply absent.
 
-| Verdict | Guidance in English | Guidance in Twi | Saved check, light theme |
-| --- | --- | --- | --- |
-| ![A caution verdict](docs/screenshots/result-caution.png) | ![Guidance in English](docs/screenshots/counseling-english.png) | ![Guidance in Twi](docs/screenshots/counseling-twi.png) | ![A saved check in the light theme](docs/screenshots/result-light.png) |
+| Registered and in date | Name close but not exact | Not in the register |
+| --- | --- | --- |
+| ![A green registered verdict](docs/screenshots/result-registered.png) | ![A caution verdict](docs/screenshots/result-caution.png) | ![A not-found verdict, light theme](docs/screenshots/result-light.png) |
 
 **One photo rarely shows everything.** When fields are missing the app names exactly what
-it could not see and asks for one more angle, then re-runs the check.
+it could not see and asks for one more angle, then re-runs the check with both reads
+merged.
 
-| Before: batch, expiry and FDA number unread | After a photo of the back |
+| Batch, expiry and maker unread | After a photo of the back |
 | --- | --- |
-| ![Missing details after the first photo](docs/screenshots/add-side-before.png) | ![All fields filled after a second photo](docs/screenshots/add-side-after.png) |
+| ![Missing details after the first photo](docs/screenshots/vinc-before-side.png) | ![Batch, expiry and maker filled in, verdict green](docs/screenshots/result-registered.png) |
+
+**Guidance, in your language.** Twi here is the reviewed wording that replaces model
+output when it drifts or loops.
+
+| Guidance in English | Guidance in Twi |
+| --- | --- |
+| ![Guidance in English](docs/screenshots/counseling-english.png) | ![Guidance in Twi](docs/screenshots/counseling-twi.png) |
+
+**Ask about the pack.** Answers come only from what the pack itself says, and the thread
+is saved with the scan: close the app, reopen the check, and the question and answer are
+still there with room to ask more.
+
+| Asking during a scan | The same thread in a saved check |
+| --- | --- |
+| ![Asking how to store the pack](docs/screenshots/ask-the-pack.png) | ![The saved question and answer after reopening the app](docs/screenshots/ask-saved.png) |
 
 | History | Settings | Offline voices |
 | --- | --- | --- |
