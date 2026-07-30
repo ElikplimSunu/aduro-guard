@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// What Gemma's vision pass extracted from a pack photo.
 /// Fields are raw strings as read; parsing/decisions happen in the engine.
 class Extraction {
@@ -68,6 +70,30 @@ class Extraction {
       );
 }
 
+/// One question and its answer, saved with the scan.
+class QaTurn {
+  final String question; // '' when the question was spoken
+  final String answer;
+
+  const QaTurn(this.question, this.answer);
+
+  Map<String, Object?> toJson() => {'q': question, 'a': answer};
+
+  static List<QaTurn> decode(String raw) {
+    if (raw.isEmpty) return const [];
+    try {
+      return (jsonDecode(raw) as List)
+          .map((e) => QaTurn((e['q'] ?? '') as String, (e['a'] ?? '') as String))
+          .toList();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  static String encode(List<QaTurn> turns) =>
+      jsonEncode(turns.map((t) => t.toJson()).toList());
+}
+
 /// A saved scan (history).
 class ScanRecord {
   final int? id;
@@ -78,6 +104,7 @@ class ScanRecord {
   final String verdictSummary;
   final String counseling;
   final String language;
+  final List<QaTurn> qa;
 
   const ScanRecord({
     this.id,
@@ -88,5 +115,6 @@ class ScanRecord {
     required this.verdictSummary,
     this.counseling = '',
     this.language = 'en',
+    this.qa = const [],
   });
 }

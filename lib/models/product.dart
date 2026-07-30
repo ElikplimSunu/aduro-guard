@@ -24,6 +24,20 @@ class Product {
     this.source = '',
   });
 
+  /// The company name without the postal address the FDA register appends
+  /// ("AAYANSH WELLNESS PVT, LTD - 12, VINAYAK ESTATE, ... INDIA"). Matching
+  /// still uses the full field; this is only for display, where the address
+  /// buries the one word the user is checking.
+  String get maker {
+    var m = manufacturer.trim();
+    // The address starts at the first comma or the dash-number pattern that
+    // opens a street line, whichever comes first.
+    final cut = RegExp(r',|\s-\s*\d|\bP\.?O\.?\s*BOX\b', caseSensitive: false)
+        .firstMatch(m);
+    if (cut != null && cut.start > 2) m = m.substring(0, cut.start);
+    return m.replaceAll(RegExp(r'[\s.,-]+$'), '').trim();
+  }
+
   factory Product.fromRow(Map<String, Object?> r) => Product(
         id: r['id'] as int,
         name: r['name'] as String,

@@ -289,7 +289,9 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
           FollowUpSection(
               key: ValueKey('h-follow$_updates'),
               extraction: e,
-              verdict: _verdict),
+              verdict: _verdict,
+              historyId: record.id,
+              initialTurns: record.qa),
           const SizedBox(height: T.s4),
           Text(
               S.checkedOn(

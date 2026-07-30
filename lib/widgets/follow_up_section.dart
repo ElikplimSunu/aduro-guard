@@ -8,6 +8,7 @@ import 'package:record/record.dart';
 import '../models/scan.dart';
 import '../models/verdict.dart';
 import '../services/gemma.dart';
+import '../services/history.dart';
 import '../services/prefs.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
@@ -26,8 +27,17 @@ class FollowUpSection extends StatefulWidget {
   final Extraction extraction;
   final Verdict verdict;
 
-  const FollowUpSection(
-      {super.key, required this.extraction, required this.verdict});
+  /// Persist the thread against this scan, and show what was asked before.
+  final int? historyId;
+  final List<QaTurn> initialTurns;
+
+  const FollowUpSection({
+    super.key,
+    required this.extraction,
+    required this.verdict,
+    this.historyId,
+    this.initialTurns = const [],
+  });
 
   @override
   State<FollowUpSection> createState() => _FollowUpSectionState();
@@ -36,7 +46,12 @@ class FollowUpSection extends StatefulWidget {
 class _FollowUpSectionState extends State<FollowUpSection> {
   final _recorder = AudioRecorder();
   final _controller = TextEditingController();
-  final List<_Turn> _turns = [];
+  late final List<_Turn> _turns = [
+    for (final t in widget.initialTurns)
+      (_Turn(t.question)
+        ..answer = t.answer
+        ..done = true),
+  ];
   bool _recording = false;
   bool _answering = false;
 
@@ -120,7 +135,22 @@ class _FollowUpSectionState extends State<FollowUpSection> {
           _answering = false;
         });
       }
+      _save();
     }
+  }
+
+  /// The thread is part of the record: someone who scanned a pack and asked
+  /// "can I take this with my other medicine" should find that answer again
+  /// later, not have to re-ask an offline model.
+  void _save() {
+    final id = widget.historyId;
+    if (id == null) return;
+    History.instance.updateQa(
+        id,
+        QaTurn.encode([
+          for (final t in _turns.where((t) => t.done && t.answer.isNotEmpty))
+            QaTurn(t.question, t.answer.trim()),
+        ]));
   }
 
   @override

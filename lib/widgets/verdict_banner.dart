@@ -24,7 +24,7 @@ List<String> localizedReasons(Verdict v) {
   if (k == null) return v.reasons;
   String my(DateTime d) => '${d.month}/${d.year}';
   final name = v.product?.name ?? '';
-  final maker = v.product?.manufacturer ?? '';
+  final maker = v.product?.maker ?? '';
   return switch (k) {
     VerdictKind.unreadable => [S.rUnreadable],
     VerdictKind.recalled => [

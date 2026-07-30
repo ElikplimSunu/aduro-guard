@@ -18,7 +18,7 @@ class History {
     final dir = await getApplicationDocumentsDirectory();
     _db = await openDatabase(
       '${dir.path}/history.db',
-      version: 1,
+      version: 2,
       onCreate: (db, _) => db.execute('''
         CREATE TABLE scans(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,8 +28,14 @@ class History {
           verdict_status TEXT NOT NULL,
           verdict_summary TEXT,
           counseling TEXT,
-          language TEXT
+          language TEXT,
+          qa TEXT
         )'''),
+      onUpgrade: (db, from, to) async {
+        // v2 added the saved question-and-answer thread. Existing rows keep
+        // their scans and simply have no thread.
+        if (from < 2) await db.execute('ALTER TABLE scans ADD COLUMN qa TEXT');
+      },
     );
     return _db!;
   }
@@ -62,6 +68,12 @@ class History {
         whereArgs: [id]);
   }
 
+  /// Saves the question-and-answer thread for a scan, as JSON.
+  Future<void> updateQa(int id, String qaJson) async {
+    final db = await _open();
+    await db.update('scans', {'qa': qaJson}, where: 'id = ?', whereArgs: [id]);
+  }
+
   Future<void> updateCounseling(
       int id, String counseling, String language) async {
     final db = await _open();
@@ -85,6 +97,7 @@ class History {
               verdictSummary: (r['verdict_summary'] ?? '') as String,
               counseling: (r['counseling'] ?? '') as String,
               language: (r['language'] ?? 'en') as String,
+              qa: QaTurn.decode((r['qa'] ?? '') as String),
             ))
         .toList();
   }

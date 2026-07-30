@@ -294,7 +294,7 @@ class _ResultScreenState extends State<ResultScreen> {
         ? v.product
         : null;
     final regMaker =
-        e.manufacturer.isEmpty ? (regProduct?.manufacturer ?? '') : '';
+        e.manufacturer.isEmpty ? (regProduct?.maker ?? '') : '';
     final regNumber = e.regNo.isEmpty ? (regProduct?.regNo ?? '') : '';
     return ListView(
       padding: const EdgeInsets.all(T.s5),
@@ -375,7 +375,8 @@ class _ResultScreenState extends State<ResultScreen> {
             child: FollowUpSection(
                 key: ValueKey('follow$_extraShots'),
                 extraction: e,
-                verdict: v)),
+                verdict: v,
+                historyId: _historyId)),
         const SizedBox(height: T.s8),
         Entrance(
             index: 5,
