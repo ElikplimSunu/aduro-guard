@@ -10,6 +10,14 @@ class Lang {
   final bool early; // output quality still maturing; labelled in the UI
   final String? mmsCode; // MMS voice id for offline TTS; null = no voice yet
 
+  /// Whether Gemma 4 E2B can actually hold this language for counseling.
+  /// Measured on device (Galaxy S24, 2026-07-30): English, Twi and Hausa
+  /// come back in-language; Ewe and Dagbani come back in English every time,
+  /// so asking costs 15 seconds and returns text under the wrong heading.
+  /// Those two read from lib/services/counseling.dart instead. Flip this on
+  /// again when a stronger model (E4B) or better exemplars change the result.
+  final bool counselFromModel;
+
   const Lang({
     required this.code,
     required this.name,
@@ -19,6 +27,7 @@ class Lang {
     this.exemplar,
     this.early = false,
     this.mmsCode,
+    this.counselFromModel = true,
   });
 }
 
@@ -51,6 +60,7 @@ const langs = [
         "Write in everyday Ewe as spoken in Ghana's Volta Region. Keep medicine names, numbers and \"FDA\" in English. Use short simple sentences.",
     early: true,
     mmsCode: 'ewe',
+    counselFromModel: false,
   ),
   Lang(
     code: 'dag',
@@ -59,6 +69,7 @@ const langs = [
     promptLine:
         'Write in everyday Dagbani as spoken in northern Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
     early: true,
+    counselFromModel: false,
   ),
   Lang(
     code: 'ha',
@@ -67,6 +78,8 @@ const langs = [
     nativeLine: 'A yi amfani da Hausa',
     promptLine:
         'Write in everyday Hausa as understood in Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
+    exemplar:
+        'Example of the tone for Hausa (this one is for a registered, in-date pack):\n"Wannan maganin yana cikin rijistar FDA ta Ghana, kuma ranar karewarsa bai wuce ba. Yi amfani da shi daidai yadda akwatin ya faɗa. Ka ajiye shi a wuri mai sanyi, nesa da yara. Idan ba ka ji sauƙi ba, tambayi likitan magani."',
     early: true,
     mmsCode: 'hau',
   ),

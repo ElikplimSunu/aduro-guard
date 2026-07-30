@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/scan.dart';
 import '../models/verdict.dart';
+import 'counseling.dart';
 import 'languages.dart';
 
 /// A downloadable Gemma 4 model build. Both are ungated on Hugging Face.
@@ -300,14 +301,22 @@ Answer with only the JSON object.''';
       return;
     }
 
-    final model = await _ensureModel();
     final lang = langBy(language);
+    // Languages the model cannot hold skip generation entirely: asking costs
+    // 15 seconds and returns English under an Ewe or Dagbani heading.
+    if (!lang.counselFromModel) {
+      yield counselingTemplate(verdict.status, language);
+      return;
+    }
 
-    // Two attempts at most: if the first comes out in the wrong language
-    // (small models drift to English on low-resource languages) or collapses
-    // into a repetition loop, [resetSignal] is emitted so the UI clears what
-    // it showed, and one stricter retry runs. A bad second attempt stands —
-    // English guidance beats no guidance.
+    final model = await _ensureModel();
+
+    // Generate, then check what actually came back. A repetition collapse in
+    // the right language is a sampling accident, so one retry with a
+    // different seed is worth the wait; wrong-language output is a capability
+    // limit no retry fixes. Either failure ends the same way: [resetSignal]
+    // tells the UI to clear the bad text, and reviewed wording from
+    // counseling.dart takes its place. The user never sees the failure.
     for (var attempt = 0; attempt < 2; attempt++) {
       final strict = attempt == 1;
       final prompt = '''
@@ -342,13 +351,13 @@ Your guidance:''';
         maxOutputTokens: 256,
       );
       final buf = StringBuffer();
-      var degenerate = false;
+      var looped = false;
       try {
         await session.addQueryChunk(Message.text(text: prompt, isUser: true));
         await for (final chunk in session.getResponseAsync()) {
           buf.write(chunk);
-          if (_degenerate(buf.toString())) {
-            degenerate = true;
+          if (isRepetitionLoop(buf.toString())) {
+            looped = true;
             await session.stopGeneration();
             break;
           }
@@ -358,10 +367,13 @@ Your guidance:''';
         await session.close();
       }
       final wrongLanguage =
-          language != 'en' && _looksEnglish(buf.toString());
-      if (!degenerate && !wrongLanguage) return;
-      if (strict) return; // second attempt stands as-is
+          language != 'en' && looksEnglish(buf.toString());
+      if (!looped && !wrongLanguage) return;
       yield resetSignal;
+      if (wrongLanguage || strict) {
+        yield counselingTemplate(verdict.status, language);
+        return;
+      }
     }
   }
 
@@ -369,17 +381,23 @@ Your guidance:''';
   /// replaced: the listening UI should clear its text and keep streaming.
   static const resetSignal = '\u0000';
 
-  /// True when the tail of [s] has collapsed into a repetition loop (the
-  /// one-word-forever failure mode of small models on low-resource text).
-  static bool _degenerate(String s) {
-    final words = s.trim().split(RegExp(r'\s+'));
-    if (words.length < 12) return false;
-    final tail = words.sublist(words.length - 12);
-    if (tail.toSet().length <= 2) return true;
-    var run = 1;
-    for (var i = 1; i < tail.length; i++) {
-      run = tail[i] == tail[i - 1] ? run + 1 : 1;
-      if (run >= 5) return true;
+  /// True when the tail of [s] has collapsed into a repetition loop. Small
+  /// models fail on low-resource text by cycling a whole PHRASE, not just one
+  /// word ("sɛ a no yɛn nti sɛ a no yɛn nti ..."), so this looks for any
+  /// block of up to 6 words repeating three times at the end of the stream.
+  static bool isRepetitionLoop(String s) {
+    final w = s.trim().split(RegExp(r'\s+'));
+    if (w.length < 12) return false;
+    for (var k = 1; k <= 6; k++) {
+      if (w.length < k * 3) break;
+      final tail = w.sublist(w.length - k * 3);
+      var cycles = true;
+      for (var i = 0; i < k && cycles; i++) {
+        if (tail[i] != tail[i + k] || tail[i] != tail[i + 2 * k]) {
+          cycles = false;
+        }
+      }
+      if (cycles) return true;
     }
     return false;
   }
@@ -387,7 +405,7 @@ Your guidance:''';
   /// Heuristic: does this read as English prose? Function words only, so
   /// code-switched Twi keeping tech nouns (register, pharmacist) stays under
   /// the threshold while full English sentences go well over it.
-  static bool _looksEnglish(String s) {
+  static bool looksEnglish(String s) {
     const fn = {
       'the', 'you', 'must', 'this', 'that', 'is', 'are', 'and', 'not',
       'with', 'your', 'it', 'of', 'to', 'for', 'before', 'was', 'has',

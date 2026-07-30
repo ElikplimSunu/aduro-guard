@@ -406,6 +406,17 @@ abstract final class S {
       ha: 'Kyamarar ba ta ga:');
   static String get fromRegisterTag => _l('register',
       tw: 'nhoma mu', ee: 'agbalẽ me', ha: 'rijista');
+  static String get managePhotos => _l('Change selected photos',
+      tw: 'Sesa mfonini a woayi no',
+      ha: 'Canza hotunan da ka zaɓa');
+  static String get allowPhotosHint => _l(
+      'Allow photo access to pick a pack photo. Choosing "Select photos" keeps it to just your medicine photos.',
+      tw: 'Ma kwan ma mfonini na woayi adaka no mfonini. "Select photos" ma wohu w\'aduro mfonini nko ara.',
+      ha: 'Ba da izinin hotuna don zaɓar hoton akwatin. "Select photos" na nuna hotunan maganinka kawai.');
+  static String get noPhotosYet => _l(
+      'No photos selected yet. Use the manage button above to choose your medicine photos.',
+      tw: 'Wonyii mfonini biara ɛ. Fa button a ɛwɔ soro no yi w\'aduro mfonini.',
+      ha: 'Ba a zaɓi hotuna ba tukuna. Yi amfani da maballin da ke sama don zaɓar hotunan maganinka.');
   static String get packPhoto => _l('Pack photo',
       tw: 'Aduro no mfonini', ee: 'Aɖaka la ƒe foto', ha: 'Hoton akwatin');
   static String get addAnotherSide => _l('Add a photo of another side',

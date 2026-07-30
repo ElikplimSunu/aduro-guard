@@ -3,6 +3,11 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Used only for the one-time model download; inference is offline. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Pack photos from the gallery. Pairs with "Select photos" (limited)
+         access so the in-app grid shows only what the user approved. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
     <application
         android:label="Aduro Guard"
         android:name="${applicationName}"
