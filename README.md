@@ -16,9 +16,39 @@ code, no literacy requirement, no internet.
 
 ## Screenshots
 
-| Onboarding in Twi | Home | Result | Dark result | Dark settings |
-| --- | --- | --- | --- | --- |
-| ![Onboarding with the UI in Twi](docs/screenshots/onboarding-twi.png) | ![Home, light theme](docs/screenshots/home-light.png) | ![Scan result, light theme](docs/screenshots/result-light.png) | ![Scan result, dark theme](docs/screenshots/result-dark.png) | ![Settings, dark theme](docs/screenshots/settings-dark.png) |
+All captured on a Galaxy S24 running the release build, with Gemma 4 E2B doing the reading
+on the phone.
+
+**Setup, once.** Pick a language, and the whole interface switches to it immediately. Then
+the model is downloaded or imported, and after that the app never needs a network.
+
+| Choose a language | The same screen in Twi | Set up the offline brain | Downloading the model |
+| --- | --- | --- | --- |
+| ![Language picker](docs/screenshots/onboarding-language.png) | ![The picker after choosing Twi](docs/screenshots/onboarding-twi.png) | ![Offline model setup](docs/screenshots/model-setup.png) | ![Model download in progress](docs/screenshots/model-downloading.png) |
+
+**Scanning.** Point, confirm, and the pack is read on the phone.
+
+| Home | Camera | Confirm the photo | Reading the pack |
+| --- | --- | --- | --- |
+| ![Home screen](docs/screenshots/home-empty.png) | ![Camera capture](docs/screenshots/camera.png) | ![Confirm the photo](docs/screenshots/confirm-photo.png) | ![Reading the pack, offline](docs/screenshots/reading-pack.png) |
+
+**The verdict, and what it means.** The database decides; Gemma explains it in your
+language. Twi here is the reviewed wording that replaces model output when it drifts.
+
+| Verdict | Guidance in English | Guidance in Twi | Saved check, light theme |
+| --- | --- | --- | --- |
+| ![A caution verdict](docs/screenshots/result-caution.png) | ![Guidance in English](docs/screenshots/counseling-english.png) | ![Guidance in Twi](docs/screenshots/counseling-twi.png) | ![A saved check in the light theme](docs/screenshots/result-light.png) |
+
+**One photo rarely shows everything.** When fields are missing the app names exactly what
+it could not see and asks for one more angle, then re-runs the check.
+
+| Before: batch, expiry and FDA number unread | After a photo of the back |
+| --- | --- |
+| ![Missing details after the first photo](docs/screenshots/add-side-before.png) | ![All fields filled after a second photo](docs/screenshots/add-side-after.png) |
+
+| History | Settings | Offline voices |
+| --- | --- | --- |
+| ![Past checks](docs/screenshots/history.png) | ![Language and appearance settings](docs/screenshots/settings-language.png) | ![Downloadable offline voices](docs/screenshots/settings-voices.png) |
 
 ## How it works: Gemma reads, the database decides, Gemma explains
 
