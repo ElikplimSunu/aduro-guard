@@ -2,7 +2,7 @@
 
 > Target: 1,500 words or fewer. Sections mapped to the rubric (Gemma Integration 30 /
 > Innovation & Impact 30 / Functionality 20 / Presentation 20). Fill the [BRACKETS] on
-> event day. Word count at last edit: about 1,180, which leaves room for day-of additions.
+> event day.
 
 ---
 
@@ -87,15 +87,16 @@ Live demo flow, phone in airplane mode from the first second:
   read aloud.
 - Scan an expired pack: the expiry date is parsed from the pack print and the verdict
   goes red, even though the product itself is in the register.
-- Scan [OBSCURE IMPORT PRODUCT]: honest amber "not in this register snapshot", with the
-  FDA WhatsApp line to report.
+- Scan Gasto Mixture, a Naturemedics herbal product: honest amber "not in this register
+  snapshot", with the FDA WhatsApp line to report.
 - A deliberately blurry shot: "Couldn't read the pack. Try more light." Engineered
   honesty.
 - Voice: "Where should I store it?" answered from the pack text. "Can my sister take it
   with her blood-pressure medicine?" referred to a pharmacist, because the pack does not
   say.
 
-Everything runs on a [PHONE MODEL] with 4 to 6 GB of memory on Gemma 4 E2B (2.4GB). The
+Everything runs on a Samsung Galaxy S24 on Gemma 4 E2B (2.4GB), the build sized for the
+4 to 6 GB phones most Ghanaians carry. The
 stronger E4B build is a settings toggle for 8 GB phones. Model download happens once on
 Wi-Fi; the demo needs zero connectivity. [ADD: measured seconds per scan on the demo
 phone.] The app ships light and dark themes from one token system, a language picker
@@ -103,17 +104,20 @@ where every option is labelled in its own language and the whole UI flips on sel
 (English and Twi chrome today, all five languages for content), and screen-reader
 support: labelled controls, an announced verdict, and 44dp touch targets.
 
-Honest limits: the committed register snapshot is a curated subset of real products (the
-FDA's public register backend was unreachable during build week; the repo ships a
-resumable exporter that folds in the full register the moment the server answers). "Not
-found" therefore always reads as *verify*, never *fake*. Twi is code-switched everyday
-Twi; Ewe, Dagbani, and Hausa output is newer and labelled early in the app, and the MMS
-voices are intelligible rather than natural.
+Honest limits, and what we do about them. The register is a dated snapshot, so "not
+found" always reads as *verify*, never *fake*. On the low-resource languages the model is
+the weak link, not the pipeline: Gemma 4 E2B holds English, Twi and Hausa but answers in
+English when asked for Ewe or Dagbani, and occasionally collapses Twi into a repeating
+phrase. So we check its output rather than trust it. Text that loops, or that reads as
+English under a local-language heading, is rejected and replaced with reviewed wording
+held in the repo, six verdicts per language. Generated low-resource text is different on
+every run and so cannot be proofread; a finite set can, and a native speaker can correct
+it once for good. The MMS voices are intelligible rather than natural.
 
 ## Impact & roadmap (150w, Innovation & Impact)
 
-The register snapshot updates by re-running one script; a build with the full
-30,000-product export is the same APK with a bigger asset. The natural partner is the FDA
+The register snapshot updates by re-running one script against the FDA's own endpoint, so
+a fresher build is the same APK with a newer asset. The natural partner is the FDA
 itself: their recalls become push updates, and every "not found" scan is a crowd-sourced
 surveillance signal. The reporting channel (the FDA's 0551112224 WhatsApp line) is
 already in the app copy. Ewe, Dagbani, and Hausa already ship as early-support output;
@@ -122,7 +126,7 @@ all the way down: weights (Gemma), runtime (flutter_gemma), and this repo.
 
 ## Links & acknowledgments (100w)
 
-- **Code:** [PUBLIC GITHUB URL] with architecture, verdict-engine tests, and the data
+- **Code:** https://github.com/ElikplimSunu/aduro-guard with architecture, verdict-engine tests, and the data
   pipeline.
 - **Demo:** [APK release link / demo video URL]
 - Built with Gemma 4 E2B (Google DeepMind) via flutter_gemma + LiteRT-LM; register data
