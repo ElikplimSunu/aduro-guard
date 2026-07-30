@@ -3,14 +3,13 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../services/image_prep.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
 import '../widgets/motion.dart';
-import 'photo_pick.dart';
 import 'result.dart';
 
 /// Camera capture with a confirm step. On desktop (no camera plugin support)
@@ -108,19 +107,10 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _pick() async {
-    Uint8List? raw;
-    if (_cameraSupported) {
-      // In-app grid over MediaStore: with "Select photos" access it shows
-      // only the photos the user approved, not the whole gallery.
-      raw = await Navigator.of(context).push<Uint8List>(
-          MaterialPageRoute(builder: (_) => const PhotoPickScreen()));
-    } else {
-      final result =
-          await FilePicker.pickFiles(type: FileType.image);
-      final path = result?.files.single.path;
-      if (path != null) raw = await File(path).readAsBytes();
-    }
-    if (raw == null) return;
+    final picked =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+    final raw = await picked.readAsBytes();
     final bytes = await compute(resizeForScan, raw);
     if (mounted) setState(() => _shot = bytes);
   }
