@@ -178,18 +178,29 @@ class Gemma {
   // callers — e.g. a warmUp() still loading when a real scan starts — share
   // one FlutterGemma.getActiveModel() call instead of racing two.
   Future<InferenceModel> _ensureModel() {
-    return _modelFuture ??= () async {
-      await init();
-      final model = await FlutterGemma.getActiveModel(
-        maxTokens: 4096,
-        preferredBackend: PreferredBackend.gpu,
-        supportImage: true,
-        supportAudio: true,
-        maxNumImages: 1,
-        enableSpeculativeDecoding: true,
-      );
-      _model = model;
-      return model;
+    final pending = _modelFuture;
+    if (pending != null) return pending;
+    return _modelFuture = () async {
+      try {
+        await init();
+        final model = await FlutterGemma.getActiveModel(
+          maxTokens: 4096,
+          preferredBackend: PreferredBackend.gpu,
+          supportImage: true,
+          supportAudio: true,
+          maxNumImages: 1,
+          enableSpeculativeDecoding: true,
+        );
+        _model = model;
+        return model;
+      } catch (_) {
+        // A FAILED load must never stay cached. Loading 2.4GB can lose to
+        // memory pressure on a cold start; if the rejected future stuck
+        // around, every later scan and every counseling call would replay
+        // that same failure and the app would look broken until restart.
+        _modelFuture = null;
+        rethrow;
+      }
     }();
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'screens/home.dart';
 import 'screens/onboarding.dart';
+import 'services/gemma.dart';
 import 'services/prefs.dart';
 import 'services/registry.dart';
 import 'services/tts.dart';
@@ -15,6 +16,10 @@ Future<void> main() async {
   await Prefs.instance.load();
   Registry.instance.load(); // warm the snapshot; screens await it again
   Tts.instance.warmUp(Prefs.instance.language); // warm the current voice
+  // Load the model on launch, not on the first scan: a cold 2.4GB load
+  // competing with whatever else the phone is running is exactly when it
+  // fails, and it fails in front of the user. Best effort, never throws.
+  if (Prefs.instance.modelFile.isNotEmpty) Gemma.instance.warmUp();
   runApp(const AduroApp());
 }
 
