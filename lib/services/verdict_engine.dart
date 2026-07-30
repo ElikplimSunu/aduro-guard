@@ -24,6 +24,7 @@ class VerdictEngine {
     if (!e.legible || e.isEmpty) {
       return const Verdict(
         status: VerdictStatus.unreadable,
+        kind: VerdictKind.unreadable,
         reasons: ['The photo could not be read. Try more light and hold steady.'],
       );
     }
@@ -104,6 +105,8 @@ class VerdictEngine {
     if (recalled) {
       return Verdict(
         status: VerdictStatus.recalled,
+        kind: VerdictKind.recalled,
+        readName: e.productName,
         recall: hitRecall,
         product: matched,
         matchScore: bestScore,
@@ -120,6 +123,8 @@ class VerdictEngine {
     if (expired) {
       return Verdict(
         status: VerdictStatus.expired,
+        kind: VerdictKind.expired,
+        readName: e.productName,
         product: matched,
         matchScore: bestScore,
         expiryDate: expiry,
@@ -142,17 +147,22 @@ class VerdictEngine {
           packReg.length >= 8 &&
           matched.regNo.isNotEmpty &&
           packReg != normalizeReg(matched.regNo)) {
+        // A 1-2 character drift is more likely the camera misreading
+        // small print than a forged number; say so instead of alarming.
+        final drift = _levenshtein(packReg, normalizeReg(matched.regNo)) <= 2;
         return Verdict(
           status: VerdictStatus.caution,
+          kind: VerdictKind.cautionRegMismatch,
+          readName: e.productName,
+          packRegNo: e.regNo,
+          regDrift: drift,
           product: matched,
           matchScore: bestScore,
           expiryDate: expiry,
           lookalikeNote: lookNote,
           reasons: [
             'The name matches “${matched.name}” in the register, but the pack prints registration number ${e.regNo} while the register lists ${matched.regNo} for that product.',
-            // A 1-2 character drift is more likely the camera misreading
-            // small print than a forged number; say so instead of alarming.
-            if (_levenshtein(packReg, normalizeReg(matched.regNo)) <= 2)
+            if (drift)
               'The two numbers differ only slightly, so the camera may simply have misread the small print. Rescan the number up close to be sure.'
             else
               'A registration number that does not match the register is a known counterfeit sign. It can also mean this particular variant is no longer registered.',
@@ -170,6 +180,10 @@ class VerdictEngine {
         status: (lookNote == null || exact)
             ? VerdictStatus.registered
             : VerdictStatus.caution,
+        kind: (lookNote == null || exact)
+            ? VerdictKind.registered
+            : VerdictKind.cautionLookalike,
+        readName: e.productName,
         product: matched,
         matchScore: bestScore,
         expiryDate: expiry,
@@ -189,6 +203,8 @@ class VerdictEngine {
     if (bestScore >= weakMatch && best != null) {
       return Verdict(
         status: VerdictStatus.caution,
+        kind: VerdictKind.cautionName,
+        readName: e.productName,
         product: best,
         matchScore: bestScore,
         expiryDate: expiry,
@@ -204,6 +220,8 @@ class VerdictEngine {
 
     return Verdict(
       status: VerdictStatus.notFound,
+      kind: VerdictKind.notFound,
+      readName: e.productName,
       matchScore: bestScore,
       expiryDate: expiry,
       lookalikeNote: lookNote,

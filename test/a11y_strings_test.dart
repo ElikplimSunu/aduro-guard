@@ -11,8 +11,12 @@ void main() {
     expect(S.scanAMedicine, 'Scan a medicine');
     Prefs.instance.language = 'tw';
     expect(S.scanAMedicine, 'Hwɛ aduro bi');
-    Prefs.instance.language = 'ee'; // no Ewe chrome yet: English fallback
-    expect(S.scanAMedicine, 'Scan a medicine');
+    Prefs.instance.language = 'ee';
+    expect(S.scanAMedicine, 'Kpɔ atike aɖe');
+    Prefs.instance.language = 'dag';
+    // Untranslated strings fall back to English rather than guess.
+    expect(S.scanBlurb, 'Point at the pack. Get a verdict in seconds.');
+    expect(S.scanAMedicine, 'Vihimi tim');
     Prefs.instance.language = 'en';
   });
 

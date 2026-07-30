@@ -15,6 +15,59 @@ String verdictHeadline(VerdictStatus status) => switch (status) {
       VerdictStatus.unreadable => S.vUnreadable,
     };
 
+/// The verdict explanation in the current UI language, rebuilt from the
+/// verdict's structured fields. The engine's English [Verdict.reasons] stay
+/// the canonical record (history, model grounding); records without a kind
+/// (old history rows) fall back to them.
+List<String> localizedReasons(Verdict v) {
+  final k = v.kind;
+  if (k == null) return v.reasons;
+  String my(DateTime d) => '${d.month}/${d.year}';
+  final name = v.product?.name ?? '';
+  final maker = v.product?.manufacturer ?? '';
+  return switch (k) {
+    VerdictKind.unreadable => [S.rUnreadable],
+    VerdictKind.recalled => [
+        S.rRecalled(v.recall?.name ?? v.readName),
+        if ((v.recall?.reason ?? '').isNotEmpty) v.recall!.reason,
+        S.rRecalledAction,
+      ],
+    VerdictKind.expired => [
+        if (v.expiryDate != null) S.rExpired(my(v.expiryDate!)),
+        if (name.isNotEmpty) S.rExpiredButListed(name),
+        S.rExpiredAction,
+      ],
+    VerdictKind.registered => [
+        S.rFoundAs(name, maker),
+        if (v.expiryDate != null)
+          S.rStillInDate(my(v.expiryDate!))
+        else
+          S.rNoExpiryRead,
+        ?v.lookalikeNote,
+      ],
+    VerdictKind.cautionLookalike => [
+        S.rFoundAs(name, maker),
+        ?v.lookalikeNote,
+        S.rSpellingTrick,
+      ],
+    VerdictKind.cautionName => [
+        S.rCloseName(v.readName, name),
+        S.rSpellingTrick,
+        ?v.lookalikeNote,
+      ],
+    VerdictKind.cautionRegMismatch => [
+        S.rRegMismatch(name, v.packRegNo, v.product?.regNo ?? ''),
+        v.regDrift ? S.rRegDriftHint : S.rRegCounterfeitHint,
+        S.rVerifyFda,
+      ],
+    VerdictKind.notFound => [
+        S.rNotFound(v.readName),
+        S.rNotProofFake,
+        S.rVerifyFda,
+      ],
+  };
+}
+
 /// The app's signature element: one loud, unambiguous verdict surface.
 /// Everything else on the result screen stays quiet so this carries the story.
 class VerdictBanner extends StatelessWidget {
@@ -104,7 +157,7 @@ class VerdictBanner extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: T.s3),
-                  for (final r in verdict.reasons)
+                  for (final r in localizedReasons(verdict))
                     Padding(
                       padding: const EdgeInsets.only(bottom: T.s2),
                       child: Text(r, style: T.body.copyWith(color: c.ink)),

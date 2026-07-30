@@ -19,11 +19,18 @@ class CounselingSection extends StatefulWidget {
   final Verdict verdict;
   final int? historyId;
 
+  /// Saved guidance from a previous session (history detail): shown
+  /// instantly for [initialLanguage] instead of re-running the model.
+  final String? initialText;
+  final String? initialLanguage;
+
   const CounselingSection({
     super.key,
     required this.extraction,
     required this.verdict,
     this.historyId,
+    this.initialText,
+    this.initialLanguage,
   });
 
   @override
@@ -34,7 +41,6 @@ class _CounselingSectionState extends State<CounselingSection> {
   String _language = Prefs.instance.language;
   String _text = '';
   bool _generating = false;
-  bool _speaking = false;
   bool _canSpeak = false;
   String _error = '';
 
@@ -46,6 +52,10 @@ class _CounselingSectionState extends State<CounselingSection> {
   @override
   void initState() {
     super.initState();
+    final seed = widget.initialText;
+    if (seed != null && seed.isNotEmpty) {
+      _cache[widget.initialLanguage ?? 'en'] = seed;
+    }
     _refreshCanSpeak();
     _generate();
   }
@@ -70,7 +80,7 @@ class _CounselingSectionState extends State<CounselingSection> {
         _generating = false;
       });
       if (widget.historyId != null && cached.isNotEmpty) {
-        History.instance.updateCounseling(widget.historyId!, cached);
+        History.instance.updateCounseling(widget.historyId!, cached, _language);
       }
       return;
     }
@@ -86,12 +96,18 @@ class _CounselingSectionState extends State<CounselingSection> {
         language: _language,
       )) {
         if (!mounted) return;
+        // A rejected first attempt (wrong language, repetition loop) is
+        // being replaced: clear and keep streaming the retry.
+        if (chunk == Gemma.resetSignal) {
+          setState(() => _text = '');
+          continue;
+        }
         setState(() => _text += chunk);
       }
       final trimmed = _text.trim();
       _cache[_language] = trimmed;
       if (widget.historyId != null && trimmed.isNotEmpty) {
-        await History.instance.updateCounseling(widget.historyId!, trimmed);
+        await History.instance.updateCounseling(widget.historyId!, trimmed, _language);
       }
     } catch (_) {
       if (mounted) setState(() => _error = S.guidanceUnavailable);
@@ -105,21 +121,16 @@ class _CounselingSectionState extends State<CounselingSection> {
     // Flips the whole app's UI language too, not just the counseling.
     AduroApp.setLanguage(context, lang);
     Tts.instance.stop();
-    setState(() {
-      _language = lang;
-      _speaking = false;
-    });
+    setState(() => _language = lang);
     _refreshCanSpeak();
     _generate();
   }
 
   Future<void> _toggleSpeak() async {
-    if (_speaking) {
+    if (Tts.instance.state.value != TtsState.idle) {
       await Tts.instance.stop();
-      setState(() => _speaking = false);
       return;
     }
-    setState(() => _speaking = true);
     await Tts.instance.speak(_text.trim(), _language);
   }
 
@@ -179,21 +190,38 @@ class _CounselingSectionState extends State<CounselingSection> {
               if (!_generating && _text.isNotEmpty) ...[
                 const SizedBox(height: T.s4),
                 if (_canSpeak)
-                  OutlinedButton.icon(
-                    onPressed: _toggleSpeak,
-                    style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(0, 40),
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: T.s4)),
-                    icon: FadeSwap(
-                      child: Icon(
-                          _speaking
-                              ? Icons.stop_circle_outlined
-                              : Icons.volume_up_outlined,
-                          key: ValueKey(_speaking),
-                          size: 18),
+                  ValueListenableBuilder<TtsState>(
+                    valueListenable: Tts.instance.state,
+                    builder: (_, ts, _) => OutlinedButton.icon(
+                      onPressed: _toggleSpeak,
+                      style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 40),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: T.s4)),
+                      icon: FadeSwap(
+                        child: switch (ts) {
+                          TtsState.preparing => const SizedBox(
+                              key: ValueKey('prep'),
+                              width: 16,
+                              height: 16,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2)),
+                          TtsState.speaking => const Icon(
+                              Icons.stop_circle_outlined,
+                              key: ValueKey('stop'),
+                              size: 18),
+                          TtsState.idle => const Icon(
+                              Icons.volume_up_outlined,
+                              key: ValueKey('play'),
+                              size: 18),
+                        },
+                      ),
+                      label: Text(switch (ts) {
+                        TtsState.preparing => S.preparingVoice,
+                        TtsState.speaking => S.stopReading,
+                        TtsState.idle => S.readAloud,
+                      }),
                     ),
-                    label: Text(_speaking ? S.stopReading : S.readAloud),
                   )
                 else if (langBy(_language).mmsCode != null)
                   Text(S.downloadVoiceHint(langBy(_language).name),

@@ -6,8 +6,15 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 
+import 'package:flutter/foundation.dart' show ValueNotifier;
+
 import 'languages.dart';
 import 'voices.dart';
+
+/// What the speaker is doing right now, for UI feedback: [preparing] covers
+/// the synthesis wait before any sound plays (the moment users otherwise
+/// read as "the button did nothing").
+enum TtsState { idle, preparing, speaking }
 
 /// Runs inside the persistent TTS worker isolate. Keeps at most one loaded
 /// sherpa-onnx voice resident, reloading only when the requested language
@@ -84,7 +91,7 @@ class Tts {
   final _device = FlutterTts();
   final _player = AudioPlayer();
   bool _deviceReady = false;
-  bool speaking = false;
+  final state = ValueNotifier<TtsState>(TtsState.idle);
   bool _busy = false;
 
   Future<SendPort>? _workerPort;
@@ -94,9 +101,9 @@ class Tts {
     if (_deviceReady) return;
     await _device.setLanguage('en-GB');
     await _device.setSpeechRate(0.48); // measured, counseling pace
-    _device.setCompletionHandler(() => speaking = false);
-    _device.setCancelHandler(() => speaking = false);
-    _player.onPlayerComplete.listen((_) => speaking = false);
+    _device.setCompletionHandler(() => state.value = TtsState.idle);
+    _device.setCancelHandler(() => state.value = TtsState.idle);
+    _player.onPlayerComplete.listen((_) => state.value = TtsState.idle);
     _deviceReady = true;
   }
 
@@ -154,16 +161,14 @@ class Tts {
     _busy = true;
     try {
       await _initDevice();
-      speaking = true;
       if (langCode == 'en') {
+        state.value = TtsState.speaking;
         await _device.speak(text);
         return;
       }
       final mms = langBy(langCode).mmsCode;
-      if (mms == null) {
-        speaking = false;
-        return;
-      }
+      if (mms == null) return;
+      state.value = TtsState.preparing;
       final dir = await Voices.instance.dirFor(mms);
       final docs = await getApplicationDocumentsDirectory();
       final out = '${docs.path}/speech.wav';
@@ -179,17 +184,18 @@ class Tts {
       });
       if (error != null) throw StateError(error.toString());
       _warmMms = mms;
-      if (!speaking) return; // stopped while synthesizing
+      if (state.value == TtsState.idle) return; // stopped while synthesizing
+      state.value = TtsState.speaking;
       await _player.play(DeviceFileSource(out));
     } catch (_) {
-      speaking = false;
+      state.value = TtsState.idle;
     } finally {
       _busy = false;
     }
   }
 
   Future<void> stop() async {
-    speaking = false;
+    state.value = TtsState.idle;
     await _device.stop();
     await _player.stop();
   }

@@ -437,7 +437,8 @@ class _ModelCardState extends State<_ModelCard> {
             ],
           ),
           const SizedBox(height: T.s1),
-          Text(m.blurb, style: T.small.copyWith(color: c.inkMuted)),
+          Text(m == e2b ? S.e2bBlurb : S.e4bBlurb,
+              style: T.small.copyWith(color: c.inkMuted)),
           const SizedBox(height: T.s3),
           if (downloading) ...[
             ClipRRect(

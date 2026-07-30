@@ -302,7 +302,15 @@ Answer with only the JSON object.''';
 
     final model = await _ensureModel();
     final lang = langBy(language);
-    final prompt = '''
+
+    // Two attempts at most: if the first comes out in the wrong language
+    // (small models drift to English on low-resource languages) or collapses
+    // into a repetition loop, [resetSignal] is emitted so the UI clears what
+    // it showed, and one stricter retry runs. A bad second attempt stands —
+    // English guidance beats no guidance.
+    for (var attempt = 0; attempt < 2; attempt++) {
+      final strict = attempt == 1;
+      final prompt = '''
 You are Aduro Guard, a medicine safety helper used in Ghana.
 
 A scan of a medicine pack produced this verdict. The verdict was decided by the Ghana FDA register database. It is settled fact; your job is only to explain it simply.
@@ -316,7 +324,7 @@ WHAT THE PACK SAYS:
 - Expiry: ${extraction.expiryRaw}
 - Other pack text: ${extraction.packText}
 
-${lang.promptLine}
+${lang.promptLine}${strict ? '\nIMPORTANT: your previous answer was rejected because it was in the wrong language or repeated itself. Write the whole answer in the required language, naturally, without repeating any phrase.' : ''}
 Rules:
 - 3 to 5 short sentences, simple words. No dashes; use plain full sentences.
 - Start by saying what the verdict means for the user.
@@ -327,17 +335,72 @@ ${lang.exemplar ?? ''}
 
 Your guidance:''';
 
-    final session = await model.createSession(
-      temperature: 0.6,
-      topK: 40,
-      maxOutputTokens: 256,
-    );
-    try {
-      await session.addQueryChunk(Message.text(text: prompt, isUser: true));
-      yield* session.getResponseAsync();
-    } finally {
-      await session.close();
+      final session = await model.createSession(
+        temperature: strict ? 0.8 : 0.6,
+        topK: strict ? 64 : 40,
+        randomSeed: strict ? 7 : 1,
+        maxOutputTokens: 256,
+      );
+      final buf = StringBuffer();
+      var degenerate = false;
+      try {
+        await session.addQueryChunk(Message.text(text: prompt, isUser: true));
+        await for (final chunk in session.getResponseAsync()) {
+          buf.write(chunk);
+          if (_degenerate(buf.toString())) {
+            degenerate = true;
+            await session.stopGeneration();
+            break;
+          }
+          yield chunk;
+        }
+      } finally {
+        await session.close();
+      }
+      final wrongLanguage =
+          language != 'en' && _looksEnglish(buf.toString());
+      if (!degenerate && !wrongLanguage) return;
+      if (strict) return; // second attempt stands as-is
+      yield resetSignal;
     }
+  }
+
+  /// Emitted mid-stream when a rejected first counseling attempt is being
+  /// replaced: the listening UI should clear its text and keep streaming.
+  static const resetSignal = '\u0000';
+
+  /// True when the tail of [s] has collapsed into a repetition loop (the
+  /// one-word-forever failure mode of small models on low-resource text).
+  static bool _degenerate(String s) {
+    final words = s.trim().split(RegExp(r'\s+'));
+    if (words.length < 12) return false;
+    final tail = words.sublist(words.length - 12);
+    if (tail.toSet().length <= 2) return true;
+    var run = 1;
+    for (var i = 1; i < tail.length; i++) {
+      run = tail[i] == tail[i - 1] ? run + 1 : 1;
+      if (run >= 5) return true;
+    }
+    return false;
+  }
+
+  /// Heuristic: does this read as English prose? Function words only, so
+  /// code-switched Twi keeping tech nouns (register, pharmacist) stays under
+  /// the threshold while full English sentences go well over it.
+  static bool _looksEnglish(String s) {
+    const fn = {
+      'the', 'you', 'must', 'this', 'that', 'is', 'are', 'and', 'not',
+      'with', 'your', 'it', 'of', 'to', 'for', 'before', 'was', 'has',
+      'have', 'can', 'will', 'means', 'check', 'take', 'go', 'do',
+    };
+    final words = s
+        .toLowerCase()
+        .split(RegExp(r'[^a-z]+'))
+        .where((w) => w.length > 1)
+        .toList();
+    if (words.length < 10) return false;
+    final hits = words.where(fn.contains).length;
+    return hits / words.length > 0.22;
   }
 
   // ── Follow-up Q&A (typed or spoken) ────────────────────────────────────

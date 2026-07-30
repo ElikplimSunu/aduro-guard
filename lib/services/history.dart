@@ -62,9 +62,10 @@ class History {
         whereArgs: [id]);
   }
 
-  Future<void> updateCounseling(int id, String counseling) async {
+  Future<void> updateCounseling(
+      int id, String counseling, String language) async {
     final db = await _open();
-    await db.update('scans', {'counseling': counseling},
+    await db.update('scans', {'counseling': counseling, 'language': language},
         where: 'id = ?', whereArgs: [id]);
   }
 
