@@ -40,10 +40,19 @@ class Prefs {
     }
   }
 
+  Future<void> _flush = Future.value();
+
   void _set(String key, Object? value) {
     _data[key] = value;
     // _data is already updated above, so reads are consistent immediately;
-    // the write to disk can happen in the background.
-    _file?.writeAsString(jsonEncode(_data), flush: true);
+    // the write to disk happens in the background. Writes are chained:
+    // two overlapping writeAsString calls on one file can interleave and
+    // corrupt it, and chaining also keeps last-set as last-written.
+    final file = _file;
+    if (file == null) return;
+    final snapshot = jsonEncode(_data);
+    _flush = _flush
+        .catchError((_) {}) // a failed write must not stall the chain
+        .then((_) => file.writeAsString(snapshot, flush: true));
   }
 }
