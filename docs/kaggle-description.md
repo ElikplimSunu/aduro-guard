@@ -4,9 +4,9 @@ One in ten medical products in low and middle income countries is substandard or
 
 The defense a Ghanaian buyer has today is mPedigree: scratch a code, SMS it, wait. It only covers products whose manufacturers opted in, and assumes the buyer reads English. The FDA's own register of 16,000+ products is public, but its server is intermittently down, the search answers online only, and nobody at a market stall queries a website while a peddler waits.
 
-**[ONE SENTENCE ABOUT WHO YOU BUILT THIS FOR. Yours to write, not ours.]**
+**We built this for the person buying medicine from a roadside stall or a one-room pharmacy with no way to check what they are holding, and no reason to trust a form written in a language they do not read.**
 
-Aduro Guard turns any phone camera into that missing check. Point it at any medicine box and in seconds you get a verdict from an offline copy of the FDA register, explained out loud in your own language. No barcode, no opt-in, no literacy requirement, no signal.
+Aduro Guard turns any phone camera into that missing check. Point it at any medicine box and in seconds you get a verdict from an offline copy of the FDA register, explained out loud in your own language, one of six. No barcode, no opt-in, no literacy requirement, no signal.
 
 ### How we built it
 
@@ -28,7 +28,7 @@ Four Gemma 4 capabilities carry one loop: vision OCR, native audio, multilingual
 
 ### The Prototype
 
-**Demo video:** [INSERT YOUTUBE LINK]
+**Demo video:** https://drive.google.com/file/d/1Xwl80KXIbohE3x8ZQB5xQS_4kAY68aSc/view?usp=sharing
 **Code:** https://github.com/ElikplimSunu/aduro-guard
 **Installable APK:** https://github.com/ElikplimSunu/aduro-guard/releases/tag/v1.0.0
 
