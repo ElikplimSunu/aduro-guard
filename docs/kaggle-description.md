@@ -32,12 +32,12 @@ Four Gemma 4 capabilities carry one loop: vision OCR, native audio, multilingual
 **Code:** https://github.com/ElikplimSunu/aduro-guard
 **Installable APK:** https://github.com/ElikplimSunu/aduro-guard/releases/tag/v1.0.0
 
-Measured on a Samsung Galaxy S24 in airplane mode, release build:
+Measured on a Galaxy S24 in airplane mode, release build:
 
 - **About 11 seconds** from confirming a photo to a verdict on screen.
 - Vin-C Plus, a real vitamin C pack: green, "In the register", expiry 12/2027, still in date.
 - Lufart antimalarial: amber. The pack reads "LUFART Tablets / Comprimes"; the register lists "LUFART 20MG+120MG TABLETS". Close, not exact, so it says check the spelling rather than guessing.
-- Gasto Mixture, a herbal product: honest amber, "not in this register snapshot", with the FDA WhatsApp line to report it.
+- Gasto Mixture, a herbal product: honest amber, "not in this register snapshot", with the FDA WhatsApp line to report.
 - A deliberately blurry shot: "Couldn't read the pack. Try more light."
 
 One photo rarely shows everything: the name is on the front while batch and expiry hide on a side panel. Rather than instruct anyone up front, the app waits until it has a verdict, names exactly what it could not see, and offers one button for another angle. The reads merge field by field and the verdict re-runs. On Vin-C that turned three blank fields into batch A5522, expiry 12/2027 and a green verdict.
@@ -58,7 +58,7 @@ The deeper problem is reviewability: generated low-resource text differs every r
 
 That failure earned its keep. Voice models load through native code, so a bad one aborts the process rather than throwing, and the app warmed the current voice at launch. One broken model therefore made the app impossible to start. Voices now warm on the result screen, where the worst case costs one screen.
 
-**A third bug nearly shipped:** the model loader kept its in-flight future after a failure, so one lost 2.4GB load poisoned the process and every later scan reported guidance unavailable until restart.
+**A third bug nearly shipped:** the model loader kept its in-flight future after a failure, so one lost 2.4GB load poisoned the process and every later scan reported guidance unavailable until restart. Found by reading the code.
 
 ### Honest limits
 
