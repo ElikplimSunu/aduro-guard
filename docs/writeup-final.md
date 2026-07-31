@@ -18,7 +18,7 @@ The defense a Ghanaian buyer has today is mPedigree: scratch a code, SMS it, wai
 
 **[ONE SENTENCE ABOUT WHO YOU BUILT THIS FOR. Yours to write, not ours.]**
 
-Aduro Guard turns any phone camera into that missing check. Point it at any medicine box, whether a registered brand, an obscure import or expired stock, and in seconds you get a verdict from an offline copy of the FDA register, explained in plain English or Twi, out loud. No barcode, no opt-in, no literacy requirement, no signal. Aduro means medicine in Twi.
+Aduro Guard turns any phone camera into that missing check. Point it at any medicine box and in seconds you get a verdict from an offline copy of the FDA register, explained out loud in your own language. No barcode, no opt-in, no literacy requirement, no signal. Aduro means medicine in Twi.
 
 ### How we built it
 
@@ -38,7 +38,7 @@ Pure Dart code then checks each extraction against that snapshot, a recall and a
 
 Four Gemma 4 capabilities carry one loop: vision OCR, native audio, multilingual generation and edge inference. Remove Gemma and there is no product. Remove the database and there is no safety.
 
-Why these choices were right: a verdict about medicine is a factual claim, and a 2.4GB model that hallucinates one is worse than no app at all. Putting the decision in testable code means the safety logic can be reviewed, unit tested and audited by anyone, while Gemma does the two things it is genuinely better at than code, reading a photograph and explaining a result in Twi.
+Why this split: a verdict about medicine is a factual claim, and a 2.4GB model that hallucinates one is worse than no app at all. Testable code means the safety logic can be audited by anyone, while Gemma does the two things it is genuinely better at, reading a photograph and explaining the result in Twi.
 
 ### The Prototype
 
@@ -54,7 +54,7 @@ Measured on a Samsung Galaxy S24 in airplane mode, release build:
 - Gasto Mixture, a Naturemedics herbal product: honest amber, "not in this register snapshot", with the FDA WhatsApp line to report it.
 - A deliberately blurry shot: "Couldn't read the pack. Try more light."
 
-One photo rarely shows everything, because the name is on the front while batch and expiry hide on a side panel. Rather than instruct people up front, the app waits until it has a verdict, then names exactly what it could not see and offers one button to photograph another side. The second read merges field by field, the verdict re-runs and the saved record updates. On Vin-C that turned three blank fields into batch A5522, expiry 12/2027 and a green verdict.
+One photo rarely shows everything: the name is on the front while batch and expiry hide on a side panel. Rather than instruct people up front, the app waits until it has a verdict, then names exactly what it could not see and offers one button to photograph another side. The reads merge field by field and the verdict re-runs. On Vin-C that turned three blank fields into batch A5522, expiry 12/2027 and a green verdict.
 
 The app also ships light and dark themes from one token system, a language picker where every option is labelled in its own language and the whole interface flips on selection, saved question threads so an answer survives closing the app, and screen reader support with labelled controls, an announced verdict and 44dp touch targets.
 
@@ -66,7 +66,7 @@ Shipping that would have been worse than shipping English, because a user cannot
 
 The deeper problem is reviewability. Generated low-resource text differs on every run, so no native speaker can ever proofread it. A finite set of thirty-six short paragraphs can be read once and corrected for good. Ewe, Ga and Dagbani now skip generation entirely, which also saves a 15 second call that never returned their language, while English, Twi and Hausa still generate and fall back only on failure. The follow-up chat follows the same split: those three answer in English and the interface says so, because free-form Q&A has no reviewed fallback to swap in. Both real failures are now regression tests.
 
-**A second bug nearly shipped:** our model loader cached its in-flight future but kept it after a failure, so one lost 2.4GB load poisoned the whole process and every later scan showed "guidance unavailable" until restart. Found by reading the code after seeing it on device.
+**A second bug nearly shipped:** the model loader cached its in-flight future but kept it after a failure, so one lost 2.4GB load poisoned the process and every later scan showed "guidance unavailable" until restart.
 
 ### Honest limits
 
