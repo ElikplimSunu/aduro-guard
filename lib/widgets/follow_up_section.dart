@@ -9,6 +9,7 @@ import '../models/scan.dart';
 import '../models/verdict.dart';
 import '../services/gemma.dart';
 import '../services/history.dart';
+import '../services/languages.dart';
 import '../services/prefs.dart';
 import '../services/strings.dart';
 import '../theme/tokens.dart';
@@ -64,7 +65,12 @@ class _FollowUpSectionState extends State<FollowUpSection> {
       !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
 
   Future<FollowUpChat> _ensureChat() {
-    final lang = Prefs.instance.language;
+    // Languages the model cannot hold get English answers on purpose:
+    // asking for Ewe, Ga or Dagbani free prose produces the drift and
+    // loops the counseling verifier exists to catch, and free-form Q&A
+    // has no reviewed fallback to swap in. The UI says so plainly.
+    final ui = Prefs.instance.language;
+    final lang = langBy(ui).counselFromModel ? ui : 'en';
     if (_chatFuture != null && _chatLanguage == lang) return _chatFuture!;
     _chatFuture?.then((c) => c.close());
     _chatLanguage = lang;
@@ -161,7 +167,11 @@ class _FollowUpSectionState extends State<FollowUpSection> {
       children: [
         Text(S.askAboutPack, style: T.h3),
         const SizedBox(height: T.s1),
-        Text(S.answersFromPack, style: T.small.copyWith(color: c.inkMuted)),
+        Text(
+            langBy(Prefs.instance.language).counselFromModel
+                ? S.answersFromPack
+                : '${S.answersFromPack} ${S.answersInEnglish}',
+            style: T.small.copyWith(color: c.inkMuted)),
         const SizedBox(height: T.s3),
         for (final t in _turns) _TurnView(turn: t),
         Container(

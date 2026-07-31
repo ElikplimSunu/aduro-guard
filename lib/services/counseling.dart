@@ -14,7 +14,8 @@ import '../models/verdict.dart';
 /// what is shown directly for languages the model cannot hold.
 ///
 /// Review note for native speakers: 6 verdicts per language, below. The FDA
-/// number 0551112224 (WhatsApp) and product names stay as they are.
+/// number 0551112224 (WhatsApp) and product names stay as they are. Ga is
+/// the newest and least reviewed of the five translations; check it first.
 String counselingTemplate(VerdictStatus status, String lang) =>
     _fill((_byLang[lang] ?? _en)[status]!, lang, null);
 
@@ -39,6 +40,7 @@ const _stillInDate = {
   'en': 'The expiry date on the pack is {date}; it has not passed.',
   'tw': 'Ne bere a ɛwɔ adaka no so no yɛ {date}; ennya ntwamee.',
   'ee': 'Ɣeyiɣi si le aɖaka la dzi enye {date}; meva yi haɖe o.',
+  'ga': 'Be ni aŋma yɛ adeka lɛ nɔ ji {date}; ehoko.',
   'dag': 'Saha din be adaka maa zuɣu nyɛla {date}; di na bi gari.',
   'ha': 'Ranar karewa da ke akwatin ita ce {date}; ba ta wuce ba tukuna.',
 };
@@ -48,6 +50,7 @@ const _checkExpiry = {
   'en': 'Check the expiry date on the pack yourself before you use it.',
   'tw': 'Hwɛ ne bere a ɛwɔ adaka no so no wo ara ansa na woanom.',
   'ee': 'Kpɔ ɣeyiɣi si dzi wòava yi le aɖaka la dzi ɖokuiwò hafi nàzãe.',
+  'ga': 'Kwɛmɔ be ni aŋma yɛ adeka lɛ nɔ lɛ bo diɛŋtsɛ dani onu.',
   'dag': 'Vihimi di saha din be adaka maa zuɣu a maŋa poi ka a nyu li.',
   'ha': 'Duba ranar karewa da ke akwatin da kanka kafin ka sha.',
 };
@@ -97,6 +100,22 @@ const _ee = {
       'Míete ŋu xlẽ foto la o. Yi teƒe si kekeli le, lé phone la ɖe asi goŋgoŋ, eye nàna aɖaka la ŋkume nayɔ foto la me. Emegbe nàɖe foto la ake.',
 };
 
+
+const _ga = {
+  VerdictStatus.registered:
+      'Tsofa nɛɛ yɛ Ghana FDA wolo lɛ mli. Etsɔɔ akɛ FDA ekpɛlɛ tsofa ni hiɛ gbɛi nɛɛ nɔ. Nu lɛ tamɔ bɔ ni aŋma yɛ adeka lɛ nɔ lɛ pɛpɛɛpɛ. {expiry} Kɛji obi sane ko lɛ, bi pharmacist.',
+  VerdictStatus.expired:
+      'Be ni aŋma yɛ adeka nɛɛ nɔ lɛ eho. Kaanu. Tsofa ni ebe eho lɛ he nyɛɛɛ, ni ebaanyɛ eye bo awui. Kɛ lɛ ku sɛɛ kɛya pharmacy ni oyahe ehee.',
+  VerdictStatus.recalled:
+      'FDA ewie akɛ tsofa nɛɛ yɛ oshara. Kaanu kwraa. Kɛ lɛ ku sɛɛ kɛya pharmacy, loo okɛ sane lɛ yaha FDA yɛ 0551112224 (WhatsApp) nɔ. Bi pharmacist koni ehaa bo tsofa kroko.',
+  VerdictStatus.caution:
+      'Kwɛmɔ adeka nɛɛ jogbaŋŋ. Gbɛi lɛ loo registration nɔmba ni yɛ enɔ lɛ kɛ nɔ ni yɛ FDA wolo lɛ mli lɛ egbeee naa pɛpɛɛpɛ, ni tsakemɔ bibii tamɔ nɛkɛ ji apasa tsofa he okadi. Kaanu kɛyashi ona mli jogbaŋŋ. Okɛ lɛ atsɔɔ pharmacist, loo otsɛ FDA yɛ 0551112224 (WhatsApp) nɔ.',
+  VerdictStatus.notFound:
+      'Anaaa tsofa nɛɛ yɛ FDA wolo ni yɛ phone nɛɛ nɔ lɛ mli. No etsɔɔɔ akɛ apasa tsofa ni. Ekolɛ ehee ni, loo aŋmako egbɛi ashi. Bi pharmacist, loo FDA yɛ 0551112224 (WhatsApp) nɔ, dani onu.',
+  VerdictStatus.unreadable:
+      'Anyɛɛɛ foto lɛ akane. Yaa he ni la yɔɔ, damɔ shi dinn, ni oha adeka lɛ hiɛ ayi foto lɛ mli. No sɛɛ lɛ, tsɔ́ɔ foto ehee.',
+};
+
 const _dag = {
   VerdictStatus.registered:
       'Tim ŋɔ be Ghana FDA gbaŋ ni. Di wuhirimi ni FDA saɣi tim din mali yuli ŋɔ. Nyum li kaman adaka maa ni yɛli shɛm. {expiry} A yi ka baŋsim shɛli zuɣu, bɔhimi pharmacist.',
@@ -131,6 +150,7 @@ const _byLang = {
   'en': _en,
   'tw': _tw,
   'ee': _ee,
+  'ga': _ga,
   'dag': _dag,
   'ha': _ha,
 };

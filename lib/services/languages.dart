@@ -63,6 +63,18 @@ const langs = [
     counselFromModel: false,
   ),
   Lang(
+    code: 'ga',
+    name: 'Ga',
+    endonym: 'Gã',
+    nativeLine: 'Kɛ Gã tsu nii',
+    promptLine:
+        'Write in everyday Ga as spoken in Accra. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
+    early: true,
+    // No published MMS voice for Ga (gaa 404s on the ONNX repo), and the
+    // model cannot hold Ga; counseling reads lib/services/counseling.dart.
+    counselFromModel: false,
+  ),
+  Lang(
     code: 'dag',
     name: 'Dagbani',
     endonym: 'Dagbanli',

@@ -9,10 +9,11 @@ import 'prefs.dart';
 /// A missing translation falls back to English on purpose rather than guess.
 abstract final class S {
   static String _l(String en,
-          {String? tw, String? ee, String? dag, String? ha}) =>
+          {String? tw, String? ee, String? ga, String? dag, String? ha}) =>
       switch (Prefs.instance.language) {
         'tw' => tw ?? en,
         'ee' => ee ?? en,
+        'ga' => ga ?? en,
         'dag' => dag ?? en,
         'ha' => ha ?? en,
         _ => en,
@@ -22,6 +23,7 @@ abstract final class S {
   static String get scanAMedicine => _l('Scan a medicine',
       tw: 'Hwɛ aduro bi',
       ee: 'Kpɔ atike aɖe',
+      ga: 'Kwɛ tsofa ko',
       dag: 'Vihimi tim',
       ha: 'Duba magani');
   static String get scanBlurb => _l(
@@ -59,13 +61,13 @@ abstract final class S {
 
   // ── Scan & result ─────────────────────────────────────────────────────
   static String get resultTitle =>
-      _l('Result', tw: 'Mmuae', ee: 'Ŋuɖoɖo', dag: 'Labari', ha: 'Amsa');
+      _l('Result', tw: 'Mmuae', ee: 'Ŋuɖoɖo', ga: 'Hetoo', dag: 'Labari', ha: 'Amsa');
   static String get useThisPhoto => _l('Use this photo?',
       tw: 'Fa mfonini yi?', ee: 'Zã foto sia?', ha: 'A yi amfani da wannan hoto?');
   static String get retake =>
       _l('Retake', tw: 'Twa bio', ee: 'Ɖae ake', ha: 'Sake ɗauka');
   static String get checkIt =>
-      _l('Check it', tw: 'Hwɛ', ee: 'Kpɔe', dag: 'Vihimi', ha: 'Duba shi');
+      _l('Check it', tw: 'Hwɛ', ee: 'Kpɔe', ga: 'Kwɛmɔ', dag: 'Vihimi', ha: 'Duba shi');
   static String get tryAgain =>
       _l('Try again', tw: 'Sɔ hwɛ bio', ee: 'Te ekpɔ ake', ha: 'Sake gwadawa');
   static String get scanAgain =>
@@ -130,6 +132,7 @@ abstract final class S {
   static String get vRegistered => _l('In the register',
       tw: 'Ɛwɔ FDA nhoma no mu',
       ee: 'Ele FDA agbalẽ la me',
+      ga: 'Eyɛ FDA wolo lɛ mli',
       dag: 'Di be FDA gbaŋ ni',
       ha: 'Yana cikin rijista');
   static String get vExpired => _l('Expired',
@@ -137,16 +140,19 @@ abstract final class S {
   static String get vRecalled => _l('Do not take this',
       tw: 'Nnom aduro yi',
       ee: 'Mègano atike sia o',
+      ga: 'Kaanu tsofa nɛɛ',
       dag: 'Di nyu tim ŋɔ',
       ha: 'Kada ka sha wannan');
   static String get vCaution => _l('Check this carefully',
       tw: 'Hwɛ yei yiye',
       ee: 'Lé ŋku ɖe esia ŋu nyuie',
+      ga: 'Kwɛmɔ nɛɛ jogbaŋŋ',
       dag: 'Vihimi ŋɔ viɛnyla',
       ha: 'Duba wannan da kyau');
   static String get vNotFound => _l('Not in the register snapshot',
       tw: 'Enni FDA nhoma yi mu',
       ee: 'Mele FDA agbalẽ sia me o',
+      ga: 'Ebɛ FDA wolo nɛɛ mli',
       ha: 'Ba ya cikin wannan rijistar');
   static String get vUnreadable => _l('Couldn’t read the pack',
       tw: 'Yantumi ankenkan adaka no so',
@@ -261,7 +267,7 @@ abstract final class S {
       ee: 'Nu si nɔ aɖaka la dzi',
       ha: 'Abin da ke akwatin');
   static String get product => _l('Product',
-      tw: 'Aduro', ee: 'Atike', dag: 'Tim', ha: 'Magani');
+      tw: 'Aduro', ee: 'Atike', ga: 'Tsofa', dag: 'Tim', ha: 'Magani');
   static String get madeBy => _l('Made by',
       tw: 'Nea ɔyɛe', ee: 'Ame si wɔe', ha: 'Wanda ya kera');
   static String get batch =>
@@ -273,12 +279,13 @@ abstract final class S {
   static String get whatThisMeans => _l('What this means',
       tw: 'Nea ɛkyerɛ',
       ee: 'Nu si wòfia',
+      ga: 'Nɔ ni etsɔɔ',
       dag: 'Din ŋɔ wuhi',
       ha: 'Abin da wannan ke nufi');
   static String get puttingPlainWords => _l('Putting it in plain words…',
       tw: 'Yɛrekyerɛ mu…', ee: 'Míele eme ɖem…', ha: 'Ana bayyana shi a sauƙaƙe…');
   static String get readAloud => _l('Read aloud',
-      tw: 'Kenkan ma me', ee: 'Xlẽe nam', dag: 'Karimi ma', ha: 'Karanta da murya');
+      tw: 'Kenkan ma me', ee: 'Xlẽe nam', ga: 'Kanemɔ ha mi', dag: 'Karimi ma', ha: 'Karanta da murya');
   static String get stopReading =>
       _l('Stop', tw: 'Gyae', ee: 'Tɔ', dag: 'Chɛli', ha: 'Tsaya');
   static String get preparingVoice => _l('Getting the voice ready…',
@@ -331,6 +338,8 @@ abstract final class S {
       tw: 'Ɛno anyɛ yiye. Bisa bio.',
       ee: 'Mewɔ dɔ o. Bia ake.',
       ha: 'Wannan bai yi ba. Sake tambaya.');
+  static String get answersInEnglish => _l(
+      'Answers come in English for this language for now.');
   static String get holdToRecordHint => _l(
       'Hold to record a spoken question',
       tw: 'Mia so na woaka asɛmmisa',
@@ -340,7 +349,7 @@ abstract final class S {
   static String get settings => _l('Settings',
       tw: 'Nhyehyɛe', ee: 'Ɖoɖowo', dag: 'Shiriya', ha: 'Saituna');
   static String get language =>
-      _l('Language', tw: 'Kasa', ee: 'Gbe', dag: 'Yɛltɔɣa', ha: 'Harshe');
+      _l('Language', tw: 'Kasa', ee: 'Gbe', ga: 'Wiemɔ', dag: 'Yɛltɔɣa', ha: 'Harshe');
   static String get earlySupport => _l('Early support',
       tw: 'Mfiase kwan so', ee: 'Gɔmedzedze', ha: 'Tallafi na farko');
   static String get appearance => _l('Appearance',
@@ -440,10 +449,11 @@ abstract final class S {
   static String get chooseLanguage => _l('Choose your language',
       tw: 'Yi wo kasa',
       ee: 'Tia wò gbe',
+      ga: 'Hala owiemɔ',
       dag: 'Piimi a yɛltɔɣa',
       ha: 'Zaɓi harshenka');
   static String get continueLabel => _l('Continue',
-      tw: 'Kɔ so', ee: 'Yi edzi', dag: 'Chaŋmi', ha: 'Ci gaba');
+      tw: 'Kɔ so', ee: 'Yi edzi', ga: 'Yaa nɔ', dag: 'Chaŋmi', ha: 'Ci gaba');
   static String get setupBrainTitle => _l('Set up the offline brain',
       tw: 'Siesie adwene a internet ho nhia no',
       ha: 'Shirya kwakwalwar mara internet');

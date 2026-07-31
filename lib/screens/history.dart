@@ -9,6 +9,7 @@ import '../services/gemma.dart';
 import '../services/history.dart';
 import '../services/registry.dart';
 import '../services/strings.dart';
+import '../services/verdict_engine.dart';
 import '../theme/tokens.dart';
 import '../widgets/counseling_section.dart';
 import '../widgets/fact_row.dart';
@@ -97,6 +98,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         status: VerdictStatus.values.firstWhere((s) => s.name == _status,
             orElse: () => VerdictStatus.notFound),
         reasons: [if (_summary.isNotEmpty) _summary],
+        expiryDate: VerdictEngine.parseExpiry(_e.expiryRaw),
       );
 
   Future<void> _addSide() async {

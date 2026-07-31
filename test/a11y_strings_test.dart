@@ -13,6 +13,8 @@ void main() {
     expect(S.scanAMedicine, 'Hwɛ aduro bi');
     Prefs.instance.language = 'ee';
     expect(S.scanAMedicine, 'Kpɔ atike aɖe');
+    Prefs.instance.language = 'ga';
+    expect(S.scanAMedicine, 'Kwɛ tsofa ko');
     Prefs.instance.language = 'dag';
     // Untranslated strings fall back to English rather than guess.
     expect(S.scanBlurb, 'Point at the pack. Get a verdict in seconds.');
