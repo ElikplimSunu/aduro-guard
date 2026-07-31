@@ -30,6 +30,16 @@ void main() {
     });
   });
 
+  test('the real Twi collapse from the device is caught', () {
+    // Verbatim from a scan on the Galaxy S24: a three-word phrase cycling.
+    const seen =
+        'Aduro Guard nti sɛ, a medicine no FDA register mu, ɛna no registered. '
+        'A pack no nti sɛ VIN C Plus+ ho, a Vitamin C and Zinc no nti. '
+        'A pack no nti sɛ 20 Tablets, and no expiry date no nti. A nti sɛ ɔyɛ sɛ '
+        'ɔkɔhɔ nti sɛ ɔkɔhɔ nti sɛ ɔkɔhɔ nti sɛ ɔkɔhɔ nti sɛ ɔkɔhɔ nti sɛ';
+    expect(Gemma.isRepetitionLoop(seen), isTrue);
+  });
+
   group('language drift', () {
     test('English answer under a local-language heading is caught', () {
       // Verbatim from an Ewe run: fluent English, wrong language.

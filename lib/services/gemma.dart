@@ -377,8 +377,13 @@ Your guidance:''';
       } finally {
         await session.close();
       }
-      final wrongLanguage =
-          language != 'en' && looksEnglish(buf.toString());
+      // The streaming check only ever sees the tail as it stands after each
+      // chunk, and chunks land mid-word, so a cycle can slip past it. Check
+      // the finished text too: it costs nothing and it is the last gate
+      // before a user reads this.
+      final full = buf.toString();
+      final wrongLanguage = language != 'en' && looksEnglish(full);
+      if (!looped && isRepetitionLoop(full)) looped = true;
       if (!looped && !wrongLanguage) return;
       yield resetSignal;
       if (wrongLanguage || strict) {
@@ -399,6 +404,8 @@ Your guidance:''';
   static bool isRepetitionLoop(String s) {
     final w = s.trim().split(RegExp(r'\s+'));
     if (w.length < 12) return false;
+    // A cycle sitting at the tail, which is what a live collapse looks like
+    // while it is still being generated.
     for (var k = 1; k <= 6; k++) {
       if (w.length < k * 3) break;
       final tail = w.sublist(w.length - k * 3);
@@ -409,6 +416,18 @@ Your guidance:''';
         }
       }
       if (cycles) return true;
+    }
+    // A phrase repeating over and over anywhere in the text. Real guidance
+    // is five sentences long, so nothing legitimate says the same two to
+    // four words four times.
+    for (var k = 1; k <= 4; k++) {
+      final counts = <String, int>{};
+      for (var i = 0; i + k <= w.length; i++) {
+        final phrase = w.sublist(i, i + k).join(' ');
+        final n = (counts[phrase] ?? 0) + 1;
+        if (n >= 4 && phrase.length > 3) return true;
+        counts[phrase] = n;
+      }
     }
     return false;
   }
