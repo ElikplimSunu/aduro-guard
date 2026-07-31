@@ -56,6 +56,7 @@ const langs = [
     code: 'ee',
     name: 'Ewe',
     endonym: 'Eʋegbe',
+    nativeLine: 'Zã app la le Eʋegbe me',
     promptLine:
         "Write in everyday Ewe as spoken in Ghana's Volta Region. Keep medicine names, numbers and \"FDA\" in English. Use short simple sentences.",
     early: true,
@@ -75,15 +76,6 @@ const langs = [
     counselFromModel: false,
   ),
   Lang(
-    code: 'dag',
-    name: 'Dagbani',
-    endonym: 'Dagbanli',
-    promptLine:
-        'Write in everyday Dagbani as spoken in northern Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
-    early: true,
-    counselFromModel: false,
-  ),
-  Lang(
     code: 'ha',
     name: 'Hausa',
     endonym: 'Hausa',
@@ -94,6 +86,16 @@ const langs = [
         'Example of the tone for Hausa (this one is for a registered, in-date pack):\n"Wannan maganin yana cikin rijistar FDA ta Ghana, kuma ranar karewarsa bai wuce ba. Yi amfani da shi daidai yadda akwatin ya faɗa. Ka ajiye shi a wuri mai sanyi, nesa da yara. Idan ba ka ji sauƙi ba, tambayi likitan magani."',
     early: true,
     mmsCode: 'hau',
+  ),
+  Lang(
+    code: 'dag',
+    name: 'Dagbani',
+    endonym: 'Dagbanli',
+    nativeLine: 'Tum ni Dagbanli',
+    promptLine:
+        'Write in everyday Dagbani as spoken in northern Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
+    early: true,
+    counselFromModel: false,
   ),
 ];
 
