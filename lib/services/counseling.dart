@@ -16,11 +16,45 @@ import '../models/verdict.dart';
 /// Review note for native speakers: 6 verdicts per language, below. The FDA
 /// number 0551112224 (WhatsApp) and product names stay as they are.
 String counselingTemplate(VerdictStatus status, String lang) =>
-    (_byLang[lang] ?? _en)[status]!;
+    _fill((_byLang[lang] ?? _en)[status]!, lang, null);
+
+/// The template with this scan's own facts filled into its slots, so the
+/// reviewed wording carries the same crucial specifics the generated English
+/// does: a registered verdict names the actual expiry date read off the pack.
+String counselingText(Verdict v, String lang) =>
+    _fill((_byLang[lang] ?? _en)[v.status]!, lang, v.expiryDate);
+
+String _fill(String t, String lang, DateTime? expiry) {
+  if (!t.contains('{expiry}')) return t;
+  final line = expiry == null
+      ? (_checkExpiry[lang] ?? _checkExpiry['en']!)
+      : (_stillInDate[lang] ?? _stillInDate['en']!)
+          .replaceAll('{date}', '${expiry.month}/${expiry.year}');
+  return t.replaceAll('{expiry}', line);
+}
+
+/// Expiry slot, when the camera read a date that has not passed. (An expired
+/// date never reaches these templates; that is its own verdict.)
+const _stillInDate = {
+  'en': 'The expiry date on the pack is {date}; it has not passed.',
+  'tw': 'Ne bere a ɛwɔ adaka no so no yɛ {date}; ennya ntwamee.',
+  'ee': 'Ɣeyiɣi si le aɖaka la dzi enye {date}; meva yi haɖe o.',
+  'dag': 'Saha din be adaka maa zuɣu nyɛla {date}; di na bi gari.',
+  'ha': 'Ranar karewa da ke akwatin ita ce {date}; ba ta wuce ba tukuna.',
+};
+
+/// Expiry slot, when no date was read.
+const _checkExpiry = {
+  'en': 'Check the expiry date on the pack yourself before you use it.',
+  'tw': 'Hwɛ ne bere a ɛwɔ adaka no so no wo ara ansa na woanom.',
+  'ee': 'Kpɔ ɣeyiɣi si dzi wòava yi le aɖaka la dzi ɖokuiwò hafi nàzãe.',
+  'dag': 'Vihimi di saha din be adaka maa zuɣu a maŋa poi ka a nyu li.',
+  'ha': 'Duba ranar karewa da ke akwatin da kanka kafin ka sha.',
+};
 
 const _en = {
   VerdictStatus.registered:
-      'This medicine is in the Ghana FDA register. That means the FDA has approved a product with this name. Take it exactly as the pack instructs. Check the expiry date on the pack yourself before you use it. If you are unsure about anything, ask a pharmacist.',
+      'This medicine is in the Ghana FDA register. That means the FDA has approved a product with this name. Take it exactly as the pack instructs. {expiry} If you are unsure about anything, ask a pharmacist.',
   VerdictStatus.expired:
       'The expiry date printed on this pack has passed. Do not take it. Medicine past its date can be weak, or it can harm you. Take it back to the pharmacy and get a fresh pack.',
   VerdictStatus.recalled:
@@ -35,7 +69,7 @@ const _en = {
 
 const _tw = {
   VerdictStatus.registered:
-      'Aduro yi wɔ Ghana FDA nhoma no mu. Ɛkyerɛ sɛ FDA apene aduro a ɛwɔ din yi so. Fa no sɛnea adaka no so kyerɛ pɛpɛɛpɛ. Hwɛ ne bere a ɛwɔ adaka no so no wo ara ansa na woanom. Sɛ biribiara haw wo a, kɔbisa pharmacist.',
+      'Aduro yi wɔ Ghana FDA nhoma no mu. Ɛkyerɛ sɛ FDA apene aduro a ɛwɔ din yi so. Fa no sɛnea adaka no so kyerɛ pɛpɛɛpɛ. {expiry} Sɛ biribiara haw wo a, kɔbisa pharmacist.',
   VerdictStatus.expired:
       'Bere a ɛwɔ adaka yi so no atwam. Nnom. Aduro a ne bere atwam betumi ayɛ mmerɛw, anaa ɛbɛpira wo. San fa kɔ pharmacy hɔ na kɔgye foforo.',
   VerdictStatus.recalled:
@@ -50,7 +84,7 @@ const _tw = {
 
 const _ee = {
   VerdictStatus.registered:
-      'Atike sia le Ghana FDA ƒe agbalẽ me. Efia be FDA da asi atike si ŋkɔ nye esia dzi. Zãe abe ale si woŋlɔ ɖe aɖaka la dzi ene tututu. Kpɔ ɣeyiɣi si dzi wòava yi le aɖaka la dzi ɖokuiwò hafi nàzãe. Ne nane meko ɖe dziwò o la, bia pharmacist.',
+      'Atike sia le Ghana FDA ƒe agbalẽ me. Efia be FDA da asi atike si ŋkɔ nye esia dzi. Zãe abe ale si woŋlɔ ɖe aɖaka la dzi ene tututu. {expiry} Ne nane meko ɖe dziwò o la, bia pharmacist.',
   VerdictStatus.expired:
       'Ɣeyiɣi si woŋlɔ ɖe aɖaka sia dzi la va yi xoxo. Mèganoe o. Atike si ƒe ɣeyiɣi va yi ate ŋu agbɔdzɔ, alo wòagblẽ nu le ŋuwò. Trɔ yi pharmacy la be woatsɔ yeye na wò.',
   VerdictStatus.recalled:
@@ -65,7 +99,7 @@ const _ee = {
 
 const _dag = {
   VerdictStatus.registered:
-      'Tim ŋɔ be Ghana FDA gbaŋ ni. Di wuhirimi ni FDA saɣi tim din mali yuli ŋɔ. Nyum li kaman adaka maa ni yɛli shɛm. Vihimi di saha din be adaka maa zuɣu a maŋa poi ka a nyu li. A yi ka baŋsim shɛli zuɣu, bɔhimi pharmacist.',
+      'Tim ŋɔ be Ghana FDA gbaŋ ni. Di wuhirimi ni FDA saɣi tim din mali yuli ŋɔ. Nyum li kaman adaka maa ni yɛli shɛm. {expiry} A yi ka baŋsim shɛli zuɣu, bɔhimi pharmacist.',
   VerdictStatus.expired:
       'Saha din be adaka ŋɔ zuɣu maa gari. Miri ka a nyu li. Tim din saha gari ku tooi tuma viɛnyɛla, bee di ni tooi niŋ a chuuta. Labimi pharmacy ka a deei din palli.',
   VerdictStatus.recalled:
@@ -80,7 +114,7 @@ const _dag = {
 
 const _ha = {
   VerdictStatus.registered:
-      'Wannan maganin yana cikin rijistar FDA ta Ghana. Wannan yana nufin FDA ta amince da magani mai wannan sunan. Yi amfani da shi daidai yadda akwatin ya faɗa. Duba ranar karewa da ke akwatin da kanka kafin ka sha. Idan wani abu bai fito maka sarai ba, tambayi likitan magani.',
+      'Wannan maganin yana cikin rijistar FDA ta Ghana. Wannan yana nufin FDA ta amince da magani mai wannan sunan. Yi amfani da shi daidai yadda akwatin ya faɗa. {expiry} Idan wani abu bai fito maka sarai ba, tambayi likitan magani.',
   VerdictStatus.expired:
       'Ranar karewa da aka rubuta a wannan akwatin ta wuce. Kada ka sha shi. Maganin da ranarsa ta wuce zai iya raunana, ko kuma ya cutar da kai. Mayar da shi kantin magani ka sami sabo.',
   VerdictStatus.recalled:

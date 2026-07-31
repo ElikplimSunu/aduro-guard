@@ -316,7 +316,7 @@ Answer with only the JSON object.''';
     // Languages the model cannot hold skip generation entirely: asking costs
     // 15 seconds and returns English under an Ewe or Dagbani heading.
     if (!lang.counselFromModel) {
-      yield counselingTemplate(verdict.status, language);
+      yield counselingText(verdict, language);
       return;
     }
 
@@ -382,7 +382,7 @@ Your guidance:''';
       if (!looped && !wrongLanguage) return;
       yield resetSignal;
       if (wrongLanguage || strict) {
-        yield counselingTemplate(verdict.status, language);
+        yield counselingText(verdict, language);
         return;
       }
     }

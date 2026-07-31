@@ -49,6 +49,18 @@ void main() {
     });
   });
 
+  test('fallback counseling carries the scan expiry in every language', () {
+    final v = Verdict(
+        status: VerdictStatus.registered, expiryDate: DateTime(2027, 12, 31));
+    for (final l in langs) {
+      final t = counselingText(v, l.code);
+      expect(t, contains('12/2027'), reason: l.code);
+      expect(t, isNot(contains('{expiry}')), reason: l.code);
+    }
+    const bare = Verdict(status: VerdictStatus.registered);
+    expect(counselingText(bare, 'tw'), isNot(contains('{expiry}')));
+  });
+
   test('every language has reviewed text for every verdict', () {
     for (final l in langs) {
       for (final s in VerdictStatus.values) {
