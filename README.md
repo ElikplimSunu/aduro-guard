@@ -22,9 +22,9 @@ on the phone.
 **Setup, once.** Pick a language, and the whole interface switches to it immediately. Then
 the model is downloaded or imported, and after that the app never needs a network.
 
-| Choose a language | The same screen in Twi | Set up the offline brain | Downloading the model |
+| Choose a language | The same screen in Gã | Set up the offline brain | Downloading the model |
 | --- | --- | --- | --- |
-| ![Language picker](docs/screenshots/onboarding-language.png) | ![The picker after choosing Twi](docs/screenshots/onboarding-twi.png) | ![Offline model setup](docs/screenshots/model-setup.png) | ![Model download in progress](docs/screenshots/model-downloading.png) |
+| ![Language picker, six languages each labelled in itself](docs/screenshots/onboarding-language.png) | ![The picker after choosing Gã](docs/screenshots/onboarding-ga.png) | ![Offline model setup](docs/screenshots/model-setup.png) | ![Model download in progress](docs/screenshots/model-downloading.png) |
 
 **Scanning.** Point, confirm, and the pack is read on the phone.
 
@@ -48,12 +48,13 @@ merged.
 | --- | --- |
 | ![Missing details after the first photo](docs/screenshots/vinc-before-side.png) | ![Batch, expiry and maker filled in, verdict green](docs/screenshots/result-registered.png) |
 
-**Guidance, in your language.** Twi here is the reviewed wording that replaces model
-output when it drifts or loops.
+**Guidance, in your language.** The Twi and Gã here are reviewed wording with the scan's
+own expiry date filled in, shown when the model cannot hold the language or its output
+fails verification.
 
-| Guidance in English | Guidance in Twi |
-| --- | --- |
-| ![Guidance in English](docs/screenshots/counseling-english.png) | ![Guidance in Twi](docs/screenshots/counseling-twi.png) |
+| Guidance in English | Guidance in Twi | Guidance in Gã |
+| --- | --- | --- |
+| ![Guidance in English](docs/screenshots/counseling-english.png) | ![Guidance in Twi, naming the scanned expiry](docs/screenshots/counseling-twi.png) | ![Guidance in Gã, naming the scanned expiry](docs/screenshots/counseling-ga.png) |
 
 **Ask about the pack.** Answers come only from what the pack itself says, and the thread
 is saved with the scan: close the app, reopen the check, and the question and answer are
@@ -179,13 +180,38 @@ in both light and dark themes, Fraunces for display type, Public Sans for text, 
 Mono for batch numbers and dates, and verdict colors reserved for verdicts. Appearance
 follows the phone by default and can be pinned to light or dark in Settings.
 
-## Languages and accessibility
+## Languages, voices, and speech
 
-The language picker labels every option in its own language, and choosing one flips the
-whole interface immediately. UI chrome ships in English and Twi today; the Twi strings
-live in one reviewable file ([lib/services/strings.dart](lib/services/strings.dart)) with
-each translation beside its English source, and Ewe, Dagbani, and Hausa chrome falls back
-to English until native speakers review translations. Content is in-language for all five.
+Six languages: English, Twi, Ewe (Eʋegbe), Ga (Gã), Hausa, and Dagbani (Dagbanli). The
+picker labels every option in itself, and choosing one flips the whole interface
+immediately. Every translation lives beside its English source in one reviewable file
+([lib/services/strings.dart](lib/services/strings.dart)); anything untranslated falls
+back to English rather than guess. Ga is the newest set and the least reviewed.
+
+**How each language gets its counseling.** Gemma 4 E2B holds English, Twi and Hausa, so
+those generate live, and every generation is verified: a cycle detector catches
+repetition collapse, and a function-word heuristic catches English prose under a
+local-language heading. Failures are replaced by reviewed wording in
+[lib/services/counseling.dart](lib/services/counseling.dart), six verdicts per language
+with slots that carry the scan's own facts (the actual expiry date read off the pack).
+Ewe, Ga and Dagbani skip generation entirely, because on-device testing showed the model
+answers them in English every time; they read the reviewed wording directly. The
+follow-up chat follows the same split: English, Twi and Hausa chat in-language, and the
+other three get English answers with the UI saying so plainly, since free-form Q&A has no
+reviewed fallback to swap in.
+
+**Text to speech** is offline. English uses the phone's own voice via `flutter_tts`.
+Twi, Ewe and Hausa use Meta's open MMS voices (VITS models from the Massively
+Multilingual Speech project, CC BY-NC 4.0), taken as community ONNX exports
+([willwade/mms-tts-multilingual-models-onnx](https://huggingface.co/willwade/mms-tts-multilingual-models-onnx),
+about 115 MB per language: `aka` for Twi, `ewe`, `hau`), each an optional one-time
+download in Settings and synthesized on-device by `sherpa_onnx` in a persistent warm
+worker isolate. No published MMS export exists for Ga (`gaa`) or Dagbani (`dag`), so
+those two ship text-only until one appears.
+
+**Speech to text does not exist as a separate system.** Spoken follow-up questions are
+16kHz mono WAV from the `record` package fed straight into Gemma 4's native audio
+understanding; there is no ASR model, no transcript step, and nothing extra to download.
 
 The app works with screen readers: custom controls carry semantic labels and states, the
 verdict is announced the moment it lands, decorative images are skipped, and touch
@@ -196,10 +222,10 @@ switch-access users.
 
 - The snapshot is dated the day it was exported, so "not found" always means verify,
   never fake.
-- Twi output is code-switched everyday Twi. Ewe, Dagbani, and Hausa output is newer and
-  labelled early support in the app.
-- The MMS voices are intelligible rather than natural, and Dagbani has no published
-  voice yet, so it ships as text only.
+- Twi output is code-switched everyday Twi. Ewe, Ga, Dagbani, and Hausa are newer and
+  labelled early support in the app; all the local-language wording awaits native review.
+- The MMS voices are intelligible rather than natural, and Ga and Dagbani have no
+  published voice yet, so they ship as text only.
 - Blister packs with tiny embossed dates can defeat OCR. The app asks for better light
   rather than guessing.
 
