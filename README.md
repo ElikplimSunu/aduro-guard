@@ -206,8 +206,13 @@ Multilingual Speech project, CC BY-NC 4.0), taken as community ONNX exports
 ([willwade/mms-tts-multilingual-models-onnx](https://huggingface.co/willwade/mms-tts-multilingual-models-onnx),
 about 115 MB per language: `aka` for Twi, `ewe`, `hau`), each an optional one-time
 download in Settings and synthesized on-device by `sherpa_onnx` in a persistent warm
-worker isolate. No published MMS export exists for Ga (`gaa`) or Dagbani (`dag`), so
-those two ship text-only until one appears.
+worker isolate.
+
+Ga and Dagbani ship text-only. No open TTS model exists for Ga at all, in MMS or
+anywhere else we could find. Dagbani does have one, GhanaNLP's VITS checkpoint, and
+[tool/export_vits_onnx.py](tool/export_vits_onnx.py) converts it far enough to load in
+sherpa-onnx but not far enough to synthesize. [docs/voices.md](docs/voices.md) records
+exactly where it stops and what closing the gap needs.
 
 **Speech to text does not exist as a separate system.** Spoken follow-up questions are
 16kHz mono WAV from the `record` package fed straight into Gemma 4's native audio

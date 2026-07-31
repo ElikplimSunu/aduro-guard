@@ -95,6 +95,11 @@ const langs = [
     promptLine:
         'Write in everyday Dagbani as spoken in northern Ghana. Keep medicine names, numbers and "FDA" in English. Use short simple sentences.',
     early: true,
+    // Text only. GhanaNLP publishes a Dagbani VITS checkpoint and
+    // tool/export_vits_onnx.py gets it as far as loading in sherpa-onnx,
+    // but generation needs the MMS ONNX input signature (x, x_length and
+    // the noise/length scales as tensors) rather than the HuggingFace
+    // forward pass, so it is not wired up yet. See docs/voices.md.
     counselFromModel: false,
   ),
 ];

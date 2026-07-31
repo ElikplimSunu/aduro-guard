@@ -15,7 +15,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Prefs.instance.load();
   Registry.instance.load(); // warm the snapshot; screens await it again
-  Tts.instance.warmUp(Prefs.instance.language); // warm the current voice
+  // Deliberately NOT warming a voice here. Voice models load through native
+  // sherpa-onnx code, so a corrupt or mismatched one aborts the process
+  // instead of throwing; warming at launch turns that into an app that
+  // cannot start at all and can only be recovered by clearing data. Voices
+  // warm on the result screen instead, where a failure costs one screen.
   // Load the model on launch, not on the first scan: a cold 2.4GB load
   // competing with whatever else the phone is running is exactly when it
   // fails, and it fails in front of the user. Best effort, never throws.
