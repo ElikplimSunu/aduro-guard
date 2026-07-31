@@ -145,15 +145,28 @@ fully offline.
 
 ## The register snapshot
 
-The committed snapshot is a full export of the Ghana FDA public product register
-(`verifypermit.fdaghana.gov.gh/publicsearch`, 16,454 products with registration numbers,
-generics, and manufacturers), taken with [tool/scrape_register.py](tool/scrape_register.py)
-and merged by [tool/build_db.dart](tool/build_db.dart) with a curated layer of real FDA
-Ghana recall and safety alerts, WHO medical product alerts, essential-medicines generics,
-and lookalike name pairs ([tool/data/](tool/data/)). The government server is
-intermittently unreachable and its search only answers online; the app carries the whole
-register on the phone and labels it honestly as a dated snapshot. Re-run the scraper and
-`dart run tool/build_db.dart` any time to refresh it.
+**Source: https://verifypermit.fdaghana.gov.gh/publicsearch**, the Ghana FDA's own public
+product register. It is a server-side DataTables endpoint that only answers online, its
+TLS certificate had expired when we exported, and the service is intermittently
+unreachable, which is precisely why carrying a copy on the phone matters.
+
+[tool/scrape_register.py](tool/scrape_register.py) pages through that endpoint (resumable,
+one second between requests) and writes every row to TSV.
+[tool/build_db.dart](tool/build_db.dart) compiles it into `assets/db/registry.db` and
+merges a curated layer of real FDA Ghana recall and safety alerts, WHO medical product
+alerts, and lookalike name pairs ([tool/data/](tool/data/)). The committed snapshot is
+**16,454 exported rows, 15,171 unique products** with registration numbers, generics and
+manufacturers, taken **2026-07-19**.
+
+To refresh it:
+
+```sh
+python3 tool/scrape_register.py     # re-export from the FDA endpoint
+dart run tool/build_db.dart         # rebuild the snapshot, with self-checks
+```
+
+The app labels the result honestly as a dated snapshot, so "not found" always reads as
+verify, never as fake.
 
 ## Design
 
