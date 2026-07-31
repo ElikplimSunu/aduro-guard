@@ -146,9 +146,12 @@ fully offline.
 ## The register snapshot
 
 **Source: https://verifypermit.fdaghana.gov.gh/publicsearch**, the Ghana FDA's own public
-product register. It is a server-side DataTables endpoint that only answers online, its
-TLS certificate had expired when we exported, and the service is intermittently
-unreachable, which is precisely why carrying a copy on the phone matters.
+product register. Three quirks to know before you click: it answers over **https only**
+(the plain-HTTP site on port 80 returns 404, so typing the bare domain into a browser
+shows "Not Found"), its TLS certificate has been expired since September 2025 (your
+browser will warn; the scraper skips verification for exactly that reason), and the
+service is intermittently unreachable. All of which is precisely why carrying a copy on
+the phone matters.
 
 [tool/scrape_register.py](tool/scrape_register.py) pages through that endpoint (resumable,
 one second between requests) and writes every row to TSV.
