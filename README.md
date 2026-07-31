@@ -16,57 +16,50 @@ code, no literacy requirement, no internet.
 
 ## Screenshots
 
-All captured on a Galaxy S24 running the release build, with Gemma 4 E2B doing the reading
-on the phone.
+Captured in sequence on a Galaxy S24 running the release build, with Gemma 4 E2B doing the
+reading on the phone. Files are numbered in the order they were taken, in
+[docs/screenshots/](docs/screenshots/).
 
-**Setup, once.** Pick a language, and the whole interface switches to it immediately. Then
-the model is downloaded or imported, and after that the app never needs a network.
+**Setup, once.** Every language labels itself, and choosing one flips the whole interface
+immediately. Then the model is downloaded or imported, and after that the app never needs
+a network.
 
-| Choose a language | The same screen in Gã | Set up the offline brain | Downloading the model |
-| --- | --- | --- | --- |
-| ![Language picker, six languages each labelled in itself](docs/screenshots/onboarding-language.png) | ![The picker after choosing Gã](docs/screenshots/onboarding-ga.png) | ![Offline model setup](docs/screenshots/model-setup.png) | ![Model download in progress](docs/screenshots/model-downloading.png) |
+| Language picker | The same screen in Gã | …and in Twi | Offline brain | Downloading |
+| --- | --- | --- | --- | --- |
+| ![Language picker](docs/screenshots/02-onboarding-language-english.png) | ![Picker after choosing Gã](docs/screenshots/03-onboarding-language-ga-live-flip.png) | ![Picker after choosing Twi](docs/screenshots/04-onboarding-language-twi-live-flip.png) | ![Offline model setup](docs/screenshots/05-onboarding-model-setup.png) | ![Model downloading](docs/screenshots/06-model-downloading.png) |
 
 **Scanning.** Point, confirm, and the pack is read on the phone.
 
-| Home | Camera | Confirm the photo | Reading the pack |
+| Home | Camera | Confirm | Reading, offline |
 | --- | --- | --- | --- |
-| ![Home screen](docs/screenshots/home-empty.png) | ![Camera capture](docs/screenshots/camera.png) | ![Confirm the photo](docs/screenshots/confirm-photo.png) | ![Reading the pack, offline](docs/screenshots/reading-pack.png) |
+| ![Home](docs/screenshots/07-home-first-run.png) | ![Camera](docs/screenshots/08-camera-live-preview.png) | ![Confirm the photo](docs/screenshots/09-confirm-photo.png) | ![Reading the pack](docs/screenshots/10-reading-pack-offline.png) |
 
-**The verdict.** The database decides; Gemma explains it in your language. Green when the
-register confirms the pack, amber when the name or number does not line up exactly, amber
-again when the product is simply absent.
+**One photo rarely shows everything.** The name is on the front while batch and expiry
+hide on a side panel. Rather than instruct anyone up front, the app waits until it has a
+verdict, names exactly what it could not see, and offers one button for another angle.
 
-| Registered and in date | Name close but not exact | Not in the register |
-| --- | --- | --- |
-| ![A green registered verdict](docs/screenshots/result-registered.png) | ![A caution verdict](docs/screenshots/result-caution.png) | ![A not-found verdict, light theme](docs/screenshots/result-light.png) |
-
-**One photo rarely shows everything.** When fields are missing the app names exactly what
-it could not see and asks for one more angle, then re-runs the check with both reads
-merged.
-
-| Batch, expiry and maker unread | After a photo of the back |
+| After one photo: batch, expiry and maker unread | After a photo of the back |
 | --- | --- |
-| ![Missing details after the first photo](docs/screenshots/vinc-before-side.png) | ![Batch, expiry and maker filled in, verdict green](docs/screenshots/result-registered.png) |
+| ![Missing details](docs/screenshots/11-result-first-photo-missing-fields.png) | ![All fields filled, verdict green](docs/screenshots/12-result-registered-after-second-side.png) |
 
-**Guidance, in your language.** The Twi and Gã here are reviewed wording with the scan's
-own expiry date filled in, shown when the model cannot hold the language or its output
-fails verification.
+**Guidance, in your language.** Twi and Gã here are reviewed wording with the scan's own
+expiry date filled in, shown because the model cannot be trusted to hold those languages.
 
-| Guidance in English | Guidance in Twi | Guidance in Gã |
+| English | Twi | Gã |
 | --- | --- | --- |
-| ![Guidance in English](docs/screenshots/counseling-english.png) | ![Guidance in Twi, naming the scanned expiry](docs/screenshots/counseling-twi.png) | ![Guidance in Gã, naming the scanned expiry](docs/screenshots/counseling-ga.png) |
+| ![Guidance in English](docs/screenshots/13-guidance-english.png) | ![Guidance in Twi](docs/screenshots/14-guidance-twi.png) | ![Guidance in Gã](docs/screenshots/15-guidance-ga.png) |
 
-**Ask about the pack.** Answers come only from what the pack itself says, and the thread
-is saved with the scan: close the app, reopen the check, and the question and answer are
-still there with room to ask more.
+**Ask about the pack, and it stays.** Answers come only from the pack's own text, so a
+question it cannot answer gets a referral rather than a guess. The thread is saved with
+the scan.
 
 | Asking during a scan | The same thread in a saved check |
 | --- | --- |
-| ![Asking how to store the pack](docs/screenshots/ask-the-pack.png) | ![The saved question and answer after reopening the app](docs/screenshots/ask-saved.png) |
+| ![A refusal and a grounded answer](docs/screenshots/16-ask-the-pack-answer.png) | ![Questions still there after reopening](docs/screenshots/19-saved-check-questions-persisted.png) |
 
-| History | Settings | Offline voices |
-| --- | --- | --- |
-| ![Past checks](docs/screenshots/history.png) | ![Language and appearance settings](docs/screenshots/settings-language.png) | ![Downloadable offline voices](docs/screenshots/settings-voices.png) |
+| Home with a check | History | Settings | Offline voices |
+| --- | --- | --- | --- |
+| ![Home with a recent check](docs/screenshots/17-home-with-recent-check.png) | ![All checks](docs/screenshots/18-history-all-checks.png) | ![Language and appearance](docs/screenshots/20-settings-language-and-appearance.png) | ![Downloadable voices](docs/screenshots/21-settings-offline-voices.png) |
 
 ## How it works: Gemma reads, the database decides, Gemma explains
 
