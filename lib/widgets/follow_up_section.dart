@@ -130,6 +130,12 @@ class _FollowUpSectionState extends State<FollowUpSection> {
       await for (final chunk
           in chat.ask(typedQuestion: question, audioWavBytes: audio)) {
         if (!mounted) return;
+        if (chunk == Gemma.resetSignal) {
+          // The answer collapsed into a repeating phrase; drop it rather
+          // than show it, and invite another try.
+          setState(() => turn.answer = S.askFailed);
+          break;
+        }
         setState(() => turn.answer += chunk);
       }
     } catch (_) {

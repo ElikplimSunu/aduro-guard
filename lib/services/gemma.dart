@@ -559,8 +559,19 @@ class FollowUpChat {
     await _chat!.addQueryChunk(audioWavBytes != null
         ? Message.withAudio(text: text, audioBytes: audioWavBytes, isUser: true)
         : Message.text(text: text, isUser: true));
+    // Answers get the same repetition guard as counseling. A chat answer has
+    // no reviewed wording to fall back on, so a collapse ends the answer and
+    // asks the user to try again rather than filling the screen with a
+    // cycling phrase.
+    final buf = StringBuffer();
     await for (final r in _chat.generateChatResponseAsync()) {
-      if (r is TextResponse) yield r.token;
+      if (r is! TextResponse) continue;
+      buf.write(r.token);
+      if (Gemma.isRepetitionLoop(buf.toString())) {
+        yield Gemma.resetSignal;
+        return;
+      }
+      yield r.token;
     }
   }
 
