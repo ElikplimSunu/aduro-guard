@@ -1,6 +1,6 @@
 ### Inspiration
 
-One in ten medical products in low and middle income countries is substandard or falsified (WHO). In sub-Saharan Africa the modelled cost is up to half a million deaths a year, roughly 267,000 of them linked to fake antimalarials. Ghana knows this fight well. Post-market surveillance found substandard or falsified antimalarials at 75% prevalence in 2014, still 35% after enforcement in 2016, and more than 94% of sampled oxytocin and ergometrine, the injections that stop mothers bleeding after birth, failing quality testing.
+One in ten medical products in low and middle income countries is substandard or falsified (WHO); in sub-Saharan Africa the modelled cost is up to half a million deaths a year, roughly 267,000 from fake antimalarials. Post-market surveillance in Ghana found substandard or falsified antimalarials at 75% prevalence in 2014 and still 35% after enforcement in 2016, and over 94% of sampled oxytocin and ergometrine, the injections that stop mothers bleeding after birth, failed quality testing.
 
 The defense a Ghanaian buyer has today is mPedigree: scratch a code, SMS it, wait. It only covers products whose manufacturers opted in, and assumes the buyer reads English. The FDA's own register of 16,000+ products is public, but its server is intermittently down, the search answers online only, and nobody at a market stall queries a website while a peddler waits.
 
@@ -12,7 +12,7 @@ Aduro Guard turns any phone camera into that missing check. Point it at any medi
 
 **Gemma 4 E2B, on device, via flutter_gemma and LiteRT-LM with GPU acceleration.** No cloud, no fine-tuning, no RAG: prompt engineering plus a database, in a deliberate three-stage split:
 
-**1. Gemma reads.** The pack photo goes to Gemma 4's vision with a strict-JSON prompt and comes back as `{product_name, manufacturer, batch_number, expiry_date, registration_number, pack_text, legible}`. Extraction streams, so an unreadable photo is detected in the first few tokens and generation stops early instead of burning the whole budget.
+**1. Gemma reads.** The pack photo goes to Gemma 4's vision with a strict-JSON prompt and returns {product_name, manufacturer, batch_number, expiry_date, registration_number, pack_text, legible}. Extraction streams, so an unreadable photo is caught in the first few tokens and generation stops early.
 
 **2. The database decides.** This is the safety-critical choice: **the model never invents a verdict.**
 
@@ -42,7 +42,7 @@ Measured on a Samsung Galaxy S24 in airplane mode, release build:
 
 One photo rarely shows everything: the name is on the front while batch and expiry hide on a side panel. Rather than instruct anyone up front, the app waits until it has a verdict, names exactly what it could not see, and offers one button for another angle. The reads merge field by field and the verdict re-runs. On Vin-C that turned three blank fields into batch A5522, expiry 12/2027 and a green verdict.
 
-The app also ships light and dark themes from one token system, a language picker where every option is labelled in its own language and the whole interface flips on selection, saved question threads so an answer survives closing the app, and screen reader support with labelled controls, an announced verdict and 44dp touch targets.
+It also ships light and dark themes from one token system, a picker where every language labels itself and the interface flips on selection, saved question threads, and screen reader support with labelled controls, an announced verdict and 44dp touch targets.
 
 ### Challenges we ran into
 
