@@ -3,32 +3,15 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
-/// Offline voice models: VITS voices (ONNX) per language, downloaded once and
-/// stored under `documents/voices/{code}/`. Roughly 115 MB each.
-///
-/// These come from Meta's MMS project as ready-made ONNX exports. Languages
-/// MMS does not cover ship as text; see docs/voices.md for the Dagbani export
-/// attempt and exactly where it stops. The _ownBase branch below is the hook
-/// for voices we export ourselves once one of them actually runs.
+/// Offline voice models: Meta MMS VITS voices (ONNX) per language, downloaded
+/// once and stored under `documents/voices/{mms}/`. Roughly 115 MB each.
+/// Source repo: willwade/mms-tts-multilingual-models-onnx on Hugging Face.
 class Voices {
   Voices._();
   static final instance = Voices._();
 
-  static const _mmsBase =
+  static const _base =
       'https://huggingface.co/willwade/mms-tts-multilingual-models-onnx/resolve/main';
-  static const _ownBase =
-      'https://github.com/ElikplimSunu/aduro-guard/releases/download/voices-v1';
-
-  /// Where each file for [code] lives. MMS voices sit in per-language folders;
-  /// our own exports are flat release assets, so the code becomes a prefix.
-  static ({String model, String tokens}) _urls(String code) =>
-      _mmsVoices.contains(code)
-          ? (model: '$_mmsBase/$code/model.onnx',
-              tokens: '$_mmsBase/$code/tokens.txt')
-          : (model: '$_ownBase/$code-model.onnx',
-              tokens: '$_ownBase/$code-tokens.txt');
-
-  static const _mmsVoices = {'aka', 'ewe', 'hau'};
 
   Future<Directory> dirFor(String mms) async {
     final docs = await getApplicationDocumentsDirectory();
@@ -51,8 +34,8 @@ class Voices {
     dir.createSync(recursive: true);
     final client = HttpClient();
     try {
-      final urls = _urls(mms);
-      final tokensReq = await client.getUrl(Uri.parse(urls.tokens));
+      final tokensReq =
+          await client.getUrl(Uri.parse('$_base/$mms/tokens.txt'));
       final tokensRes = await tokensReq.close();
       if (tokensRes.statusCode != 200) {
         throw HttpException('tokens ${tokensRes.statusCode}');
@@ -62,7 +45,7 @@ class Voices {
       File('${dir.path}/tokens.txt').writeAsBytesSync(tokensBytes);
       yield 1;
 
-      final modelReq = await client.getUrl(Uri.parse(urls.model));
+      final modelReq = await client.getUrl(Uri.parse('$_base/$mms/model.onnx'));
       final modelRes = await modelReq.close();
       if (modelRes.statusCode != 200) {
         throw HttpException('model ${modelRes.statusCode}');
