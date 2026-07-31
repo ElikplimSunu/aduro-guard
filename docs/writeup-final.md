@@ -22,7 +22,7 @@ Aduro Guard turns any phone camera into that missing check. Point it at any medi
 
 ### How we built it
 
-**Gemma 4 E2B, on device, via flutter_gemma and LiteRT-LM with GPU acceleration.** No cloud, no fine-tuning, no RAG. Prompt engineering plus a database, in a deliberate three-stage split:
+**Gemma 4 E2B, on device, via flutter_gemma and LiteRT-LM with GPU acceleration.** No cloud, no fine-tuning, no RAG: prompt engineering plus a database, in a deliberate three-stage split:
 
 **1. Gemma reads.** The pack photo goes to Gemma 4's vision with a strict-JSON prompt and comes back as `{product_name, manufacturer, batch_number, expiry_date, registration_number, pack_text, legible}`. Extraction streams, so an unreadable photo is detected in the first few tokens and generation stops early instead of burning the whole budget.
 
@@ -32,7 +32,7 @@ We built the register ourselves. Ghana's FDA publishes it at **https://verifyper
 
 Pure Dart then checks each extraction against that snapshot, a recall and alert table from real FDA Ghana and WHO notices, and a lookalike-name table. Registration numbers match exactly, including the pre-2013 FDB prefix still printed on real packs. Expiry parsing, fuzzy matching and recall precedence are deterministic and unit tested. A one-letter near-miss like "Pamadol" can never pass as "Panadol". A genuine registration number on a wrong-named pack never upgrades a verdict, and a name match whose printed number disagrees with the register drops to caution, a known counterfeit sign.
 
-**3. Gemma explains.** The settled verdict is phrased as three to five simple sentences in English, Twi, Ewe, Ga, Dagbani or Hausa. Speech out is offline too: English uses the phone's own voice, while Twi, Ewe and Hausa are synthesized on device from Meta's open MMS voices (VITS, community ONNX exports, about 115 MB per language, CC BY-NC 4.0) by sherpa-onnx in a persistent warm isolate, each an optional one-time download. No published MMS voice exists for Ga or Dagbani, so those two are text only. There is no speech-to-text stack anywhere in the app: spoken questions go straight into Gemma 4's native audio.
+**3. Gemma explains.** The verdict is phrased as three to five simple sentences in English, Twi, Ewe, Ga, Dagbani or Hausa. Speech is offline too: English uses the phone's own voice, while Twi, Ewe and Hausa are synthesized on device from Meta's open MMS voices (VITS, community ONNX exports, ~115 MB each, CC BY-NC 4.0) by sherpa-onnx in a warm isolate, each an optional one-time download. There is no speech-to-text stack anywhere: spoken questions go straight into Gemma 4's native audio.
 
 **4. Voice follow-up.** Hold a button and ask out loud. Gemma 4's native audio understanding ingests the 16kHz WAV directly, with no separate speech-to-text stack, and answers only from the pack's own text. Ask "can a pregnant woman take this?" and, unless the pack says so, it refuses and points to a pharmacist. That refusal is a feature we demo, not a failure.
 
@@ -74,6 +74,6 @@ That failure earned its keep. Voice models load through native code, so a bad on
 
 ### Honest limits
 
-The register is a dated snapshot, so "not found" always reads as verify, never fake. All the Twi, Ewe, Ga, Dagbani and Hausa wording is written but not yet reviewed by native speakers; it sits in one file for exactly that purpose, and Ga is the newest and least reviewed. Follow-up questions answer in English for Ewe, Ga and Dagbani. Ga and Dagbani have no offline voice. The MMS voices are intelligible rather than natural.
+The register is a dated snapshot, so "not found" always reads as verify, never fake. All the local-language wording is written but not yet reviewed by native speakers; it sits in one file for exactly that purpose, and Ga is newest and least reviewed. Follow-up questions answer in English for Ewe, Ga and Dagbani, and neither Ga nor Dagbani has an offline voice. The MMS voices are intelligible rather than natural.
 
 Licensing: this repository and the runtime stack are Apache 2.0; Gemma 4 ships under the free Gemma license, and the optional MMS voices under CC BY-NC 4.0. All free and publicly available, as the rules require.
