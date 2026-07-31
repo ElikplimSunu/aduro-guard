@@ -48,8 +48,8 @@ Measured on a Samsung Galaxy S24 in airplane mode, release build:
 
 - **About 11 seconds** from confirming a photo to a verdict on screen.
 - Vin-C Plus, a real vitamin C pack: green, "In the register", expiry 12/2027, still in date.
-- Lufart antimalarial: amber. The pack reads "LUFART Tablets / Comprimes"; the register lists "LUFART 20MG+120MG TABLETS". Close, not exact, so the app says check the spelling rather than guessing.
-- Gasto Mixture, a Naturemedics herbal product: honest amber, "not in this register snapshot", with the FDA WhatsApp line to report it.
+- Lufart antimalarial: amber. The pack reads "LUFART Tablets / Comprimes"; the register lists "LUFART 20MG+120MG TABLETS". Close, not exact, so it says check the spelling rather than guessing.
+- Gasto Mixture, a herbal product: honest amber, "not in this register snapshot", with the FDA WhatsApp line to report it.
 - A deliberately blurry shot: "Couldn't read the pack. Try more light."
 
 One photo rarely shows everything: the name is on the front while batch and expiry hide on a side panel. Rather than instruct anyone up front, the app waits until it has a verdict, names exactly what it could not see, and offers one button for another angle. The reads merge field by field and the verdict re-runs. On Vin-C that turned three blank fields into batch A5522, expiry 12/2027 and a green verdict.
@@ -60,11 +60,11 @@ The app also ships light and dark themes from one token system, a language picke
 
 **The model would not speak Ghana's languages, and lied about it convincingly.** Gemma 4 E2B writes good English. Asked for Ewe, Ga or Dagbani it returned fluent English under a local-language heading, and it collapsed Twi into a five-word phrase repeating until the token budget ran out. A user cannot tell a wrong translation from a right one, so shipping that would have been worse than shipping English.
 
-So we stopped trusting the output and started verifying it. Every generation is now checked for two failures: a repetition collapse, and English prose sitting under a local-language heading. Text failing either check is discarded and replaced with human-reviewed wording held in the repository, six verdicts in each of the six languages, with slots that fill in the scan's own facts so the reviewed text still names the expiry date read off the pack.
+So we stopped trusting the output and started verifying it. Every generation is checked for two failures: a repetition collapse, and English prose under a local-language heading. Text failing either is discarded and replaced with human-reviewed wording in the repository, six verdicts in each of six languages, with slots that fill in the scan's own facts so it still names the expiry read off the pack.
 
 That guard needed a second pass. It ran per streamed chunk, and chunks land mid-word, so the tail it inspected was misaligned almost every time and a real collapse still reached a tester's screen. It now also checks the finished text and rejects any short phrase repeating four times anywhere. Chat answers get the same guard, and since they have no reviewed fallback a collapsing answer is dropped and the user asked to try again.
 
-The deeper problem is reviewability: generated low-resource text differs on every run, so no native speaker can ever proofread it. Thirty-six fixed paragraphs can be read once and corrected for good. Ewe, Ga and Dagbani skip generation entirely, and their chat answers come in English with the interface saying so, because free-form questions have no reviewed wording to fall back on. English, Twi and Hausa generate and fall back only on failure.
+The deeper problem is reviewability: generated low-resource text differs every run, so no native speaker can proofread it. Thirty-six fixed paragraphs can be read once and corrected for good. Ewe, Ga and Dagbani skip generation, and their chat answers come in English with the interface saying so. English, Twi and Hausa generate and fall back only on failure.
 
 **Voices were a harder no than expected.** MMS covers Twi, Ewe and Hausa, shipped as optional 115 MB downloads, and has nothing for Ga or Dagbani. None of GhanaNLP's hundred models is Ga speech, so Ga has no offline voice anywhere. Dagbani does have one, a VITS checkpoint shaped like the MMS voices, so we wrote an exporter. It converts; sherpa-onnx then rejects it twice on metadata and token format, both fixed, and finally segfaults during generation because our graph carries the HuggingFace forward signature while sherpa-onnx feeds VITS its inputs and sampling scales as separate tensors. The script and the full trail are committed. Dagbani stays text-only rather than ship something untested into a medicine app.
 
