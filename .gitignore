@@ -44,3 +44,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 .models/
+
+# Personal working notes and post drafts
+WORKLOG.md
+posts/
