@@ -8,6 +8,11 @@ at http://196.61.32.245:55). It answers normal GETs with HTML and AJAX GETs
 records: registration_number, product_name, generic_name, manufacturer,
 client_name, product_category, expiry_date (registration validity), status.
 
+Only the seven columns written below are kept, raw responses are never
+saved, and the manufacturer is cut down to the business name: the register
+appends postal addresses, GhanaPost GPS codes and phone numbers, which for
+sole traders are personal data.
+
 Run this whenever the server is up; if register_live.tsv exists,
 tool/build_db.dart folds it into the app database automatically. Resumes from
 the last saved offset.
@@ -68,6 +73,38 @@ def clean(v) -> str:
     return re.sub(r"[\t\r\n]+", " ", s).strip()
 
 
+# ponytail: heuristic, cuts at the first thing that looks like an address;
+# a street name with no number or separator can survive. Tighten if seen.
+ADDRESS = re.compile(
+    r"[,;]|\s[-–]\s|\s[-–]?\d|\s\S*\d"  # separators, or the first word holding a digit
+    r"|\bP\.?\s*O\.?\s*BOX\b|\bPLOT\b|\bH/NO\b|\bH(?:OUSE|SE)\.?\s*NO\b"
+    r"|\b(?:OFF|NEAR|OPP|OPPOSITE|BEHIND|ADJACENT)\b"
+    r"|\b[A-Z]{2}-?\d{3,4}-?\d{3,4}\b",  # GhanaPost GPS code
+    re.I)
+SUFFIX = re.compile(
+    r"^.*?\b(?:LTD|LIMITED|INC|PLC|LLC|GMBH|CORP|CORPORATION|ENT|ENTERPRISES?|VENTURES)\b\.?"
+    r"(?:\s+(?:LTD|LIMITED|INC|CO)\b\.?)*", re.I)
+
+
+def maker_name(m: str) -> str:
+    """The business name alone: no address, GPS code or phone number."""
+    c = ADDRESS.search(m)
+    if c:
+        m = m[:c.start()]
+    s = SUFFIX.match(m)
+    if s:
+        m = s.group(0)
+    m = re.sub(r"[\s.,-]+$", "", m).strip()
+    return m if len(m) > 2 and not m[0].isdigit() else ""
+
+
+assert maker_name("Aayansh Wellness Pvt. Ltd - 12, Vinayak Estate, India") == "Aayansh Wellness Pvt. Ltd"
+assert maker_name("Kofi Herbal Ent., GA-123-4567, Accra") == "Kofi Herbal Ent"
+assert maker_name("Ama Foods GA-0415-1993 Tema") == "Ama Foods"
+assert maker_name("ACME LTD 0244 123 456") == "ACME LTD"
+assert maker_name("P.O. Box 123, Accra") == ""
+
+
 def main() -> None:
     start = int(STATE.read_text()) if STATE.exists() else 0
     mode = "a" if start else "w"
@@ -92,7 +129,7 @@ def main() -> None:
                 w([
                     clean(r.get("product_name")),
                     clean(r.get("generic_name")),
-                    clean(r.get("manufacturer")) or clean(r.get("client_name")),
+                    maker_name(clean(r.get("manufacturer")) or clean(r.get("client_name"))),
                     clean(r.get("product_category")),
                     clean(r.get("registration_number")),
                     clean(r.get("expiry_date")),

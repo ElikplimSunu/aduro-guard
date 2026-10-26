@@ -153,12 +153,14 @@ service is intermittently unreachable. All of which is precisely why carrying a 
 the phone matters.
 
 [tool/scrape_register.py](tool/scrape_register.py) pages through that endpoint (resumable,
-one second between requests) and writes every row to TSV.
+one second between requests) and keeps seven displayed fields per row. The manufacturer
+is cut down to the business name, because the register appends postal
+addresses, GhanaPost GPS codes and phone numbers, which for sole traders are personal data.
 [tool/build_db.dart](tool/build_db.dart) compiles it into `assets/db/registry.db` and
 merges a curated layer of real FDA Ghana recall and safety alerts, WHO medical product
 alerts, and lookalike name pairs ([tool/data/](tool/data/)). The committed snapshot is
-**16,454 exported rows, 15,171 unique products** with registration numbers, generics and
-manufacturers, taken **2026-07-19**.
+**16,454 exported rows, 15,119 unique products** with registration numbers, generics and
+manufacturer names, taken **2026-07-19**.
 
 To refresh it:
 
@@ -169,6 +171,11 @@ dart run tool/build_db.dart         # rebuild the snapshot, with self-checks
 
 The app labels the result honestly as a dated snapshot, so "not found" always reads as
 verify, never as fake.
+
+Aduro Guard is not affiliated with or endorsed by the Food and Drugs Authority Ghana.
+The register data comes from the FDA's public search and is not covered by this
+project's licence, which covers the code. To ask for a correction or removal, open an
+issue.
 
 ## Design
 
@@ -234,5 +241,6 @@ switch-access users.
 
 ## License
 
-Apache 2.0. Built with [flutter_gemma](https://pub.dev/packages/flutter_gemma), Gemma 4
-(Google DeepMind), and data from FDA Ghana public notices.
+Apache 2.0 for the code. Built with [flutter_gemma](https://pub.dev/packages/flutter_gemma),
+Gemma 4 (Google DeepMind), and data from the FDA Ghana public register and public notices,
+which the licence does not cover.
