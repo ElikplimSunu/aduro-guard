@@ -4,9 +4,9 @@
 // Run from the project root:  dart run tool/build_db.dart
 //
 // Sources, in order of preference:
-//   1. tool/data/register_live.tsv  — full FDA register export (if the
+//   1. tool/data/register_live.tsv: full FDA register export (if the
 //      scraper has run successfully; see tool/scrape_register.py)
-//   2. tool/data/products.tsv       — curated seed of real Ghanaian-market
+//   2. tool/data/products.tsv: curated seed of real Ghanaian-market
 //      products (FDA public alerts, Ghana EML generics, common brands)
 // plus recalls.tsv and lookalikes.tsv.
 //
@@ -40,7 +40,7 @@ Future<void> main() async {
       status TEXT,
       source TEXT
     )''');
-  // ponytail: no FTS — snapshot is small and matching is fuzzy-in-Dart anyway;
+  // ponytail: no FTS; snapshot is small and matching is fuzzy-in-Dart anyway;
   // revisit only if a full 30k register export makes in-memory search slow.
   await db.execute('''
     CREATE TABLE recalls(

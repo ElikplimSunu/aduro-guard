@@ -5,7 +5,7 @@ import '../models/verdict.dart';
 /// Why this exists: Gemma 4 E2B writes good English but drifts out of the
 /// low-resource Ghanaian languages, either answering in English under a Twi
 /// heading or collapsing into a repeated phrase. Generated text in a language
-/// nobody on the team can proofread is also, by construction, unreviewable —
+/// nobody on the team can proofread is also, by construction, unreviewable:
 /// it is different on every run. These templates are the opposite: a fixed,
 /// finite set a native speaker can read once and correct for good.
 ///

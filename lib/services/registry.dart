@@ -31,7 +31,7 @@ class Registry {
     final dir = await getApplicationDocumentsDirectory();
     final path = '${dir.path}/registry.db';
 
-    // ponytail: snapshot is read-only and small — unconditionally refresh the
+    // ponytail: snapshot is read-only and small; unconditionally refresh the
     // local copy from the bundled asset; history lives in a separate db file.
     final asset = await rootBundle.load('assets/db/registry.db');
     await File(path).writeAsBytes(asset.buffer.asUint8List(), flush: true);

@@ -3,7 +3,7 @@ import '../models/scan.dart';
 import '../models/verdict.dart';
 
 /// Pure-Dart verdict logic: Gemma reads the pack, THIS decides.
-/// No I/O — takes the snapshot lists in memory so it is fully unit-testable.
+/// No I/O: takes the snapshot lists in memory so it is fully unit-testable.
 class VerdictEngine {
   final List<Product> products;
   final List<Recall> recalls;
@@ -32,7 +32,7 @@ class VerdictEngine {
     final expiry = parseExpiry(e.expiryRaw);
     final expired = expiry != null && expiry.isBefore(now());
 
-    // Recall/alert check — name against recall entries (manufacturer refines).
+    // Recall/alert check: name against recall entries (manufacturer refines).
     Recall? hitRecall;
     var recallScore = 0.0;
     for (final r in recalls) {
@@ -49,7 +49,7 @@ class VerdictEngine {
     }
     final recalled = recallScore >= strongMatch;
 
-    // Register match — score against brand name and generic name.
+    // Register match: score against brand name and generic name.
     Product? best;
     var bestScore = 0.0;
     for (final p in products) {
@@ -67,7 +67,7 @@ class VerdictEngine {
         best = p;
       }
     }
-    // Exact registration-number hit outranks name fuzz — with the full FDA
+    // Exact registration-number hit outranks name fuzz: with the full FDA
     // register export every product carries one. Gated on the read name still
     // being in the neighbourhood: a genuine reg number printed on a
     // wrong-named pack is exactly the counterfeit pattern, and must not
@@ -90,7 +90,7 @@ class VerdictEngine {
     }
     final matched = bestScore >= strongMatch ? best : null;
 
-    // Lookalike note — attaches to whatever the verdict ends up being.
+    // Lookalike note: attaches to whatever the verdict ends up being.
     String? lookNote;
     final nameForLook = matched?.name ?? e.productName;
     for (final l in lookalikes) {
@@ -171,7 +171,7 @@ class VerdictEngine {
         );
       }
       // A lookalike pairing only downgrades the verdict when the read name
-      // is NOT an exact match — exact reads keep the note as information.
+      // is NOT an exact match; exact reads keep the note as information.
       // Exactness ignores strength/form tokens: "Coartem 20/120" IS Coartem.
       final core = coreName(e.productName);
       final exact = core == coreName(matched.name) ||
@@ -253,7 +253,7 @@ class VerdictEngine {
   static final _noiseToken = RegExp(
       r'^(\d+([./x]\d+)*|mg|ml|g|mcg|iu|tablets?|tab|caps?|capsules?|susp|suspension|syrup|injection|inj|softgel|dispersible|oral|solution|cream|drops?)$');
 
-  /// The name with strength/form noise removed — used for exactness only.
+  /// The name with strength/form noise removed, used for exactness only.
   static String coreName(String s) {
     final kept =
         normalize(s).split(' ').where((t) => !_noiseToken.hasMatch(t));
@@ -272,7 +272,7 @@ class VerdictEngine {
     // Single-word vs single-word: token overlap is meaningless; edit distance
     // rules. A near-miss spelling ("Pamadol" for "Panadol") is the classic
     // counterfeit trick, so anything short of exact is capped below the
-    // strong-match threshold — it can reach caution, never registered.
+    // strong-match threshold: it can reach caution, never registered.
     if (ta.length == 1 && tb.length == 1) {
       return charSim > 0.82 ? 0.82 : charSim;
     }

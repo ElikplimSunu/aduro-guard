@@ -13,7 +13,7 @@ import '../widgets/motion.dart';
 import 'result.dart';
 
 /// Camera capture with a confirm step. On desktop (no camera plugin support)
-/// the screen offers photo picking only — same downstream flow.
+/// the screen offers photo picking only, same downstream flow.
 ///
 /// With [returnShot] the confirmed photo pops back to the caller instead of
 /// starting a new result: used to add another face of the same box.

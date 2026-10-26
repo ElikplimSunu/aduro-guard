@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 
 /// Gemma's vision encoder center-crops to a square and resizes that crop to
-/// 896x896 regardless of what's sent — so anything with a shorter edge above
+/// 896x896 regardless of what's sent, so anything with a shorter edge above
 /// this is pure wasted transfer/decode time, not extra accuracy.
 const _kTargetShortEdge = 1024;
 const _kJpegQuality = 88;

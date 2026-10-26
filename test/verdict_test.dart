@@ -22,7 +22,7 @@ void main() {
       Recall(name: 'Galvus Met', type: 'unregistered', reason: 'Turkish-labelled pack not registered in Ghana.'),
     ],
     lookalikes: const [
-      Lookalike('Coartem', 'Combiart', 'Both are registered brands — confirm which you hold.'),
+      Lookalike('Coartem', 'Combiart', 'Both are registered brands; confirm which you hold.'),
     ],
   );
 

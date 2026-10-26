@@ -5,11 +5,11 @@ enum VerdictStatus {
   expired, // pack expiry date has passed
   recalled, // matches an FDA recall/alert entry
   caution, // near-miss name, lookalike risk, or low-confidence read
-  notFound, // not in this snapshot — verify before use
+  notFound, // not in this snapshot; verify before use
   unreadable, // photo could not be read
 }
 
-/// Which branch of the engine produced the verdict — lets the UI rebuild the
+/// Which branch of the engine produced the verdict; lets the UI rebuild the
 /// explanation in the user's language from the structured fields below,
 /// while [Verdict.reasons] stays the canonical English record.
 enum VerdictKind {
@@ -24,7 +24,7 @@ enum VerdictKind {
 }
 
 /// The deterministic outcome of checking an Extraction against the snapshot.
-/// Produced entirely by code — the model never decides this.
+/// Produced entirely by code; the model never decides this.
 class Verdict {
   final VerdictStatus status;
   final Product? product; // best register match, if any

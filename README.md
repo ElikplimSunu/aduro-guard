@@ -1,18 +1,22 @@
 # Aduro Guard
 
-Check any medicine before you take it. Offline, in seconds, in English or Twi.
+Check any medicine before you take it. Offline, in seconds, in English, Twi, Ewe, Ga, Hausa
+or Dagbani.
 
 Aduro means medicine in Twi. Aduro Guard is a camera-first medicine safety scanner built
 for the [Build with Gemma: Ghana](https://www.kaggle.com/competitions/build-with-gemma-ghana)
 hackathon. Point an ordinary Android phone at any medicine package: Gemma 4 reads the pack
 with its eyes, an offline copy of the Ghana FDA product register decides the verdict, and
-Gemma explains the result in plain English or Twi, out loud. Afterwards you can ask
+the result is explained in plain words, out loud, in your language. Afterwards you can ask
 follow-up questions by voice, and the answers come only from what the pack itself says.
 
 Falsified and substandard medicines are linked to an estimated half a million deaths a
 year in sub-Saharan Africa (WHO). Ghana's existing defense, scratch-code SMS checks, only
 covers manufacturers who opt in. Aduro Guard reads any box ever printed. No barcode, no
 code, no literacy requirement, no internet.
+
+**Demo video (2 min):** [Google Drive](https://drive.google.com/file/d/1Xwl80KXIbohE3x8ZQB5xQS_4kAY68aSc/view?usp=sharing)
+· **Install:** [latest APK](https://github.com/ElikplimSunu/aduro-guard/releases/latest)
 
 ## Screenshots
 
@@ -74,7 +78,7 @@ the scan.
                         └────────┬────────┘                └──────────────────┘
                                  │ counseling and grounded answers
                                  ▼
-                        English / Twi text + device TTS
+                        text in six languages + offline TTS
 ```
 
 The model never invents a safety verdict. It extracts what is printed and phrases what
@@ -89,7 +93,7 @@ precedence. A one-letter near-miss like "Pamadol" can never pass as "Panadol".
 | --- | --- |
 | Vision OCR | Pack photo to structured JSON extraction |
 | Native audio input | Spoken follow-up questions, 16kHz WAV, no separate ASR stack |
-| Multilingual generation | Counseling and answers in English, Twi, Ewe, Dagbani, and Hausa (the last three labelled early) |
+| Multilingual generation | Counseling and answers in English, Twi and Hausa, verified before display (Ewe, Ga and Dagbani use reviewed wording, see below) |
 | Edge inference | Gemma 4 E2B (2.4GB) via flutter_gemma and LiteRT-LM, GPU accelerated |
 
 Speech out is offline too: English uses the device voice, and Twi, Ewe, and Hausa use
@@ -112,15 +116,16 @@ lib/
   theme/        design tokens and light/dark themes (see DESIGN.md, the design contract)
   models/       Product, Extraction, Verdict, ScanRecord
   services/     gemma (inference), verdict_engine (decisions), registry (snapshot),
-                history, tts, prefs
+                counseling (reviewed wording), strings + languages (six-language UI),
+                tts + voices (offline speech), history, prefs
   screens/      onboarding, home, scan, result, history, settings
   widgets/      verdict banner, counseling, follow-up, fact rows
 tool/
   build_db.dart        compiles tool/data/*.tsv into assets/db/registry.db, with self-check
   scrape_register.py   full FDA register export (resumable, polite paging)
   data/                register export + curated FDA recalls, alerts, lookalike pairs
-test/verdict_test.dart the safety logic's unit checks
-docs/                  writeup draft and screenshots
+test/                  verdict logic, counseling guards, accessibility and strings
+docs/                  screenshots, the Kaggle writeup, voice and latency notes
 ```
 
 ## Running it

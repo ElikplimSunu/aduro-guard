@@ -1,5 +1,5 @@
 name: aduro
-description: "Aduro Guard — offline medicine safety scanner for Ghana, powered by Gemma 4 on-device."
+description: "Aduro Guard: offline medicine safety scanner for Ghana, powered by Gemma 4 on-device."
 publish_to: 'none'
 
 version: 0.1.0+1

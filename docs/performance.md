@@ -8,7 +8,7 @@ built on, not a plan.
 ## Why
 
 Two things felt slow: waiting on Gemma between a scan and a verdict, and
-waiting on the offline voice every time counseling text was read aloud —
+waiting on the offline voice every time counseling text was read aloud,
 especially the second, third, Nth "listen" tap in the same session, and
 switching back to a language already generated during the same scan.
 
@@ -32,7 +32,7 @@ switching back to a language already generated during the same scan.
   `lib/services/image_prep.dart` downscales captured/imported photos to that
   bound (aspect-preserving, off the UI thread via `compute()`) before they
   reach the model. On the reference low-end device (camera capped at
-  1280×720) this correctly no-ops — verified in the device log, no behavior
+  1280×720) this correctly no-ops, verified in the device log, no behavior
   change there.
 - **Streaming extraction with early-abort.** `extract()` now consumes
   `getResponseAsync()` token-by-token instead of blocking on `getResponse()`.
@@ -44,7 +44,7 @@ switching back to a language already generated during the same scan.
   returns a `FollowUpChat` wrapping one `InferenceChat` per scan. The pack
   facts are sent once with the first question; later questions in the same
   scan reuse the session (its KV-cache) and the model can refer back to an
-  earlier answer. Deliberately scoped to the follow-up loop only —
+  earlier answer. Deliberately scoped to the follow-up loop only:
   `extract()` and `counsel()` keep their own tuned temperatures (0.1 and 0.6)
   untouched, avoiding a shared-temperature compromise.
 
@@ -60,7 +60,7 @@ switching back to a language already generated during the same scan.
   synthesizing anything. Called on app start for the current language, on
   every language switch (`AduroApp.setLanguage`, the single chokepoint all UI
   language changes go through), and alongside the start of a scan's
-  extraction/verdict wait in `result.dart` — using that otherwise-dead time
+  extraction/verdict wait in `result.dart`, using that otherwise-dead time
   to have the voice ready before the user ever reaches "listen".
 
 ### Counseling text cache per language (`lib/widgets/counseling_section.dart`)
@@ -71,7 +71,7 @@ already generated earlier in the same scan. `_CounselingSectionState` now
 keeps a `Map<String, String>` of finished guidance text per language for the
 lifetime of that scan's widget; switching back to a cached language shows the
 stored text instantly with no new model call. Cache is scoped to one scan
-(a fresh `CounselingSection` — and thus a fresh cache — is created whenever
+(a fresh `CounselingSection`, and thus a fresh cache, is created whenever
 the extraction changes, e.g. after "add another side").
 
 ### Small fix (`lib/services/prefs.dart`)
@@ -97,7 +97,7 @@ every language switch, which writes a pref).
 ## Deferred, on purpose
 
 - **Backend-selection caching** (skip re-probing GPU on a device where it's
-  known to fail): not built, because it needs a measurement first — the SDK
+  known to fail): not built, because it needs a measurement first: the SDK
   already falls back to CPU internally, so there's no confirmed cost to
   cache around yet.
 - **Response caching for `counsel()`/`ask()` across scans**: not pursued.

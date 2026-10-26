@@ -175,7 +175,7 @@ class Gemma {
   }
 
   // Caches the in-flight Future (not just the resolved model) so concurrent
-  // callers — e.g. a warmUp() still loading when a real scan starts — share
+  // callers (e.g. a warmUp() still loading when a real scan starts) share
   // one FlutterGemma.getActiveModel() call instead of racing two.
   Future<InferenceModel> _ensureModel() {
     final pending = _modelFuture;
@@ -207,7 +207,7 @@ class Gemma {
   /// Preloads model weights and forces first-inference costs (GPU shader
   /// compilation, JIT) to happen now instead of on the user's first real
   /// scan. Safe to call speculatively and to call more than once; never
-  /// throws — a warmup failure just means the first scan pays the cost it
+  /// throws: a warmup failure just means the first scan pays the cost it
   /// would have paid anyway.
   Future<void> warmUp() async {
     if (fake || _warming) return;
@@ -455,7 +455,7 @@ Your guidance:''';
 
   /// Starts a reusable multi-turn conversation for follow-up questions about
   /// one scanned pack. The pack facts are folded into the first question
-  /// only, then persist in the chat's own history — so a second or third
+  /// only, then persist in the chat's own history, so a second or third
   /// question in the same scan reuses the session (its KV-cache) instead of
   /// re-stating the whole pack from scratch, and the model can refer back to
   /// an earlier answer. Start a new chat (and let this one be garbage

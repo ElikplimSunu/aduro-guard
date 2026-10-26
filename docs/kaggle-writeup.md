@@ -1,3 +1,8 @@
+# Aduro Guard: check any medicine, offline, in your own language
+
+The project description as submitted to the [Build with Gemma: Ghana](https://www.kaggle.com/competitions/build-with-gemma-ghana)
+hackathon on Kaggle, Main Track, July 2026. Kept here as the record of what was judged.
+
 ### Inspiration
 
 One in ten medical products in low and middle income countries is substandard or falsified (WHO); in sub-Saharan Africa the modelled cost is up to half a million deaths a year, roughly 267,000 from fake antimalarials. Post-market surveillance in Ghana found substandard or falsified antimalarials at 75% prevalence in 2014 and still 35% after enforcement in 2016, and over 94% of sampled oxytocin and ergometrine, the injections that stop mothers bleeding after birth, failed quality testing.

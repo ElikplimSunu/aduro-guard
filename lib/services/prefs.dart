@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 /// App settings, persisted as one small JSON file.
-/// ponytail: JSON file over shared_preferences — path_provider is already here.
+/// ponytail: JSON file over shared_preferences; path_provider is already here.
 class Prefs {
   Prefs._();
   static final instance = Prefs._();
